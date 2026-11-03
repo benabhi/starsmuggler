@@ -6,6 +6,13 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.1.2] - 2026-11-02
+
+### Added
+
+- Add the ten Pavonis systems and the standard jump pattern (SMUG-10)
+- Stack long planet and jump values on the content screen (SMUG-10)
+
 ## [0.1.1] - 2026-11-02
 
 ### Added

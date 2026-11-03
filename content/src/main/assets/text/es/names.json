@@ -2,7 +2,15 @@
   "formatVersion": 1,
   "systems": {
     "regari": "Regari",
-    "palatek": "Palatek"
+    "palatek": "Palatek",
+    "byzantium": "Bizancio",
+    "imperia": "Imperia",
+    "talitar": "Talitar",
+    "cubro": "Cubro",
+    "uruskop": "Uruskop",
+    "nipna": "Nipna",
+    "mynkuria": "Mynkuria",
+    "new_karma": "Nueva Karma"
   },
   "areaTypes": {
     "city": "Ciudad",

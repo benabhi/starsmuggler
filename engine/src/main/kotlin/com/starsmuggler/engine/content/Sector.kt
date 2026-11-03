@@ -73,11 +73,26 @@ enum class Air {
 data class ConnectionPattern(
     val id: String,
     val rule: RuleRef,
+    /** Where each system sits on the pattern diagram, to draw the sector map. */
+    val nodes: List<PatternNode>,
     val routes: List<Route>,
 ) {
+    init {
+        val pairs = routes.map { setOf(it.a, it.b) }
+        require(pairs.toSet().size == pairs.size) { "Pattern $id repeats a route" }
+        val placed = nodes.map { it.system }
+        require(placed.toSet().size == placed.size) { "Pattern $id places a system twice" }
+    }
+
     /** The systems one jump away from [systemId]. */
     fun neighbors(systemId: String): List<String> = routes.mapNotNull { it.other(systemId) }
+
+    fun position(systemId: String): MapPoint? = nodes.firstOrNull { it.system == systemId }?.position
 }
+
+/** A system on the pattern diagram, at a point given as fractions of the diagram size. */
+@Serializable
+data class PatternNode(val system: String, val position: MapPoint)
 
 /** A two-way jump route between two systems. */
 @Serializable

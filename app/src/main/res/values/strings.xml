@@ -62,6 +62,7 @@
     <string name="content_tiles">Losetas</string>
     <string name="content_tables">Tablas</string>
     <string name="content_equipment">Equipo</string>
+    <string name="content_pattern">Patrón estándar (%1$s)</string>
     <string name="content_system">%1$s (%2$s)</string>
     <string name="content_wealth">Código de riqueza</string>
     <string name="content_tech">Código tecnológico</string>

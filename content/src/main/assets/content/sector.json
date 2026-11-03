@@ -23,13 +23,125 @@
         "planets": [
           { "number": 1, "tiles": ["A", "C"], "gravity": 7, "air": "bad" }
         ]
+      },
+      {
+        "id": "byzantium",
+        "rule": "r207c",
+        "wealth": 50,
+        "tech": 15,
+        "entryEvents": ["e106", "e102", "e093", "e117", "e120", "e104"],
+        "planets": [
+          { "number": 1, "tiles": ["F", "C"], "gravity": 10, "air": "good" },
+          { "number": 2, "tiles": ["E", "B"], "gravity": 8, "air": "good" }
+        ]
+      },
+      {
+        "id": "imperia",
+        "rule": "r207d",
+        "wealth": 100,
+        "tech": 25,
+        "entryEvents": ["e092", "e100", "e093", "e114", "e113", "e105"],
+        "planets": [
+          { "number": 1, "tiles": ["C", "G"], "gravity": 11, "air": "good" }
+        ],
+        "asteroids": true
+      },
+      {
+        "id": "talitar",
+        "rule": "r207e",
+        "wealth": 25,
+        "tech": 30,
+        "entryEvents": ["e120", "e118", "e096", "e106", "e093", "e118"],
+        "planets": [
+          { "number": 1, "tiles": ["F", "I"], "gravity": 13, "air": "good" },
+          { "number": 2, "tiles": ["E", "H"], "gravity": 4, "air": "good" }
+        ]
+      },
+      {
+        "id": "cubro",
+        "rule": "r207f",
+        "wealth": 15,
+        "tech": 70,
+        "entryEvents": ["e121", "e104", "e117", "e103", "e105", "e092"],
+        "planets": [
+          { "number": 1, "tiles": ["K", "A"], "gravity": 7, "air": "good" }
+        ]
+      },
+      {
+        "id": "uruskop",
+        "rule": "r207g",
+        "wealth": 40,
+        "tech": 40,
+        "entryEvents": ["e119", "e093", "e119", "e109", "e119", "e119"],
+        "planets": [
+          { "number": 1, "tiles": ["G", "B"], "gravity": 6, "air": "bad" }
+        ],
+        "asteroids": true
+      },
+      {
+        "id": "nipna",
+        "rule": "r207h",
+        "wealth": 60,
+        "tech": 100,
+        "entryEvents": ["e098", "e110", "e094", "e098", "e120", "e112"],
+        "planets": [
+          { "number": 1, "tiles": ["J", "D"], "gravity": 12, "air": "good" },
+          { "number": 2, "tiles": ["A", "I"], "gravity": 9, "air": "none" }
+        ]
+      },
+      {
+        "id": "mynkuria",
+        "rule": "r207i",
+        "wealth": 30,
+        "tech": 60,
+        "entryEvents": ["e095", "e119", "e113", "e093", "e107", "e110"],
+        "planets": [
+          { "number": 1, "tiles": ["H", "A"], "gravity": 5, "air": "none" },
+          { "number": 2, "tiles": ["C", "K"], "gravity": 9, "air": "good" }
+        ],
+        "asteroids": true
+      },
+      {
+        "id": "new_karma",
+        "rule": "r207j",
+        "wealth": 70,
+        "tech": 10,
+        "entryEvents": ["e115", "e101", "e096", "e099", "e104", "e111"],
+        "planets": [
+          { "number": 1, "tiles": ["K", "D"], "gravity": 9, "air": "good" },
+          { "number": 2, "tiles": ["B", "J"], "gravity": 14, "air": "good" }
+        ]
       }
     ],
     "patterns": [
       {
         "id": "standard",
         "rule": "r234",
+        "nodes": [
+          { "system": "new_karma", "position": { "x": 0.147, "y": 0.303 } },
+          { "system": "uruskop", "position": { "x": 0.288, "y": 0.313 } },
+          { "system": "byzantium", "position": { "x": 0.652, "y": 0.308 } },
+          { "system": "regari", "position": { "x": 0.917, "y": 0.341 } },
+          { "system": "mynkuria", "position": { "x": 0.101, "y": 0.572 } },
+          { "system": "nipna", "position": { "x": 0.215, "y": 0.572 } },
+          { "system": "talitar", "position": { "x": 0.375, "y": 0.575 } },
+          { "system": "imperia", "position": { "x": 0.556, "y": 0.575 } },
+          { "system": "palatek", "position": { "x": 0.736, "y": 0.580 } },
+          { "system": "cubro", "position": { "x": 0.377, "y": 0.905 } }
+        ],
         "routes": [
+          { "a": "new_karma", "b": "uruskop" },
+          { "a": "new_karma", "b": "mynkuria" },
+          { "a": "new_karma", "b": "nipna" },
+          { "a": "uruskop", "b": "nipna" },
+          { "a": "uruskop", "b": "talitar" },
+          { "a": "mynkuria", "b": "nipna" },
+          { "a": "nipna", "b": "talitar" },
+          { "a": "talitar", "b": "imperia" },
+          { "a": "talitar", "b": "cubro" },
+          { "a": "imperia", "b": "byzantium" },
+          { "a": "imperia", "b": "palatek" },
+          { "a": "byzantium", "b": "palatek" },
           { "a": "palatek", "b": "regari" }
         ]
       }

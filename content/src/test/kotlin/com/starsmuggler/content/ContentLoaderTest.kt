@@ -31,6 +31,52 @@ class ContentLoaderTest {
     }
 
     @Test
+    fun `the sector has the ten systems of r207`() {
+        val game = ContentLoader(files).load().game
+        assertEquals(
+            listOf("regari", "palatek", "byzantium", "imperia", "talitar", "cubro", "uruskop", "nipna", "mynkuria", "new_karma"),
+            game.systems.keys.toList(),
+        )
+        assertEquals((0 until 10).map { 'a' + it }.map { "r207$it" }, game.systems.values.map { it.rule.id })
+        assertEquals(setOf("imperia", "uruskop", "mynkuria"), game.systems.values.filter { it.asteroids }.map { it.id }.toSet())
+        val nipna = game.system("nipna")
+        assertEquals(100, nipna.tech)
+        assertEquals(Air.NONE, nipna.planets[1].air)
+        assertEquals(listOf("A", "I"), nipna.planets[1].tiles)
+    }
+
+    @Test
+    fun `the standard pattern joins every system as in r234`() {
+        val pattern = ContentLoader(files).load().game.pattern()
+        assertEquals(13, pattern.routes.size)
+        assertEquals(setOf("mynkuria", "new_karma", "uruskop", "talitar"), pattern.neighbors("nipna").toSet())
+        assertEquals(listOf("talitar"), pattern.neighbors("cubro"))
+        // Every system can be reached from Regari.
+        val seen = mutableSetOf("regari")
+        val queue = ArrayDeque(seen)
+        while (queue.isNotEmpty()) pattern.neighbors(queue.removeFirst()).filter { seen.add(it) }.forEach(queue::addLast)
+        assertEquals(10, seen.size)
+    }
+
+    @Test
+    fun `every system has a Spanish name and a row in the system table`() {
+        val content = ContentLoader(files).load()
+        val systemTable = content.game.table("r233.system")
+        for (id in content.game.systems.keys) {
+            assertTrue(content.names.systems[id]?.isNotBlank() == true, "No name for system $id")
+            assertTrue(systemTable.row(id) != null, "No SIST row for system $id")
+        }
+        assertEquals("Nueva Karma", content.names.system("new_karma"))
+    }
+
+    @Test
+    fun `a route to an unknown system is rejected`() {
+        val broken = File(assets, ContentLoader.SECTOR).readText().replace("\"b\": \"regari\"", "\"b\": \"regary\"")
+        val error = assertFailsWith<ContentException> { ContentLoader(replacing(ContentLoader.SECTOR, broken)).load() }
+        assertTrue("regary" in error.message!!, error.message)
+    }
+
+    @Test
     fun `tiles and tables are reachable by id`() {
         val game = ContentLoader(files).load().game
         val colony = game.tile("J").area("colony")!!

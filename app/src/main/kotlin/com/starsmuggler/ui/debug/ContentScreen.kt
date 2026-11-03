@@ -1,6 +1,8 @@
 package com.starsmuggler.ui.debug
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -39,6 +47,7 @@ import com.starsmuggler.ui.components.RecordLine
 import com.starsmuggler.ui.currentLocale
 import com.starsmuggler.ui.theme.Ink
 import com.starsmuggler.ui.theme.InkFaded
+import com.starsmuggler.ui.theme.Paper
 import com.starsmuggler.ui.theme.PaperBackground
 import com.starsmuggler.ui.theme.RocketRed
 import com.starsmuggler.ui.theme.TeletypeStyles
@@ -87,6 +96,7 @@ private fun LoadError(error: Throwable?) {
 private fun LoadedContentView(content: LoadedContent) {
     val game = content.game
     Counts(game)
+    SectorDiagram(content)
     game.systems.values.forEach { SystemCard(it, content) }
     game.tiles.values.forEach { TileCard(it, content) }
 }
@@ -103,6 +113,74 @@ private fun Counts(game: GameContent) {
     }
 }
 
+/**
+ * The standard jump pattern drawn from the data (r234). The diagram is turned upright to fit
+ * the portrait screen: its left-to-right axis runs top to bottom.
+ */
+@Composable
+private fun SectorDiagram(content: LoadedContent) {
+    val pattern = content.game.pattern()
+    val measurer = rememberTextMeasurer()
+    val labelStyle = TeletypeStyles.small.copy(color = Ink)
+    val labels = pattern.nodes.associate { it.system to content.names.system(it.system) }
+    RecordCard(stringResource(R.string.content_pattern, pattern.rule.id)) {
+        Canvas(
+            Modifier
+                .fillMaxWidth()
+                .aspectRatio(DIAGRAM_ASPECT)
+                .padding(vertical = 8.dp),
+        ) {
+            val xs = pattern.nodes.map { it.position.y }
+            val ys = pattern.nodes.map { it.position.x }
+            fun at(system: String): Offset {
+                val p = pattern.position(system)!!
+                val x = (p.y - xs.min()) / (xs.max() - xs.min())
+                val y = (p.x - ys.min()) / (ys.max() - ys.min())
+                return Offset(size.width * (0.3f + 0.4f * x), size.height * (0.04f + 0.92f * y))
+            }
+            val segments = pattern.routes.map { at(it.a) to at(it.b) }
+            for ((a, b) in segments) drawLine(Ink, a, b, strokeWidth = 2.dp.toPx())
+            val radius = 5.dp.toPx()
+            val gap = 4.dp.toPx()
+            val taken = pattern.nodes.map { node -> Rect(at(node.system), radius + gap) }.toMutableList()
+            for (node in pattern.nodes) {
+                val center = at(node.system)
+                drawCircle(Paper, radius, center)
+                drawCircle(RocketRed, radius, center, style = Stroke(2.dp.toPx()))
+                val label = measurer.measure(labels.getValue(node.system), labelStyle)
+                val w = label.size.width.toFloat()
+                val h = label.size.height.toFloat()
+                val reach = radius + gap
+                val candidates = listOf(
+                    Offset(center.x + reach, center.y - h / 2),
+                    Offset(center.x - reach - w, center.y - h / 2),
+                    Offset(center.x + reach, center.y - reach - h),
+                    Offset(center.x + reach, center.y + reach),
+                    Offset(center.x - reach - w, center.y - reach - h),
+                    Offset(center.x - reach - w, center.y + reach),
+                ).map { Rect(it, Size(w, h)) }
+                val canvas = Rect(Offset.Zero, size)
+                val box = candidates.firstOrNull { r ->
+                    canvas.contains(r.topLeft) && canvas.contains(r.bottomRight - Offset(1f, 1f)) &&
+                        taken.none { it.overlaps(r) } &&
+                        segments.none { (a, b) -> crosses(r, a, b) }
+                } ?: candidates.first()
+                taken += box
+                drawText(label, topLeft = box.topLeft)
+            }
+        }
+    }
+}
+
+/** Whether the segment [a]-[b] passes through [rect], sampled finely enough for a label. */
+private fun crosses(rect: Rect, a: Offset, b: Offset): Boolean =
+    (0..SEGMENT_SAMPLES).any { rect.contains(a + (b - a) * (it / SEGMENT_SAMPLES.toFloat())) }
+
+private const val SEGMENT_SAMPLES = 64
+
+/** Width over height of the upright diagram. */
+private const val DIAGRAM_ASPECT = 0.8f
+
 @Composable
 private fun SystemCard(system: StarSystem, content: LoadedContent) {
     val locale = currentLocale()
@@ -110,7 +188,7 @@ private fun SystemCard(system: StarSystem, content: LoadedContent) {
         RecordLine(stringResource(R.string.content_wealth), Formats.integer(system.wealth, locale))
         RecordLine(stringResource(R.string.content_tech), Formats.integer(system.tech, locale))
         for (planet in system.planets) {
-            RecordLine(
+            StackedLine(
                 stringResource(R.string.content_planet, planet.number),
                 stringResource(
                     R.string.content_planet_value,
@@ -131,7 +209,16 @@ private fun SystemCard(system: StarSystem, content: LoadedContent) {
             modifier = Modifier.padding(vertical = 4.dp),
         )
         val neighbors = content.game.pattern().neighbors(system.id).joinToString { content.names.system(it) }
-        RecordLine(stringResource(R.string.content_jumps), neighbors)
+        StackedLine(stringResource(R.string.content_jumps), neighbors)
+    }
+}
+
+/** A label with its value below it, for values too long to share a ruled line with the label. */
+@Composable
+private fun StackedLine(label: String, value: String) {
+    Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = Ink)
+        Text(value, style = TeletypeStyles.medium, color = Ink)
     }
 }
 
