@@ -1,0 +1,223 @@
+{
+  "formatVersion": 1,
+  "paragraphs": [
+    {
+      "rule": "r300",
+      "kind": "surprise"
+    },
+    {
+      "rule": "r301",
+      "kind": "surprise"
+    },
+    {
+      "rule": "r302",
+      "kind": "surprise"
+    },
+    {
+      "rule": "r303",
+      "kind": "surprise"
+    },
+    {
+      "rule": "r304",
+      "kind": "surprised"
+    },
+    {
+      "rule": "r305",
+      "kind": "surprised"
+    },
+    {
+      "rule": "r306",
+      "kind": "surprised"
+    },
+    {
+      "rule": "r307",
+      "kind": "escape"
+    },
+    {
+      "rule": "r308",
+      "kind": "escape"
+    },
+    {
+      "rule": "r309",
+      "kind": "escape"
+    },
+    {
+      "rule": "r310",
+      "kind": "escape_vehicle"
+    },
+    {
+      "rule": "r311",
+      "kind": "escape_vehicle"
+    },
+    {
+      "rule": "r312",
+      "kind": "escape_vehicle"
+    },
+    {
+      "rule": "r313",
+      "kind": "combat"
+    },
+    {
+      "rule": "r314",
+      "kind": "combat"
+    },
+    {
+      "rule": "r315",
+      "kind": "combat"
+    },
+    {
+      "rule": "r316",
+      "kind": "combat"
+    },
+    {
+      "rule": "r317",
+      "kind": "combat"
+    },
+    {
+      "rule": "r318",
+      "kind": "bribe_pass",
+      "basePrice": 20
+    },
+    {
+      "rule": "r319",
+      "kind": "bribe_pass",
+      "basePrice": 25
+    },
+    {
+      "rule": "r320",
+      "kind": "bribe_pass",
+      "basePrice": 30
+    },
+    {
+      "rule": "r321",
+      "kind": "bribe_pass",
+      "basePrice": 40
+    },
+    {
+      "rule": "r322",
+      "kind": "pass"
+    },
+    {
+      "rule": "r323",
+      "kind": "pass"
+    },
+    {
+      "rule": "r324",
+      "kind": "pass"
+    },
+    {
+      "rule": "r325",
+      "kind": "pass"
+    },
+    {
+      "rule": "r326",
+      "kind": "pass_unarmed"
+    },
+    {
+      "rule": "r327",
+      "kind": "battle",
+      "table": "r327"
+    },
+    {
+      "rule": "r328",
+      "kind": "entry_rumor",
+      "table": "r328"
+    },
+    {
+      "rule": "r329",
+      "kind": "entry_map",
+      "table": "r329"
+    },
+    {
+      "rule": "r330",
+      "kind": "bribe_entry",
+      "basePrice": 25
+    },
+    {
+      "rule": "r331",
+      "kind": "buy",
+      "basePrice": 50,
+      "table": "r331"
+    },
+    {
+      "rule": "r332",
+      "kind": "buy",
+      "basePrice": 100,
+      "table": "r332"
+    },
+    {
+      "rule": "r333",
+      "kind": "buy",
+      "basePriceDice": "2d6",
+      "table": "r333"
+    },
+    {
+      "rule": "r334",
+      "kind": "sell",
+      "basePrice": 50,
+      "sells": [
+        "fine_liquor",
+        "rare_birds",
+        "heavy_hand_weapon"
+      ]
+    },
+    {
+      "rule": "r335",
+      "kind": "sell",
+      "basePrice": 100,
+      "sells": [
+        "utility_suit",
+        "robot_servos",
+        "robot_mg",
+        "robot_u",
+        "robot_sp",
+        "young_slaves"
+      ]
+    },
+    {
+      "rule": "r336",
+      "kind": "sell",
+      "basePrice": 100,
+      "sells": [
+        "expensive_clothing",
+        "stolen_art",
+        "rare_spices"
+      ]
+    },
+    {
+      "rule": "r337",
+      "kind": "sell",
+      "basePrice": 100,
+      "sells": [
+        "hallucinogenic_drugs",
+        "fine_liquor",
+        "small_arms",
+        "hypnogem"
+      ]
+    },
+    {
+      "rule": "r338",
+      "kind": "sell",
+      "basePrice": 50,
+      "sells": [
+        "small_arms_ammo",
+        "small_arms_case",
+        "heavy_hand_weapon",
+        "skimmer_guns",
+        "frag_grenades_pack"
+      ]
+    },
+    {
+      "rule": "r339",
+      "kind": "sell",
+      "basePrice": 100,
+      "sells": [
+        "rare_wood",
+        "cut_gems",
+        "antique_small_arms",
+        "alien_artifact",
+        "young_slaves"
+      ]
+    }
+  ]
+}

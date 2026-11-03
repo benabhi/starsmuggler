@@ -4,6 +4,8 @@ import com.starsmuggler.engine.content.Air
 import com.starsmuggler.engine.content.AreaType
 import com.starsmuggler.engine.content.EventRef
 import com.starsmuggler.engine.content.Outcome
+import com.starsmuggler.engine.content.ParagraphKind
+import com.starsmuggler.engine.content.RuleRef
 import java.io.File
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -74,6 +76,62 @@ class ContentLoaderTest {
         val broken = File(assets, ContentLoader.SECTOR).readText().replace("\"b\": \"regari\"", "\"b\": \"regary\"")
         val error = assertFailsWith<ContentException> { ContentLoader(replacing(ContentLoader.SECTOR, broken)).load() }
         assertTrue("regary" in error.message!!, error.message)
+    }
+
+    @Test
+    fun `every system finds its price and tech rows`() {
+        val game = ContentLoader(files).load().game
+        for (system in game.systems.values) {
+            assertTrue(game.table("r241").row(system.wealth.toString()) != null, "No r241 row for wealth ${system.wealth}")
+            assertTrue(game.table("r235").row(system.tech.toString()) != null, "No r235 row for tech ${system.tech}")
+            assertTrue(game.table("r238").lookup(system.tech, "starship") != null, "No r238 entry for tech ${system.tech}")
+        }
+    }
+
+    @Test
+    fun `tables read as the rule book prints them`() {
+        val game = ContentLoader(files).load().game
+        assertEquals(16, game.table("r233").rows.size)
+        assertEquals(Outcome.Event(EventRef("e417")), game.table("r233").lookup(0, "prison"))
+        assertEquals(Outcome.Value(1, marked = true), game.table("r235").lookup(1, "10"))
+        assertEquals(Outcome.Value(5), game.table("r238").lookup(50, "starship"))
+        assertEquals(Outcome.Multiplier(40), game.table("r241").lookup(6, "100"))
+        assertEquals(Outcome.Rule(RuleRef("r306")), game.table("r327").lookup(0))
+        assertEquals(Outcome.Rule(RuleRef("r300")), game.table("r327").lookup(14))
+        assertEquals(Outcome.Value(3), game.table("r242.time").lookup(400))
+        assertEquals(5, game.factors("r242.base").factor("spaceport"))
+        assertEquals(-2, game.factors("r238.area").factor("craters"))
+    }
+
+    @Test
+    fun `rule paragraphs r300 to r339 are all there`() {
+        val game = ContentLoader(files).load().game
+        assertEquals((300..339).map { "r$it" }, game.paragraphs.keys.toList())
+        assertEquals(40, game.paragraph(RuleRef("r321")).basePrice)
+        assertEquals(ParagraphKind.BUY, game.paragraph(RuleRef("r333")).kind)
+        assertEquals(19, game.equipment.size)
+    }
+
+    @Test
+    fun `every named id has a Spanish name`() {
+        val content = ContentLoader(files).load()
+        val game = content.game
+        for (id in game.equipment.keys) assertTrue(content.names.equipment[id]?.isNotBlank() == true, "No name for equipment $id")
+        for (id in game.goods.keys) assertTrue(content.names.goods[id]?.isNotBlank() == true, "No name for goods $id")
+        for (mode in game.table("r238").rows.mapNotNull { it.key }) {
+            assertTrue(content.names.travelModes[mode]?.isNotBlank() == true, "No name for travel mode $mode")
+        }
+        val keys = game.tables.values.flatMap { t -> t.rows.flatMap { r -> r.entries.mapNotNull { (it.result as? Outcome.Key)?.key } } }
+        for (key in keys) {
+            assertTrue(key in content.names.results || key in content.names.goods, "No name for result #$key")
+        }
+    }
+
+    @Test
+    fun `a paragraph selling unknown goods is rejected`() {
+        val broken = File(assets, ContentLoader.PARAGRAPHS).readText().replace("\"rare_birds\"", "\"rare_bird\"")
+        val error = assertFailsWith<ContentException> { ContentLoader(replacing(ContentLoader.PARAGRAPHS, broken)).load() }
+        assertTrue("rare_bird" in error.message!!, error.message)
     }
 
     @Test

@@ -1,10 +1,97 @@
 {
   "formatVersion": 1,
   "equipment": [
-    { "id": "fuel_unit", "rule": "r211c", "capacity": 1 },
-    { "id": "life_support_unit", "rule": "r213", "capacity": 1 },
-    { "id": "repair_unit", "rule": "r211b", "capacity": 1 },
-    { "id": "stasis_unit", "rule": "r212e", "capacity": 1, "sized": true },
-    { "id": "starship", "rule": "r212" }
+    {
+      "id": "fuel_unit",
+      "rule": "r211c",
+      "capacity": 1
+    },
+    {
+      "id": "life_support_unit",
+      "rule": "r213",
+      "capacity": 1
+    },
+    {
+      "id": "repair_unit",
+      "rule": "r211b",
+      "capacity": 1
+    },
+    {
+      "id": "utility_suit",
+      "rule": "r213",
+      "capacity": 1
+    },
+    {
+      "id": "stasis_unit",
+      "rule": "r212e",
+      "capacity": 1,
+      "sized": true
+    },
+    {
+      "id": "small_arms",
+      "rule": "r216d",
+      "capacity": 0
+    },
+    {
+      "id": "heavy_hand_weapon",
+      "rule": "r216d",
+      "capacity": 1
+    },
+    {
+      "id": "skimmer_guns",
+      "rule": "r216c",
+      "capacity": 2
+    },
+    {
+      "id": "boat_guns",
+      "rule": "r216b",
+      "capacity": 5
+    },
+    {
+      "id": "starship_guns",
+      "rule": "r216a",
+      "capacity": 6
+    },
+    {
+      "id": "skimmer",
+      "rule": "r215c",
+      "capacity": 10
+    },
+    {
+      "id": "ships_boat",
+      "rule": "r214",
+      "capacity": 40
+    },
+    {
+      "id": "commercial_vehicle",
+      "rule": "r215b"
+    },
+    {
+      "id": "orbital_shuttle",
+      "rule": "r215a"
+    },
+    {
+      "id": "starship",
+      "rule": "r212"
+    },
+    {
+      "id": "robot_mg",
+      "rule": "r222a",
+      "capacity": 1
+    },
+    {
+      "id": "robot_u",
+      "rule": "r222b",
+      "capacity": 1
+    },
+    {
+      "id": "robot_sp",
+      "rule": "r222c",
+      "capacity": 1
+    },
+    {
+      "id": "hypercharge",
+      "rule": "r212b"
+    }
   ]
 }

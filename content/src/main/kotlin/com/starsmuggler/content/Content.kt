@@ -2,7 +2,10 @@ package com.starsmuggler.content
 
 import com.starsmuggler.engine.content.DiceTable
 import com.starsmuggler.engine.content.Equipment
+import com.starsmuggler.engine.content.FactorTable
+import com.starsmuggler.engine.content.Goods
 import com.starsmuggler.engine.content.GameContent
+import com.starsmuggler.engine.content.RuleParagraph
 import com.starsmuggler.engine.content.Sector
 import com.starsmuggler.engine.content.Tile
 import kotlinx.serialization.DeserializationStrategy
@@ -26,9 +29,11 @@ class ContentLoader(private val source: ContentSource) {
     fun load(language: String = TextLanguage.DEFAULT): LoadedContent {
         val sector = read(SECTOR, SectorFile.serializer()).also { checkVersion(SECTOR, it.formatVersion) }.sector
         val tiles = read(TILES, TilesFile.serializer()).also { checkVersion(TILES, it.formatVersion) }.tiles
-        val tables = read(TABLES, TablesFile.serializer()).also { checkVersion(TABLES, it.formatVersion) }.tables
+        val tables = read(TABLES, TablesFile.serializer()).also { checkVersion(TABLES, it.formatVersion) }
+        val paragraphs = read(PARAGRAPHS, ParagraphsFile.serializer()).also { checkVersion(PARAGRAPHS, it.formatVersion) }.paragraphs
         val equipment = read(EQUIPMENT, EquipmentFile.serializer()).also { checkVersion(EQUIPMENT, it.formatVersion) }.equipment
-        val game = guard("content") { GameContent(sector, tiles, tables, equipment) }
+        val goods = read(GOODS, GoodsFile.serializer()).also { checkVersion(GOODS, it.formatVersion) }.goods
+        val game = guard("content") { GameContent(sector, tiles, tables.tables, tables.factors, paragraphs, equipment, goods) }
         val namesPath = "${TextLanguage.assetDir(language)}/$NAMES"
         val names = read(namesPath, ContentNames.serializer()).also { checkVersion(namesPath, it.formatVersion) }
         return LoadedContent(game, names)
@@ -59,7 +64,9 @@ class ContentLoader(private val source: ContentSource) {
         const val SECTOR = "content/sector.json"
         const val TILES = "content/tiles.json"
         const val TABLES = "content/tables.json"
+        const val PARAGRAPHS = "content/paragraphs.json"
         const val EQUIPMENT = "content/equipment.json"
+        const val GOODS = "content/goods.json"
         const val NAMES = "names.json"
 
         /** Strict on purpose: an unknown or misspelled key is an error, not silently dropped. */
@@ -74,12 +81,23 @@ data class ContentNames(
     val systems: Map<String, String> = emptyMap(),
     val areaTypes: Map<String, String> = emptyMap(),
     val equipment: Map<String, String> = emptyMap(),
+    val goods: Map<String, String> = emptyMap(),
+    /** Ways of travel, as in the detection table (r238). */
+    val travelModes: Map<String, String> = emptyMap(),
+    /** Short names of the `#key` table results. */
+    val results: Map<String, String> = emptyMap(),
 ) {
     fun system(id: String): String = systems[id] ?: id
 
     fun areaType(key: String): String = areaTypes[key] ?: key
 
     fun equipment(id: String): String = equipment[id] ?: id
+
+    fun goods(id: String): String = goods[id] ?: id
+
+    fun travelMode(id: String): String = travelModes[id] ?: id
+
+    fun result(key: String): String = results[key] ?: key
 }
 
 @Serializable
@@ -89,7 +107,13 @@ private class SectorFile(val formatVersion: Int, val sector: Sector)
 private class TilesFile(val formatVersion: Int, val tiles: List<Tile>)
 
 @Serializable
-private class TablesFile(val formatVersion: Int, val tables: List<DiceTable>)
+private class TablesFile(val formatVersion: Int, val tables: List<DiceTable>, val factors: List<FactorTable> = emptyList())
+
+@Serializable
+private class ParagraphsFile(val formatVersion: Int, val paragraphs: List<RuleParagraph>)
+
+@Serializable
+private class GoodsFile(val formatVersion: Int, val goods: List<Goods>)
 
 @Serializable
 private class EquipmentFile(val formatVersion: Int, val equipment: List<Equipment>)
