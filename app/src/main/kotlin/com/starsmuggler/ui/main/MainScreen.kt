@@ -43,6 +43,7 @@ import com.starsmuggler.ui.components.RecordCard
 import com.starsmuggler.ui.components.RecordLine
 import com.starsmuggler.ui.components.StampButton
 import com.starsmuggler.ui.components.StampStyle
+import com.starsmuggler.ui.debug.ContentScreen
 import com.starsmuggler.ui.gallery.ComponentGallery
 import com.starsmuggler.ui.theme.ChromeOchre
 import com.starsmuggler.ui.theme.Ink
@@ -69,10 +70,16 @@ fun MainScreen() {
     var tab by rememberSaveable { mutableStateOf(MainTab.Bridge) }
     var game by rememberSaveable(stateSaver = MockGameSaver) { mutableStateOf(MockGame()) }
     var showGallery by rememberSaveable { mutableStateOf(false) }
+    var showContent by rememberSaveable { mutableStateOf(false) }
 
     if (showGallery) {
         BackHandler { showGallery = false }
         ComponentGallery()
+        return
+    }
+    if (showContent) {
+        BackHandler { showContent = false }
+        ContentScreen()
         return
     }
     // Back from any other tab returns to the bridge before leaving the app.
@@ -91,6 +98,7 @@ fun MainScreen() {
                     MainTab.Rules -> MockPane(R.string.mock_rules_title, R.string.mock_rules_body) {
                         if (BuildConfig.DEBUG) {
                             StampButton(stringResource(R.string.open_gallery), onClick = { showGallery = true })
+                            StampButton(stringResource(R.string.open_content), onClick = { showContent = true })
                         }
                     }
                 }

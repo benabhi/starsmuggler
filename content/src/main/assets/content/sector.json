@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "sector": {
+    "id": "pavonis",
+    "rule": "r207",
+    "systems": [
+      {
+        "id": "regari",
+        "rule": "r207a",
+        "wealth": 0,
+        "tech": 30,
+        "entryEvents": ["e090", "e091", "e096", "e100", "e116", "e093"],
+        "planets": [
+          { "number": 1, "tiles": ["J", "K"], "gravity": 3, "air": "good" }
+        ]
+      },
+      {
+        "id": "palatek",
+        "rule": "r207b",
+        "wealth": 30,
+        "tech": 50,
+        "entryEvents": ["e092", "e120", "e105", "e108", "e097", "e103"],
+        "planets": [
+          { "number": 1, "tiles": ["A", "C"], "gravity": 7, "air": "bad" }
+        ]
+      }
+    ],
+    "patterns": [
+      {
+        "id": "standard",
+        "rule": "r234",
+        "routes": [
+          { "a": "palatek", "b": "regari" }
+        ]
+      }
+    ]
+  }
+}

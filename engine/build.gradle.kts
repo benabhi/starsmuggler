@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 // Pure Kotlin/JVM rules engine: no Android dependencies, so it can be tested on the JVM.
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 // Same bytecode level as the Android modules that consume it.
@@ -18,6 +19,9 @@ kotlin {
 }
 
 dependencies {
+    // The content model is serializable; the JSON format itself is read in :content.
+    api(libs.kotlinx.serialization.json)
+
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testImplementation(kotlin("test"))
