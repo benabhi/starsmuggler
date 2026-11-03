@@ -19,4 +19,7 @@ android {
 
 dependencies {
     implementation(project(":engine"))
+
+    testImplementation(libs.junit4)
+    testImplementation(kotlin("test"))
 }

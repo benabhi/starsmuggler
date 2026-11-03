@@ -1,6 +1,6 @@
 # starsmuggler
 
-Port nativo para Android (Kotlin) de **Star Smuggler**, el juego de mesa de rol en solitario de ciencia ficción de Dwarfstar Games (Heritage USA, 1982). Juego completo con todas sus reglas (r201+ y eventos e###), solo en vertical, con estética de folleto vintage retrofuturista. Inglés por defecto, localizado al español.
+Port nativo para Android (Kotlin) de **Star Smuggler**, el juego de mesa de rol en solitario de ciencia ficción de Dwarfstar Games (Heritage USA, 1982). Juego completo con todas sus reglas (r201+ y eventos e###), solo en vertical, con estética de folleto vintage retrofuturista. **El juego va en español**; la localización al inglés llega después del MVP (SMUG-80).
 
 - **Repo:** https://github.com/benabhi/starsmuggler (remoto `origin`, rama principal `main`).
 - **Requisitos:** carpeta **PRD** del proyecto `SMUG` en Lific, empezando por **PRD base** (`SMUG-DOC-1`, http://127.0.0.1:3456/#/SMUG/pages/1).
@@ -12,9 +12,17 @@ Port nativo para Android (Kotlin) de **Star Smuggler**, el juego de mesa de rol 
 
 ## Idiomas
 
-- **Todo en inglés**: código, comentarios, nombres de archivos y carpetas, identificadores, commits y documentación técnica del repo.
-- **Solo el texto de la interfaz va en español**, y únicamente en los recursos de localización (`res/values-es/...` y los textos de eventos/reglas en español). El idioma base de la app es inglés.
-- Ningún texto visible se escribe en el código: sale siempre de recursos de localización.
+Decisión de benabhi del 03/11/2026 (PRD §10): el MVP va **solo en español**, preparado para sumar el inglés después sin rehacer nada.
+
+- **Todo en inglés**: código, comentarios, nombres de archivos y carpetas, identificadores, claves de recursos, commits y documentación técnica del repo.
+- **Solo el texto visible va en español**, y únicamente en recursos: `res/values/strings.xml` (idioma por defecto; terminología de `GLOSARIO.md`) y los textos largos en `assets/text/es/` (reglas r### y eventos e###), que se leen con `TextLanguage` de `:content`.
+- **Recaudos para localizar después** (los vigilan tests y lint; `.\gradlew.bat test lint` tiene que pasar):
+  - Ningún texto visible en el código. `NoHardcodedTextTest` falla si un literal con letras llega a `Text(...)`, `text =`, `title =`, `description =` y parecidos; los ids de reglas (`r233`, `e001`) están permitidos. Lint marca `HardcodedText` como error.
+  - Claves en inglés y descriptivas (`end_day`, `loan_due_in_days`); cantidades con `plurals`; valores con argumentos (`%1$d`, `%2$s`), nunca textos armados concatenando.
+  - Dinero, números y horas con `ui/Formats.kt` (usa el `Locale`), no con `toString()`.
+  - El motor (`:engine`) nunca devuelve texto: devuelve ids y valores que la interfaz traduce.
+  - `StringResourcesTest`: ninguna clave vacía, plurales con `one` y `other`, y si aparece otro `values-xx/` no le puede faltar ni sobrar ninguna clave, con los mismos marcadores.
+- Para agregar un idioma (SMUG-80): `values-xx/strings.xml`, `assets/text/xx/`, sumarlo a `TextLanguage.supported`, selector en Opciones y `generateLocaleConfig`.
 - La comunicación con benabhi y las páginas/comentarios de Lific van en español.
 
 ## Gestión: Lific vía MCP (OBLIGATORIO, NO NEGOCIABLE)
