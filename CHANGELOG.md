@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.1.5] - 2026-11-03
+
+### Fixed
+
+- Fit text tables to the screen width (SMUG-81)
+
 ## [0.1.4] - 2026-11-03
 
 ### Added
