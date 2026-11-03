@@ -172,7 +172,7 @@ private fun TextsCard(content: LoadedContent) {
                     modifier = Modifier.clickable { query = parent },
                 )
             }
-            GameText(entry.blocks, onReference = { query = it }, modifier = Modifier.padding(vertical = 8.dp))
+            GameText(entry.blocks, onReference = { query = it }, modifier = Modifier.padding(vertical = 8.dp), exists = { content.texts.find(it) != null })
             for (child in entry.children) {
                 Text(
                     stringResource(R.string.content_text_title, child, content.texts.rule(child)?.title.orEmpty()),

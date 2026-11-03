@@ -42,31 +42,38 @@ import com.starsmuggler.ui.theme.TeletypeStyles
  * **bold** spans and r###/e### references the player can tap (SMUG-13).
  */
 @Composable
-fun GameText(blocks: List<TextBlock>, onReference: (String) -> Unit, modifier: Modifier = Modifier) {
+fun GameText(
+    blocks: List<TextBlock>,
+    onReference: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    /** Whether a reference has a text to go to; the others, such as errata of the book, stay plain. */
+    exists: (String) -> Boolean = { true },
+) {
+    val links = Links(onReference, exists)
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         for (block in blocks) {
             when (block) {
                 is TextBlock.Heading -> Text(
-                    richText(block.text, onReference),
+                    richText(block.text, links),
                     style = MaterialTheme.typography.titleSmall,
                     color = RocketRed,
                     modifier = Modifier.padding(top = 4.dp),
                 )
-                is TextBlock.Paragraph -> Text(richText(block.text, onReference), style = MaterialTheme.typography.bodyMedium, color = Ink)
+                is TextBlock.Paragraph -> Text(richText(block.text, links), style = MaterialTheme.typography.bodyMedium, color = Ink)
                 is TextBlock.Bullet -> Row(Modifier.padding(start = (12 * block.level).dp)) {
                     if (!block.text.first().isDigit()) {
                         Text(BULLET, style = MaterialTheme.typography.bodyMedium, color = RocketRed, modifier = Modifier.padding(end = 6.dp))
                     }
-                    Text(richText(block.text, onReference), style = MaterialTheme.typography.bodyMedium, color = Ink)
+                    Text(richText(block.text, links), style = MaterialTheme.typography.bodyMedium, color = Ink)
                 }
-                is TextBlock.Table -> TextTable(block, onReference)
+                is TextBlock.Table -> TextTable(block, links)
             }
         }
     }
 }
 
 @Composable
-private fun TextTable(table: TextBlock.Table, onReference: (String) -> Unit) = BoxWithConstraints {
+private fun TextTable(table: TextBlock.Table, links: Links) = BoxWithConstraints {
     // Each column is as wide as its longest cell, up to MAX_COLUMN; longer cells wrap. When the
     // table is wider than the screen, the widest columns narrow to fit (SMUG-81). Tables that
     // still do not fit, such as r235 with eleven columns of numbers, scroll sideways.
@@ -98,7 +105,7 @@ private fun TextTable(table: TextBlock.Table, onReference: (String) -> Unit) = B
                 Row(Modifier.height(IntrinsicSize.Min)) {
                     for (column in 0 until columns) {
                         Text(
-                            richText(row.getOrElse(column) { "" }, onReference),
+                            richText(row.getOrElse(column) { "" }, links),
                             style = TeletypeStyles.small,
                             color = if (index == 0) RocketRed else Ink,
                             modifier = Modifier
@@ -140,28 +147,35 @@ private const val BULLET = "•"
 private val BOLD = Regex("\\*\\*(.+?)\\*\\*")
 
 /** [text] with its **bold** spans and its references made tappable. */
-private fun richText(text: String, onReference: (String) -> Unit): AnnotatedString = buildAnnotatedString {
+private fun richText(text: String, links: Links): AnnotatedString = buildAnnotatedString {
     var at = 0
     for (bold in BOLD.findAll(text)) {
-        appendReferences(text.substring(at, bold.range.first), onReference)
-        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { appendReferences(bold.groupValues[1], onReference) }
+        appendReferences(text.substring(at, bold.range.first), links)
+        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { appendReferences(bold.groupValues[1], links) }
         at = bold.range.last + 1
     }
-    appendReferences(text.substring(at), onReference)
+    appendReferences(text.substring(at), links)
 }
 
-private fun AnnotatedString.Builder.appendReferences(text: String, onReference: (String) -> Unit) {
+/** What a tap on a reference does, and which references have a text to go to. */
+private class Links(val onReference: (String) -> Unit, val exists: (String) -> Boolean)
+
+private fun AnnotatedString.Builder.appendReferences(text: String, links: Links) {
     var at = 0
     for (ref in GameTexts.REFERENCE.findAll(text)) {
         append(text.substring(at, ref.range.first))
         val id = ref.groupValues[1]
+        at = ref.range.last + 1
+        if (!links.exists(id)) {
+            append(id)
+            continue
+        }
         val link = LinkAnnotation.Clickable(
             tag = id,
             styles = TextLinkStyles(SpanStyle(color = RocketRed, textDecoration = TextDecoration.Underline)),
-            linkInteractionListener = { onReference(id) },
+            linkInteractionListener = { links.onReference(id) },
         )
         withLink(link) { append(id) }
-        at = ref.range.last + 1
     }
     append(text.substring(at))
 }
