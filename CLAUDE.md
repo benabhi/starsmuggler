@@ -62,6 +62,11 @@ Toda la gestión se hace en **Lific**, proyecto **starsmuggler** (identificador 
 
 Cada versión: `versionName`/`versionCode` en `app/build.gradle.kts`, tag anotado `vX.Y.Z` y su entrada en `CHANGELOG.md` (en inglés). La versión va en la evidencia de cierre del issue.
 
+Con los scripts:
+1. En la rama aprobada, antes del merge: `.\scripts\release.ps1 -Bump patch` (`minor` en la última tarea de un plan, `major` con visto bueno). Sube `versionName` desde el último tag de `main` y `versionCode` en 1, regenera `CHANGELOG.md` y hace el commit `Release vX.Y.Z (SMUG-N)`. La rama tiene que tener `SMUG-N` en el nombre y no tener cambios sin commit.
+2. En `main`, después del merge: `.\scripts\release.ps1 -Tag -Message "SMUG-N: <título del issue>"` (o `"SMUG-PLAN-N: <título del plan>"`) pone el tag anotado. Después `git push origin main` y `git push origin vX.Y.Z`.
+- `CHANGELOG.md` **se genera desde git** con `.\scripts\changelog.ps1`: no se edita a mano. Cada merge a `main` aporta los asuntos de sus commits; el tipo de rama elige la sección (`feature`/`proto` → Added, `fix` → Fixed, el resto → Changed).
+
 ### Informes de plan
 
 Al terminar un plan se escribe una página en la carpeta **Informes de plan** (`status='complete'`), con el título estandarizado **`Informe SMUG-PLAN-N — <nombre del plan>`**: resumen ejecutivo, tabla de tareas (issue, título, resultado, fecha de aprobación), qué funciona y cómo probarlo, decisiones y cambios respecto del PRD, problemas y deuda técnica, versiones (tag minor y parches), próximos pasos. Se enlaza desde un comentario en el issue principal del plan.
@@ -80,5 +85,6 @@ Al terminar un plan se escribe una página en la carpeta **Informes de plan** (`
 - **Sin Android Studio ni emulador.** Compilación por línea de comandos con el Gradle wrapper; instalación con `adb` en el celular de benabhi (USB, depuración activada). No proponer Android Studio.
 - Mismo entorno que irondroid: JDK 21, SDK en `C:\Android\Sdk`.
 - Compilar: `.\gradlew.bat assembleDebug`. Instalar: `adb install -r app\build\outputs\apk\debug\app-debug.apk`. Ver un crash: `adb logcat -d -b crash`. Nunca dejar `adb logcat` sin `-d`. Desde Git Bash, `export MSYS_NO_PATHCONV=1` antes de usar adb.
+- **`scripts\run.ps1`**: compila, instala (conserva los datos), abre la app y sigue su logcat. Opciones: `-NoBuild` (reinstala el último APK), `-NoLaunch`, `-NoLogcat` (termina al abrir; **Claude lo usa siempre**, porque el logcat queda abierto), `-Serial ZY22LXMCJK` si hay varios dispositivos.
 - **Generación de imágenes** (autorizado por benabhi el 03/11/2026): Claude puede usar **Gemini** (https://gemini.google.com/app?hl=es) en el Chrome de benabhi (herramientas Claude in Chrome) para generar ilustraciones y arte. Antes de generar, la lista de imágenes (uso, tamaño, proporción, prompt) queda en el issue. Las imágenes originales se guardan en `recursos/` (fuera del repo); al repo entra solo la versión procesada que usa la app. No se toca nada más de la cuenta de Google de benabhi.
 - **Dados:** se reutiliza la librería de dados 3D de irondroid (`G:\irondroid`, `app/src/main/kotlin/com/irondroid/dice/*` y `assets/dice/`: dice-box-threejs en un WebView transparente). El motor decide el resultado; los dados solo lo animan.
