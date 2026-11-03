@@ -77,10 +77,15 @@ class ContentModelTest {
         val point = MapPoint(0.5f, 0.5f)
         val area = Area("a", AreaType.CITY, Restriction.WHITE, position = point)
         assertFailsWith<IllegalArgumentException> {
-            Tile("X", listOf(area), listOf(Connector("a", to = "b", kind = ConnectorKind.TRIPLE)))
+            Tile("X", image = "x.webp", areas = listOf(area), connectors = listOf(Connector("a", to = "b", kind = ConnectorKind.TRIPLE)))
         }
         assertFailsWith<IllegalArgumentException> { Connector("a", to = "b", kind = ConnectorKind.SINGLE) }
         assertFailsWith<IllegalArgumentException> { Connector("a", kind = ConnectorKind.TRIPLE) }
+        // A line across the seam may print its steps on the other tile.
+        assertEquals(null, Connector("a", edgeSlot = 2, kind = ConnectorKind.SINGLE).steps)
+        assertFailsWith<IllegalArgumentException> {
+            Tile("X", image = "x.webp", areas = listOf(area), connectors = listOf(Connector("a", edgeSlot = 1, kind = ConnectorKind.TRIPLE)))
+        }
     }
 
     @Test

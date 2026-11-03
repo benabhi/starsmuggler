@@ -1917,7 +1917,7 @@
       "id": "r242.base",
       "rule": "r242",
       "factors": {
-        "asteroids": 0,
+        "asteroid": 0,
         "craters": 1,
         "ruins": 1,
         "mining": 2,

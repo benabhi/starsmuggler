@@ -1,21 +1,1104 @@
 {
-  "formatVersion": 1,
-  "tiles": [
+ "formatVersion": 1,
+ "tiles": [
+  {
+   "id": "A",
+   "planetSide": "right",
+   "image": "tiles/a.webp",
+   "areas": [
     {
-      "id": "J",
-      "areas": [
-        { "id": "ruins", "type": "ruins", "restriction": "white", "position": { "x": 0.22, "y": 0.26 } },
-        { "id": "industrial", "type": "industrial", "restriction": "yellow", "ownAir": true, "bank": true, "position": { "x": 0.13, "y": 0.53 } },
-        { "id": "colony", "type": "colony", "restriction": "white", "ownAir": true, "bank": true, "medical": true, "position": { "x": 0.39, "y": 0.57 } },
-        { "id": "rural", "type": "rural", "restriction": "white", "ownAir": true, "bank": true, "position": { "x": 0.22, "y": 0.73 } }
-      ],
-      "connectors": [
-        { "from": "ruins", "to": "industrial", "kind": "single", "steps": 4 },
-        { "from": "ruins", "to": "colony", "kind": "single", "steps": 3 },
-        { "from": "industrial", "to": "colony", "kind": "single", "steps": 2 },
-        { "from": "industrial", "to": "rural", "kind": "single", "steps": 3 },
-        { "from": "rural", "to": "colony", "kind": "triple" }
-      ]
+     "id": "space_station",
+     "type": "space_station",
+     "restriction": "purple",
+     "position": {
+      "x": 0.16,
+      "y": 0.51
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "industrial",
+     "type": "industrial",
+     "restriction": "yellow",
+     "position": {
+      "x": 0.61,
+      "y": 0.41
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "craters",
+     "type": "craters",
+     "restriction": "white",
+     "position": {
+      "x": 0.84,
+      "y": 0.49
+     }
+    },
+    {
+     "id": "mining",
+     "type": "mining",
+     "restriction": "white",
+     "position": {
+      "x": 0.63,
+      "y": 0.63
+     }
     }
-  ]
+   ],
+   "connectors": [
+    {
+     "from": "industrial",
+     "to": "craters",
+     "kind": "single",
+     "steps": 3
+    },
+    {
+     "from": "industrial",
+     "to": "mining",
+     "kind": "triple"
+    },
+    {
+     "from": "mining",
+     "to": "craters",
+     "kind": "single",
+     "steps": 4
+    },
+    {
+     "from": "industrial",
+     "edgeSlot": 0,
+     "kind": "single",
+     "steps": 7
+    },
+    {
+     "from": "craters",
+     "edgeSlot": 1,
+     "kind": "triple"
+    },
+    {
+     "from": "mining",
+     "edgeSlot": 2,
+     "kind": "single"
+    }
+   ]
+  },
+  {
+   "id": "B",
+   "planetSide": "left",
+   "image": "tiles/b.webp",
+   "areas": [
+    {
+     "id": "rough_terrain",
+     "type": "rough_terrain",
+     "restriction": "white",
+     "position": {
+      "x": 0.25,
+      "y": 0.27
+     }
+    },
+    {
+     "id": "military",
+     "type": "military",
+     "restriction": "red",
+     "position": {
+      "x": 0.13,
+      "y": 0.53
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "prison",
+     "type": "prison",
+     "restriction": "red",
+     "position": {
+      "x": 0.39,
+      "y": 0.41
+     },
+     "ownAir": true
+    },
+    {
+     "id": "colony",
+     "type": "colony",
+     "restriction": "white",
+     "position": {
+      "x": 0.19,
+      "y": 0.68
+     },
+     "ownAir": true,
+     "bank": true,
+     "medical": true
+    }
+   ],
+   "connectors": [
+    {
+     "from": "rough_terrain",
+     "to": "prison",
+     "kind": "triple"
+    },
+    {
+     "from": "rough_terrain",
+     "to": "colony",
+     "kind": "single",
+     "steps": 5
+    },
+    {
+     "from": "prison",
+     "to": "colony",
+     "kind": "single",
+     "steps": 4
+    },
+    {
+     "from": "military",
+     "to": "colony",
+     "kind": "triple"
+    },
+    {
+     "from": "rough_terrain",
+     "edgeSlot": 0,
+     "kind": "single"
+    },
+    {
+     "from": "military",
+     "edgeSlot": 1,
+     "kind": "triple"
+    },
+    {
+     "from": "colony",
+     "edgeSlot": 2,
+     "kind": "single",
+     "steps": 7
+    }
+   ]
+  },
+  {
+   "id": "C",
+   "planetSide": "right",
+   "image": "tiles/c.webp",
+   "areas": [
+    {
+     "id": "space_station",
+     "type": "space_station",
+     "restriction": "purple",
+     "position": {
+      "x": 0.15,
+      "y": 0.49
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "rough_terrain",
+     "type": "rough_terrain",
+     "restriction": "white",
+     "position": {
+      "x": 0.78,
+      "y": 0.24
+     }
+    },
+    {
+     "id": "scientific",
+     "type": "scientific",
+     "restriction": "red",
+     "position": {
+      "x": 0.64,
+      "y": 0.5
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "city",
+     "type": "city",
+     "restriction": "yellow",
+     "position": {
+      "x": 0.85,
+      "y": 0.51
+     },
+     "ownAir": true,
+     "bank": true,
+     "medical": true
+    },
+    {
+     "id": "industrial",
+     "type": "industrial",
+     "restriction": "yellow",
+     "position": {
+      "x": 0.78,
+      "y": 0.72
+     },
+     "ownAir": true,
+     "bank": true
+    }
+   ],
+   "connectors": [
+    {
+     "from": "rough_terrain",
+     "to": "city",
+     "kind": "single",
+     "steps": 2
+    },
+    {
+     "from": "scientific",
+     "to": "city",
+     "kind": "triple"
+    },
+    {
+     "from": "scientific",
+     "to": "industrial",
+     "kind": "triple"
+    },
+    {
+     "from": "city",
+     "to": "industrial",
+     "kind": "triple"
+    },
+    {
+     "from": "rough_terrain",
+     "edgeSlot": 0,
+     "kind": "single",
+     "steps": 4
+    },
+    {
+     "from": "city",
+     "edgeSlot": 1,
+     "kind": "triple"
+    },
+    {
+     "from": "industrial",
+     "edgeSlot": 2,
+     "kind": "single"
+    }
+   ]
+  },
+  {
+   "id": "D",
+   "planetSide": "left",
+   "image": "tiles/d.webp",
+   "areas": [
+    {
+     "id": "colony",
+     "type": "colony",
+     "restriction": "white",
+     "position": {
+      "x": 0.19,
+      "y": 0.3
+     },
+     "ownAir": true,
+     "bank": true,
+     "medical": true
+    },
+    {
+     "id": "gambling",
+     "type": "gambling",
+     "restriction": "red",
+     "position": {
+      "x": 0.15,
+      "y": 0.49
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "spaceport",
+     "type": "spaceport",
+     "restriction": "white",
+     "position": {
+      "x": 0.38,
+      "y": 0.49
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "industrial",
+     "type": "industrial",
+     "restriction": "yellow",
+     "position": {
+      "x": 0.18,
+      "y": 0.69
+     },
+     "ownAir": true,
+     "bank": true
+    }
+   ],
+   "connectors": [
+    {
+     "from": "colony",
+     "to": "gambling",
+     "kind": "triple"
+    },
+    {
+     "from": "colony",
+     "to": "spaceport",
+     "kind": "single",
+     "steps": 3
+    },
+    {
+     "from": "gambling",
+     "to": "industrial",
+     "kind": "triple"
+    },
+    {
+     "from": "spaceport",
+     "to": "industrial",
+     "kind": "single",
+     "steps": 3
+    },
+    {
+     "from": "colony",
+     "edgeSlot": 0,
+     "kind": "single"
+    },
+    {
+     "from": "gambling",
+     "edgeSlot": 1,
+     "kind": "triple"
+    },
+    {
+     "from": "industrial",
+     "edgeSlot": 2,
+     "kind": "single",
+     "steps": 6
+    }
+   ]
+  },
+  {
+   "id": "E",
+   "planetSide": "right",
+   "image": "tiles/e.webp",
+   "areas": [
+    {
+     "id": "space_station",
+     "type": "space_station",
+     "restriction": "purple",
+     "position": {
+      "x": 0.15,
+      "y": 0.53
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "rural",
+     "type": "rural",
+     "restriction": "white",
+     "position": {
+      "x": 0.79,
+      "y": 0.24
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "city",
+     "type": "city",
+     "restriction": "yellow",
+     "position": {
+      "x": 0.66,
+      "y": 0.52
+     },
+     "ownAir": true,
+     "bank": true,
+     "medical": true
+    },
+    {
+     "id": "prison",
+     "type": "prison",
+     "restriction": "red",
+     "position": {
+      "x": 0.86,
+      "y": 0.51
+     },
+     "ownAir": true
+    },
+    {
+     "id": "mining",
+     "type": "mining",
+     "restriction": "white",
+     "position": {
+      "x": 0.78,
+      "y": 0.79
+     }
+    }
+   ],
+   "connectors": [
+    {
+     "from": "rural",
+     "to": "city",
+     "kind": "single",
+     "steps": 2
+    },
+    {
+     "from": "city",
+     "to": "prison",
+     "kind": "triple"
+    },
+    {
+     "from": "city",
+     "to": "mining",
+     "kind": "single",
+     "steps": 3
+    },
+    {
+     "from": "rural",
+     "to": "mining",
+     "kind": "single",
+     "steps": 3
+    },
+    {
+     "from": "city",
+     "edgeSlot": 0,
+     "kind": "single",
+     "steps": 4
+    },
+    {
+     "from": "prison",
+     "edgeSlot": 1,
+     "kind": "triple"
+    },
+    {
+     "from": "city",
+     "edgeSlot": 2,
+     "kind": "single"
+    }
+   ]
+  },
+  {
+   "id": "F",
+   "planetSide": "left",
+   "image": "tiles/f.webp",
+   "areas": [
+    {
+     "id": "rural",
+     "type": "rural",
+     "restriction": "white",
+     "position": {
+      "x": 0.11,
+      "y": 0.21
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "slum_north",
+     "type": "slum",
+     "restriction": "yellow",
+     "position": {
+      "x": 0.34,
+      "y": 0.33
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "city",
+     "type": "city",
+     "restriction": "yellow",
+     "position": {
+      "x": 0.1,
+      "y": 0.5
+     },
+     "ownAir": true,
+     "bank": true,
+     "medical": true
+    },
+    {
+     "id": "gambling",
+     "type": "gambling",
+     "restriction": "red",
+     "position": {
+      "x": 0.36,
+      "y": 0.57
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "slum_south",
+     "type": "slum",
+     "restriction": "white",
+     "position": {
+      "x": 0.24,
+      "y": 0.73
+     },
+     "ownAir": true,
+     "bank": true
+    }
+   ],
+   "connectors": [
+    {
+     "from": "rural",
+     "to": "slum_north",
+     "kind": "triple"
+    },
+    {
+     "from": "rural",
+     "to": "city",
+     "kind": "single",
+     "steps": 2
+    },
+    {
+     "from": "slum_north",
+     "to": "gambling",
+     "kind": "triple"
+    },
+    {
+     "from": "city",
+     "to": "slum_south",
+     "kind": "single",
+     "steps": 2
+    },
+    {
+     "from": "gambling",
+     "to": "slum_south",
+     "kind": "triple"
+    },
+    {
+     "from": "rural",
+     "edgeSlot": 0,
+     "kind": "single"
+    },
+    {
+     "from": "city",
+     "edgeSlot": 1,
+     "kind": "triple"
+    },
+    {
+     "from": "slum_south",
+     "edgeSlot": 2,
+     "kind": "single",
+     "steps": 3
+    }
+   ]
+  },
+  {
+   "id": "G",
+   "planetSide": "right",
+   "image": "tiles/g.webp",
+   "areas": [
+    {
+     "id": "slum",
+     "type": "slum",
+     "restriction": "yellow",
+     "position": {
+      "x": 0.75,
+      "y": 0.29
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "palace",
+     "type": "palace",
+     "restriction": "red",
+     "position": {
+      "x": 0.6,
+      "y": 0.52
+     },
+     "ownAir": true
+    },
+    {
+     "id": "spaceport",
+     "type": "spaceport",
+     "restriction": "white",
+     "position": {
+      "x": 0.89,
+      "y": 0.52
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "city",
+     "type": "city",
+     "restriction": "yellow",
+     "position": {
+      "x": 0.77,
+      "y": 0.67
+     },
+     "ownAir": true,
+     "bank": true,
+     "medical": true
+    }
+   ],
+   "connectors": [
+    {
+     "from": "slum",
+     "to": "palace",
+     "kind": "triple"
+    },
+    {
+     "from": "slum",
+     "to": "city",
+     "kind": "triple"
+    },
+    {
+     "from": "slum",
+     "to": "spaceport",
+     "kind": "triple"
+    },
+    {
+     "from": "palace",
+     "to": "city",
+     "kind": "triple"
+    },
+    {
+     "from": "city",
+     "to": "spaceport",
+     "kind": "triple"
+    },
+    {
+     "from": "slum",
+     "edgeSlot": 0,
+     "kind": "single",
+     "steps": 8
+    },
+    {
+     "from": "spaceport",
+     "edgeSlot": 1,
+     "kind": "triple"
+    },
+    {
+     "from": "city",
+     "edgeSlot": 2,
+     "kind": "single"
+    }
+   ]
+  },
+  {
+   "id": "H",
+   "planetSide": "left",
+   "image": "tiles/h.webp",
+   "areas": [
+    {
+     "id": "craters",
+     "type": "craters",
+     "restriction": "white",
+     "position": {
+      "x": 0.25,
+      "y": 0.31
+     }
+    },
+    {
+     "id": "ruins",
+     "type": "ruins",
+     "restriction": "white",
+     "position": {
+      "x": 0.11,
+      "y": 0.55
+     }
+    },
+    {
+     "id": "military",
+     "type": "military",
+     "restriction": "red",
+     "position": {
+      "x": 0.37,
+      "y": 0.55
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "spaceport",
+     "type": "spaceport",
+     "restriction": "white",
+     "position": {
+      "x": 0.27,
+      "y": 0.74
+     },
+     "ownAir": true,
+     "bank": true
+    }
+   ],
+   "connectors": [
+    {
+     "from": "craters",
+     "to": "ruins",
+     "kind": "single",
+     "steps": 2
+    },
+    {
+     "from": "craters",
+     "to": "military",
+     "kind": "triple"
+    },
+    {
+     "from": "ruins",
+     "to": "spaceport",
+     "kind": "single",
+     "steps": 2
+    },
+    {
+     "from": "military",
+     "to": "spaceport",
+     "kind": "triple"
+    },
+    {
+     "from": "craters",
+     "edgeSlot": 0,
+     "kind": "single"
+    },
+    {
+     "from": "ruins",
+     "edgeSlot": 1,
+     "kind": "triple"
+    },
+    {
+     "from": "spaceport",
+     "edgeSlot": 2,
+     "kind": "single",
+     "steps": 5
+    }
+   ]
+  },
+  {
+   "id": "I",
+   "planetSide": "right",
+   "image": "tiles/i.webp",
+   "areas": [
+    {
+     "id": "colony",
+     "type": "colony",
+     "restriction": "white",
+     "position": {
+      "x": 0.78,
+      "y": 0.37
+     },
+     "ownAir": true,
+     "bank": true,
+     "medical": true
+    },
+    {
+     "id": "mining",
+     "type": "mining",
+     "restriction": "white",
+     "position": {
+      "x": 0.57,
+      "y": 0.54
+     }
+    },
+    {
+     "id": "scientific",
+     "type": "scientific",
+     "restriction": "red",
+     "position": {
+      "x": 0.82,
+      "y": 0.54
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "rough_terrain",
+     "type": "rough_terrain",
+     "restriction": "white",
+     "position": {
+      "x": 0.79,
+      "y": 0.8
+     }
+    }
+   ],
+   "connectors": [
+    {
+     "from": "colony",
+     "to": "mining",
+     "kind": "single",
+     "steps": 3
+    },
+    {
+     "from": "colony",
+     "to": "scientific",
+     "kind": "triple"
+    },
+    {
+     "from": "mining",
+     "to": "scientific",
+     "kind": "single",
+     "steps": 3
+    },
+    {
+     "from": "mining",
+     "to": "rough_terrain",
+     "kind": "single",
+     "steps": 2
+    },
+    {
+     "from": "colony",
+     "edgeSlot": 0,
+     "kind": "single",
+     "steps": 3
+    },
+    {
+     "from": "scientific",
+     "edgeSlot": 1,
+     "kind": "triple"
+    },
+    {
+     "from": "rough_terrain",
+     "edgeSlot": 2,
+     "kind": "single"
+    }
+   ]
+  },
+  {
+   "id": "J",
+   "planetSide": "left",
+   "image": "tiles/j.webp",
+   "areas": [
+    {
+     "id": "ruins",
+     "type": "ruins",
+     "restriction": "white",
+     "position": {
+      "x": 0.22,
+      "y": 0.26
+     }
+    },
+    {
+     "id": "industrial",
+     "type": "industrial",
+     "restriction": "yellow",
+     "position": {
+      "x": 0.13,
+      "y": 0.53
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "colony",
+     "type": "colony",
+     "restriction": "white",
+     "position": {
+      "x": 0.39,
+      "y": 0.57
+     },
+     "ownAir": true,
+     "bank": true,
+     "medical": true
+    },
+    {
+     "id": "rural",
+     "type": "rural",
+     "restriction": "white",
+     "position": {
+      "x": 0.22,
+      "y": 0.73
+     },
+     "ownAir": true,
+     "bank": true
+    }
+   ],
+   "connectors": [
+    {
+     "from": "ruins",
+     "to": "industrial",
+     "kind": "single",
+     "steps": 4
+    },
+    {
+     "from": "ruins",
+     "to": "colony",
+     "kind": "single",
+     "steps": 3
+    },
+    {
+     "from": "industrial",
+     "to": "colony",
+     "kind": "single",
+     "steps": 2
+    },
+    {
+     "from": "industrial",
+     "to": "rural",
+     "kind": "single",
+     "steps": 3
+    },
+    {
+     "from": "rural",
+     "to": "colony",
+     "kind": "triple"
+    },
+    {
+     "from": "ruins",
+     "edgeSlot": 0,
+     "kind": "single"
+    },
+    {
+     "from": "industrial",
+     "edgeSlot": 1,
+     "kind": "triple"
+    },
+    {
+     "from": "rural",
+     "edgeSlot": 2,
+     "kind": "single",
+     "steps": 5
+    }
+   ]
+  },
+  {
+   "id": "K",
+   "planetSide": "right",
+   "image": "tiles/k.webp",
+   "areas": [
+    {
+     "id": "slum",
+     "type": "slum",
+     "restriction": "white",
+     "position": {
+      "x": 0.65,
+      "y": 0.29
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "spaceport",
+     "type": "spaceport",
+     "restriction": "white",
+     "position": {
+      "x": 0.68,
+      "y": 0.48
+     },
+     "ownAir": true,
+     "bank": true
+    },
+    {
+     "id": "mining",
+     "type": "mining",
+     "restriction": "white",
+     "position": {
+      "x": 0.86,
+      "y": 0.48
+     },
+     "ownAir": true
+    },
+    {
+     "id": "industrial",
+     "type": "industrial",
+     "restriction": "yellow",
+     "position": {
+      "x": 0.62,
+      "y": 0.7
+     },
+     "ownAir": true,
+     "bank": true
+    }
+   ],
+   "connectors": [
+    {
+     "from": "slum",
+     "to": "spaceport",
+     "kind": "triple"
+    },
+    {
+     "from": "slum",
+     "to": "industrial",
+     "kind": "triple"
+    },
+    {
+     "from": "spaceport",
+     "to": "mining",
+     "kind": "triple"
+    },
+    {
+     "from": "spaceport",
+     "to": "industrial",
+     "kind": "triple"
+    },
+    {
+     "from": "spaceport",
+     "edgeSlot": 0,
+     "kind": "single",
+     "steps": 10
+    },
+    {
+     "from": "mining",
+     "edgeSlot": 1,
+     "kind": "triple"
+    },
+    {
+     "from": "spaceport",
+     "edgeSlot": 2,
+     "kind": "single"
+    }
+   ]
+  },
+  {
+   "id": "asteroids",
+   "image": "tiles/asteroids.webp",
+   "areas": [
+    {
+     "id": "asteroid_1",
+     "type": "asteroid",
+     "restriction": "purple",
+     "position": {
+      "x": 0.16,
+      "y": 0.55
+     }
+    },
+    {
+     "id": "asteroid_2",
+     "type": "asteroid",
+     "restriction": "purple",
+     "position": {
+      "x": 0.33,
+      "y": 0.34
+     }
+    },
+    {
+     "id": "asteroid_3",
+     "type": "asteroid",
+     "restriction": "purple",
+     "position": {
+      "x": 0.53,
+      "y": 0.21
+     }
+    },
+    {
+     "id": "asteroid_4",
+     "type": "asteroid",
+     "restriction": "purple",
+     "position": {
+      "x": 0.73,
+      "y": 0.12
+     }
+    },
+    {
+     "id": "asteroid_5",
+     "type": "asteroid",
+     "restriction": "purple",
+     "position": {
+      "x": 0.39,
+      "y": 0.81
+     }
+    },
+    {
+     "id": "asteroid_6",
+     "type": "asteroid",
+     "restriction": "purple",
+     "position": {
+      "x": 0.85,
+      "y": 0.42
+     }
+    },
+    {
+     "id": "space_station",
+     "type": "space_station",
+     "restriction": "purple",
+     "position": {
+      "x": 0.6,
+      "y": 0.59
+     },
+     "ownAir": true,
+     "bank": true
+    }
+   ],
+   "connectors": []
+  }
+ ]
 }

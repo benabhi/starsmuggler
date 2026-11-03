@@ -1,5 +1,21 @@
 package com.starsmuggler.ui.debug
 
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.font.FontWeight
+import com.starsmuggler.engine.content.MapPoint
+import com.starsmuggler.engine.content.PlanetSide
+import com.starsmuggler.ui.theme.ChromeOchre
+import com.starsmuggler.ui.theme.ChromeTurquoise
+import com.starsmuggler.ui.theme.PaperShade
+import com.starsmuggler.ui.theme.SpaceBlack
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -110,7 +126,7 @@ private fun LoadedContentView(content: LoadedContent) {
     TablesCard(content)
     SectorDiagram(content)
     game.systems.values.forEach { SystemCard(it, content) }
-    game.tiles.values.forEach { TileCard(it, content) }
+    TileCard(content)
 }
 
 @Composable
@@ -355,13 +371,38 @@ private fun StackedLine(label: String, value: String) {
     }
 }
 
+/**
+ * The tile scans with their transcribed data drawn on top, to check SMUG-11 against the
+ * original: a circle per area in its restriction color, its connectors and the seam slots.
+ */
 @Composable
-private fun TileCard(tile: Tile, content: LoadedContent) {
+private fun TileCard(content: LoadedContent) {
+    val tiles = content.game.tiles.values.toList()
+    var selected by rememberSaveable { mutableStateOf(tiles.first().id) }
+    val tile = content.game.tile(selected)
     RecordCard(stringResource(R.string.content_tile, tile.id)) {
-        for (area in tile.areas) {
-            // Name above its details: the details are too long to share a ruled line with it.
+        Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            for (t in tiles) {
+                Text(
+                    if (t.planetSide == null) stringResource(R.string.content_tile_asteroids) else t.id,
+                    style = TeletypeStyles.medium,
+                    color = if (t.id == selected) Paper else Ink,
+                    modifier = Modifier
+                        .background(if (t.id == selected) RocketRed else PaperShade)
+                        .clickable { selected = t.id }
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                )
+            }
+        }
+        TileOverlay(tile)
+        Text(stringResource(R.string.content_tile_legend), style = MaterialTheme.typography.bodySmall, color = InkFaded, modifier = Modifier.padding(vertical = 4.dp))
+        tile.areas.forEachIndexed { index, area ->
             Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                Text(content.names.areaType(area.type.key), style = MaterialTheme.typography.bodyMedium, color = Ink)
+                Text(
+                    stringResource(R.string.content_tile_area, index + 1, content.names.areaType(area.type.key)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Ink,
+                )
                 Text(areaDetails(area), style = TeletypeStyles.small, color = InkFaded)
             }
         }
@@ -370,14 +411,68 @@ private fun TileCard(tile: Tile, content: LoadedContent) {
             val from = content.names.areaType(tile.area(connector.from)!!.type.key)
             val to = connector.to?.let { content.names.areaType(tile.area(it)!!.type.key) }
                 ?: stringResource(R.string.content_tile_edge, connector.edgeSlot ?: 0)
-            val text = when (connector.kind) {
-                ConnectorKind.TRIPLE -> stringResource(R.string.content_connector_triple, from, to)
-                ConnectorKind.SINGLE -> pluralStringResource(R.plurals.content_connector_steps, connector.steps ?: 0, from, to, connector.steps ?: 0)
+            val steps = connector.steps
+            val text = when {
+                connector.kind == ConnectorKind.TRIPLE -> stringResource(R.string.content_connector_triple, from, to)
+                steps == null -> stringResource(R.string.content_connector_other_tile, from, to)
+                else -> pluralStringResource(R.plurals.content_connector_steps, steps, from, to, steps)
             }
             Text(text, style = TeletypeStyles.small, color = Ink, modifier = Modifier.padding(vertical = 2.dp))
         }
     }
 }
+
+/** The scan of [tile] with its areas (numbered circles), connectors and seam slots drawn on top. */
+@Composable
+private fun TileOverlay(tile: Tile) {
+    val context = LocalContext.current
+    val bitmap = remember(tile.image) {
+        context.assets.open(tile.image).use { BitmapFactory.decodeStream(it) }.asImageBitmap()
+    }
+    val measurer = rememberTextMeasurer()
+    val labelStyle = TeletypeStyles.small.copy(color = Paper, fontWeight = FontWeight.Bold)
+    Box(Modifier.fillMaxWidth().aspectRatio(bitmap.width.toFloat() / bitmap.height)) {
+        Image(bitmap, contentDescription = null, modifier = Modifier.fillMaxSize())
+        Canvas(Modifier.fillMaxSize()) {
+            fun at(p: MapPoint) = Offset(p.x * size.width, p.y * size.height)
+            val edgeX = if (tile.planetSide == PlanetSide.LEFT) 0f else size.width
+            for (c in tile.connectors) {
+                val from = at(tile.area(c.from)!!.position)
+                val to = c.to?.let { at(tile.area(it)!!.position) } ?: Offset(edgeX, EDGE_SLOT_Y[c.edgeSlot!!] * size.height)
+                val stroke = if (c.kind == ConnectorKind.TRIPLE) 6.dp.toPx() else 3.dp.toPx()
+                val dash = if (c.kind == ConnectorKind.SINGLE) PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 5.dp.toPx())) else null
+                drawLine(ChromeTurquoise, from, to, strokeWidth = stroke, pathEffect = dash)
+                c.steps?.let { steps ->
+                    val label = measurer.measure(steps.toString(), labelStyle)
+                    val mid = (from + to) / 2f
+                    drawCircle(SpaceBlack, 10.dp.toPx(), mid)
+                    drawText(label, topLeft = mid - Offset(label.size.width / 2f, label.size.height / 2f))
+                }
+            }
+            tile.areas.forEachIndexed { index, area ->
+                val center = at(area.position)
+                drawCircle(restrictionColor(area.restriction), 13.dp.toPx(), center)
+                drawCircle(SpaceBlack, 13.dp.toPx(), center, style = Stroke(2.dp.toPx()))
+                val ink = if (area.restriction == Restriction.WHITE) SpaceBlack else Paper
+                val label = measurer.measure((index + 1).toString(), labelStyle.copy(color = ink))
+                drawText(label, topLeft = center - Offset(label.size.width / 2f, label.size.height / 2f))
+            }
+        }
+    }
+}
+
+/** Heights of the three seam slots on the scans, top to bottom. */
+private val EDGE_SLOT_Y = listOf(0.23f, 0.52f, 0.81f)
+
+private fun restrictionColor(restriction: Restriction): Color = when (restriction) {
+    Restriction.WHITE -> Paper
+    Restriction.YELLOW -> ChromeOchre
+    Restriction.RED -> RocketRed
+    Restriction.PURPLE -> PURPLE
+}
+
+/** Purple areas (r204g); the theme palette has no purple of its own. */
+private val PURPLE = Color(0xFF7B4FA0)
 
 @Composable
 private fun areaDetails(area: Area): String {
