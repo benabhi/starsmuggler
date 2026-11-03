@@ -94,6 +94,10 @@
     <string name="content_jumps">A un salto</string>
     <string name="content_tile">Loseta %1$s</string>
     <string name="content_tile_edge">borde %1$d</string>
+    <string name="content_tile_asteroids">Asteroides</string>
+    <string name="content_tile_area">%1$d · %2$s</string>
+    <string name="content_tile_legend">Círculos: áreas con el color de su restricción (blanca, amarilla, roja, púrpura). Líneas gruesas: conectores triples; punteadas: pasos terrestres. Las que llegan al borde siguen en la otra loseta del planeta.</string>
+    <string name="content_connector_other_tile">%1$s — %2$s · los pasos figuran en la otra loseta</string>
     <string name="content_connector_triple">%1$s ≡ %2$s · contiguas, 1 h</string>
     <plurals name="content_connector_steps">
         <item quantity="one">%1$s — %2$s · %3$d paso terrestre</item>

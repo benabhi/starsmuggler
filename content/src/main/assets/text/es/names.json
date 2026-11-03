@@ -28,7 +28,8 @@
     "scientific": "Científico",
     "slum": "Zona marginal",
     "spaceport": "Puerto espacial",
-    "space_station": "Estación espacial"
+    "space_station": "Estación espacial",
+    "asteroid": "Asteroide"
   },
   "equipment": {
     "fuel_unit": "Unidad de combustible (COMB)",

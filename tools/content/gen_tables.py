@@ -114,7 +114,7 @@ factors = [
     {"id": "r238.area", "rule": "r238", "factors": {
         "prison": 2, "space_station": 2, "military": 1, "palace": 1, "rough_terrain": -1, "ruins": -1, "craters": -2}},
     {"id": "r242.base", "rule": "r242", "factors": {
-        "asteroids": 0, "craters": 1, "ruins": 1, "mining": 2, "orbit": 2, "rough_terrain": 2, "rural": 2,
+        "asteroid": 0, "craters": 1, "ruins": 1, "mining": 2, "orbit": 2, "rough_terrain": 2, "rural": 2,
         "city": 3, "colony": 3, "industrial": 3, "scientific": 3, "military": 4, "slum": 4}, "otherwise": 5},
 ]
 

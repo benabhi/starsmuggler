@@ -32,6 +32,12 @@ class GameContent(
             val placed = pattern.nodes.map { it.system }.toSet()
             require(placed == systems.keys) { "Pattern ${pattern.id} must place every system once; differs in ${(placed - systems.keys) + (systems.keys - placed)}" }
         }
+        for (system in systems.values) {
+            for (planet in system.planets) {
+                for (tile in planet.tiles) require(tile in this.tiles) { "System ${system.id}: planet ${planet.number} uses unknown tile '$tile'" }
+                seams(planet)
+            }
+        }
         for (paragraph in this.paragraphs.values) {
             val table = paragraph.table?.let { id -> this.tables[id] ?: throw IllegalArgumentException("Paragraph ${paragraph.rule}: unknown table '$id'") }
             for (id in paragraph.sells) require(id in this.goods || id in this.equipment) { "Paragraph ${paragraph.rule}: unknown goods or equipment '$id'" }
@@ -56,6 +62,30 @@ class GameContent(
 
     fun event(ref: EventRef): GameEvent = events[ref.id] ?: throw NoSuchElementException("No event '$ref'")
 
+    /**
+     * The travel lines that cross the seam between the two tiles of [planet] (r204d). When both
+     * halves are drawn on the same side of their scans, the second tile is turned around to
+     * close the circle, so its top slot meets the first tile's bottom one.
+     */
+    fun seams(planet: Planet): List<Seam> {
+        val first = tile(planet.tiles[0])
+        val second = tile(planet.tiles[1])
+        require(first.planetSide != null && second.planetSide != null) { "Planet ${planet.tiles} uses a tile with no planet" }
+        val turned = first.planetSide == second.planetSide
+        return (0 until Tile.EDGE_SLOTS).mapNotNull { slot ->
+            val a = first.edge(slot)
+            val b = second.edge(if (turned) Tile.EDGE_SLOTS - 1 - slot else slot)
+            require((a == null) == (b == null)) { "Planet ${planet.tiles.joinToString("-")}: edge slot $slot is open on one tile only" }
+            if (a == null || b == null) return@mapNotNull null
+            require(a.kind == b.kind) { "Planet ${planet.tiles.joinToString("-")}: edge slot $slot joins a ${a.kind} line to a ${b.kind} one" }
+            val steps = listOfNotNull(a.steps, b.steps)
+            require(a.kind == ConnectorKind.TRIPLE || steps.size == 1) {
+                "Planet ${planet.tiles.joinToString("-")}: the line at edge slot $slot needs its steps on exactly one tile"
+            }
+            Seam(first.id, a.from, second.id, b.from, a.kind, steps.singleOrNull())
+        }
+    }
+
     fun pattern(id: String = Sector.STANDARD_PATTERN): ConnectionPattern =
         sector.patterns.firstOrNull { it.id == id } ?: throw NoSuchElementException("No connection pattern '$id'")
 
@@ -73,3 +103,14 @@ private fun <T> List<T>.associateByUnique(what: String, key: (T) -> String): Map
     }
     return map
 }
+
+/** A travel line between the two tiles of a planet: [fromArea] of [fromTile] to [toArea] of [toTile]. */
+data class Seam(
+    val fromTile: String,
+    val fromArea: String,
+    val toTile: String,
+    val toArea: String,
+    val kind: ConnectorKind,
+    /** Land steps of a single line; null for a triple one. */
+    val steps: Int?,
+)

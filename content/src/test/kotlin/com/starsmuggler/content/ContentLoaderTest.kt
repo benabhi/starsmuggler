@@ -2,11 +2,14 @@ package com.starsmuggler.content
 
 import com.starsmuggler.engine.content.Air
 import com.starsmuggler.engine.content.AreaType
+import com.starsmuggler.engine.content.ConnectorKind
 import com.starsmuggler.engine.content.DurationKind
 import com.starsmuggler.engine.content.EventRef
 import com.starsmuggler.engine.content.Outcome
 import com.starsmuggler.engine.content.ParagraphKind
 import com.starsmuggler.engine.content.RuleRef
+import com.starsmuggler.engine.content.Seam
+import com.starsmuggler.engine.content.Tile
 import java.io.File
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -186,6 +189,38 @@ class ContentLoaderTest {
         }
         val table = texts.rule("r241")!!.blocks.filterIsInstance<TextBlock.Table>().single()
         assertEquals(12, table.rows.size)
+    }
+
+    @Test
+    fun `the twelve tiles are there and every planet closes its seam`() {
+        val game = ContentLoader(files).load().game
+        assertEquals(listOf("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "asteroids"), game.tiles.keys.toList())
+        for (tile in game.tiles.values.filter { it.planetSide != null }) {
+            assertEquals((0 until Tile.EDGE_SLOTS).toList(), tile.connectors.mapNotNull { it.edgeSlot }.sorted(), "Tile ${tile.id} edge slots")
+        }
+        // Every planet of r207 joins its two tiles at three seams.
+        for (planet in game.systems.values.flatMap { it.planets }) assertEquals(3, game.seams(planet).size, "Planet ${planet.tiles}")
+        assertEquals(7, game.tile("asteroids").areas.size)
+    }
+
+    @Test
+    fun `seams join the tiles as the scans show`() {
+        val game = ContentLoader(files).load().game
+        // Regari, J-K: the halves face each other.
+        val regari = game.seams(game.system("regari").planets.single())
+        assertEquals(Seam("J", "ruins", "K", "spaceport", ConnectorKind.SINGLE, 10), regari[0])
+        assertEquals(Seam("J", "industrial", "K", "mining", ConnectorKind.TRIPLE, null), regari[1])
+        assertEquals(Seam("J", "rural", "K", "spaceport", ConnectorKind.SINGLE, 5), regari[2])
+        // Cubro, K-A: both halves are on the right, so A is turned around.
+        val cubro = game.seams(game.system("cubro").planets.single())
+        assertEquals(Seam("K", "spaceport", "A", "mining", ConnectorKind.SINGLE, 10), cubro[0])
+        assertEquals(Seam("K", "spaceport", "A", "industrial", ConnectorKind.SINGLE, 7), cubro[2])
+    }
+
+    @Test
+    fun `a tile image exists for every tile`() {
+        val game = ContentLoader(files).load().game
+        for (tile in game.tiles.values) assertTrue(File("../app/src/main/assets", tile.image).isFile, "No image ${tile.image}")
     }
 
     @Test
