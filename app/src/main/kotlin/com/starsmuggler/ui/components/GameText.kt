@@ -4,7 +4,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -12,11 +16,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
@@ -59,32 +65,55 @@ fun GameText(blocks: List<TextBlock>, onReference: (String) -> Unit, modifier: M
 
 @Composable
 private fun TextTable(table: TextBlock.Table, onReference: (String) -> Unit) {
-    // Wide tables, such as r235 with eleven columns, scroll sideways instead of squeezing.
-    Column(
-        Modifier
-            .horizontalScroll(rememberScrollState())
-            .border(1.dp, InkFaded),
-    ) {
-        table.rows.forEachIndexed { index, row ->
+    // Each column is as wide as its longest cell, up to MAX_COLUMN; longer cells wrap. Wide
+    // tables, such as r235 with eleven columns, scroll sideways instead of squeezing.
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val columns = table.rows.maxOf { it.size }
+    val widths = (0 until columns).map { column ->
+        val longest = table.rows.mapNotNull { it.getOrNull(column) }.maxOf { cell ->
+            measurer.measure(cell.replace(BOLD_MARK, ""), TeletypeStyles.small, softWrap = false).size.width
+        }
+        with(density) { longest.toDp() + CELL_PADDING * 2 }.coerceIn(MIN_COLUMN, MAX_COLUMN)
+    }
+    Column(Modifier.horizontalScroll(rememberScrollState())) {
+        table.caption?.let { caption ->
+            // The caption names the columns after the first one, as the book prints it above them.
             Row {
-                row.forEachIndexed { column, cell ->
-                    Text(
-                        richText(cell, onReference),
-                        style = TeletypeStyles.small,
-                        color = if (index == 0) RocketRed else Ink,
-                        modifier = Modifier
-                            .width(if (column == 0) FIRST_COLUMN else COLUMN)
-                            .border(0.5.dp, InkFaded)
-                            .padding(horizontal = 4.dp, vertical = 3.dp),
-                    )
+                Spacer(Modifier.width(widths.first()))
+                Text(
+                    caption,
+                    style = TeletypeStyles.small,
+                    color = RocketRed,
+                    modifier = Modifier.width(widths.drop(1).fold(0.dp) { a, b -> a + b }).padding(horizontal = CELL_PADDING, vertical = 3.dp),
+                )
+            }
+        }
+        Column(Modifier.border(1.dp, InkFaded)) {
+            table.rows.forEachIndexed { index, row ->
+                Row(Modifier.height(IntrinsicSize.Min)) {
+                    for (column in 0 until columns) {
+                        Text(
+                            richText(row.getOrElse(column) { "" }, onReference),
+                            style = TeletypeStyles.small,
+                            color = if (index == 0) RocketRed else Ink,
+                            modifier = Modifier
+                                .width(widths[column])
+                                .fillMaxHeight()
+                                .border(0.5.dp, InkFaded)
+                                .padding(horizontal = CELL_PADDING, vertical = 3.dp),
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-private val FIRST_COLUMN = 132.dp
-private val COLUMN = 64.dp
+private val CELL_PADDING = 4.dp
+private val MIN_COLUMN = 32.dp
+private val MAX_COLUMN = 200.dp
+private val BOLD_MARK = Regex("\\*\\*")
 private const val BULLET = "•"
 private val BOLD = Regex("\\*\\*(.+?)\\*\\*")
 

@@ -51,8 +51,8 @@ sealed interface TextBlock {
     @SerialName("bullet")
     data class Bullet(val text: String, val level: Int = 0) : TextBlock
 
-    /** A table; the first row is its header. */
+    /** A table; the first row is its header, and [caption] names the columns after the first. */
     @Serializable
     @SerialName("table")
-    data class Table(val rows: List<List<String>>) : TextBlock
+    data class Table(val rows: List<List<String>>, val caption: String? = null) : TextBlock
 }

@@ -43,7 +43,15 @@ def blocks_of(lines):
         if table:
             rows = [[unescape(c.strip()) for c in row.strip().strip("|").split("|")] for row in table
                     if not re.match(r"^\|[\s|:-]+\|$", row.strip())]
-            blocks.append({"type": "table", "rows": rows})
+            block = {"type": "table", "rows": rows}
+            # A header like "Código tecnológico del sistema: 10" names the columns that follow it:
+            # the name becomes the table caption and the cell keeps only its value.
+            for i, cell in enumerate(rows[0][1:], start=1):
+                m = re.fullmatch(r"(.{12,}): (.+)", cell)
+                if m:
+                    block["caption"] = m.group(1)
+                    rows[0][i] = m.group(2)
+            blocks.append(block)
             table.clear()
 
     for raw in lines:

@@ -3924,7 +3924,7 @@
      "rows": [
       [
        "Tirada",
-       "Código tecnológico del sistema estelar: 10",
+       "10",
        "15",
        "20",
        "25",
@@ -4013,7 +4013,8 @@
        "6",
        "6"
       ]
-     ]
+     ],
+     "caption": "Código tecnológico del sistema estelar"
     },
     {
      "type": "paragraph",
@@ -4214,7 +4215,7 @@
      "rows": [
       [
        "Medio de entrada",
-       "Código tecnológico del sistema: 10, 15, 20",
+       "10, 15, 20",
        "25, 30",
        "40, 50, 60",
        "70, 100"
@@ -4261,7 +4262,8 @@
        "5",
        "6"
       ]
-     ]
+     ],
+     "caption": "Código tecnológico del sistema"
     },
     {
      "type": "paragraph",
