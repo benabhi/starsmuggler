@@ -15,6 +15,16 @@ class GameContent(
     val tables: Map<String, DiceTable> = tables.associateByUnique("table") { it.id }
     val equipment: Map<String, Equipment> = equipment.associateByUnique("equipment") { it.id }
 
+    init {
+        for (pattern in sector.patterns) {
+            for (route in pattern.routes) {
+                require(route.a in systems && route.b in systems) { "Pattern ${pattern.id}: route ${route.a}-${route.b} names an unknown system" }
+            }
+            val placed = pattern.nodes.map { it.system }.toSet()
+            require(placed == systems.keys) { "Pattern ${pattern.id} must place every system once; differs in ${(placed - systems.keys) + (systems.keys - placed)}" }
+        }
+    }
+
     fun system(id: String): StarSystem = systems[id] ?: throw NoSuchElementException("No system '$id'")
 
     fun tile(id: String): Tile = tiles[id] ?: throw NoSuchElementException("No tile '$id'")
