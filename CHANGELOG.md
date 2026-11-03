@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.0.3] - 2026-11-02
+
+### Added
+
+- Add retro paper theme, fonts and base components (SMUG-4)
+
 ## [0.0.2] - 2026-11-02
 
 ### Changed
