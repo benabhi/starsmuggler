@@ -2,6 +2,7 @@ package com.starsmuggler.ui.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.starsmuggler.content.GameTexts
 import com.starsmuggler.content.TextBlock
@@ -64,18 +66,20 @@ fun GameText(blocks: List<TextBlock>, onReference: (String) -> Unit, modifier: M
 }
 
 @Composable
-private fun TextTable(table: TextBlock.Table, onReference: (String) -> Unit) {
-    // Each column is as wide as its longest cell, up to MAX_COLUMN; longer cells wrap. Wide
-    // tables, such as r235 with eleven columns, scroll sideways instead of squeezing.
+private fun TextTable(table: TextBlock.Table, onReference: (String) -> Unit) = BoxWithConstraints {
+    // Each column is as wide as its longest cell, up to MAX_COLUMN; longer cells wrap. When the
+    // table is wider than the screen, the widest columns narrow to fit (SMUG-81). Tables that
+    // still do not fit, such as r235 with eleven columns of numbers, scroll sideways.
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
     val columns = table.rows.maxOf { it.size }
-    val widths = (0 until columns).map { column ->
+    val natural = (0 until columns).map { column ->
         val longest = table.rows.mapNotNull { it.getOrNull(column) }.maxOf { cell ->
             measurer.measure(cell.replace(BOLD_MARK, ""), TeletypeStyles.small, softWrap = false).size.width
         }
         with(density) { longest.toDp() + CELL_PADDING * 2 }.coerceIn(MIN_COLUMN, MAX_COLUMN)
     }
+    val widths = fitColumns(natural, maxWidth - TABLE_BORDER * 2)
     Column(Modifier.horizontalScroll(rememberScrollState())) {
         table.caption?.let { caption ->
             // The caption names the columns after the first one, as the book prints it above them.
@@ -110,6 +114,24 @@ private fun TextTable(table: TextBlock.Table, onReference: (String) -> Unit) {
     }
 }
 
+/**
+ * The column [widths] capped at one common width, the largest that makes them fit in
+ * [available], so only the widest columns narrow; never below [MIN_FITTED_COLUMN].
+ */
+private fun fitColumns(widths: List<Dp>, available: Dp): List<Dp> {
+    if (widths.fold(0.dp) { a, b -> a + b } <= available) return widths
+    var low = MIN_FITTED_COLUMN
+    var high = widths.max()
+    repeat(FIT_STEPS) {
+        val cap = (low + high) / 2
+        if (widths.fold(0.dp) { a, w -> a + minOf(w, cap) } <= available) low = cap else high = cap
+    }
+    return widths.map { minOf(it, low) }
+}
+
+private const val FIT_STEPS = 20
+private val MIN_FITTED_COLUMN = 72.dp
+private val TABLE_BORDER = 1.dp
 private val CELL_PADDING = 4.dp
 private val MIN_COLUMN = 32.dp
 private val MAX_COLUMN = 200.dp
