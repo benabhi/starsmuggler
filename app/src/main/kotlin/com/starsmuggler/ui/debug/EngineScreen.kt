@@ -37,6 +37,7 @@ import com.starsmuggler.content.ContentLoader
 import com.starsmuggler.content.LoadedContent
 import com.starsmuggler.content.TextLanguage
 import com.starsmuggler.engine.Action
+import com.starsmuggler.engine.Clock
 import com.starsmuggler.engine.ActionResult
 import com.starsmuggler.engine.Engine
 import com.starsmuggler.engine.GameState
@@ -177,6 +178,8 @@ private fun EngineBench(content: LoadedContent) {
         }
     }
 
+    ClockCard(game, enabled = !busy, perform = ::perform)
+
     RecordCard(stringResource(R.string.engine_dice)) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(vertical = 6.dp)) {
             StampButton(
@@ -242,6 +245,36 @@ private fun EngineBench(content: LoadedContent) {
     }
 }
 
+/** The day clock (SMUG-19) and actions that make it run. */
+@Composable
+private fun ClockCard(game: GameState, enabled: Boolean, perform: (Action) -> Unit) {
+    val clock = game.clock
+    val locale = currentLocale()
+    RecordCard(stringResource(R.string.engine_clock)) {
+        RecordLine(stringResource(R.string.engine_clock_now), stringResource(R.string.clock_week_day, clock.week, clock.dayOfWeek))
+        RecordLine(stringResource(R.string.engine_clock_day), Formats.integer(clock.day, locale))
+        RecordLine(stringResource(R.string.engine_clock_used), hoursText(clock.used))
+        RecordLine(stringResource(R.string.engine_clock_left), hoursText(clock.left))
+        RecordLine(stringResource(R.string.engine_clock_overtime), hoursText(clock.overtime))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(vertical = 8.dp),
+        ) {
+            StampButton(stringResource(R.string.engine_pass_tenth), enabled = enabled, onClick = { perform(Action.PassTime(1)) })
+            StampButton(stringResource(R.string.engine_pass_hour), enabled = enabled, onClick = { perform(Action.PassTime(Clock.HOUR)) })
+            StampButton(stringResource(R.string.engine_pass_event), enabled = enabled, onClick = { perform(Action.PassTime(3 * Clock.HOUR)) })
+            StampButton(stringResource(R.string.engine_pass_activity), enabled = enabled, onClick = { perform(Action.PassTime(2 * Clock.HOUR, event = false)) })
+            StampButton(stringResource(R.string.engine_rest_of_day), enabled = enabled, onClick = { perform(Action.PassRestOfDay) })
+            StampButton(stringResource(R.string.engine_end_day), style = StampStyle.Solid, enabled = enabled, onClick = { perform(Action.EndDay) })
+        }
+    }
+}
+
+/** Tenths of an hour as hours with one decimal, such as "6,5 h". */
+@Composable
+private fun hoursText(tenths: Int): String = stringResource(R.string.engine_hours, Formats.decimal(tenths / Clock.HOUR.toDouble(), currentLocale()))
+
 /** A quick picker for the faces of the player's own dice: one row of 1 to 6 per die. */
 @Composable
 private fun OwnDiceEntry(roll: PendingRoll, onCancel: () -> Unit) {
@@ -284,6 +317,17 @@ private fun logText(entry: LogEntry, content: LoadedContent): String {
     return when (entry) {
         is LogEntry.GameStarted -> stringResource(R.string.engine_log_started, step, entry.seed.toString())
         is LogEntry.Rolled -> rolledText(step, entry.roll)
+        is LogEntry.TimePassed -> if (entry.overtime == 0) {
+            stringResource(R.string.engine_log_time, step, hoursText(entry.tenths))
+        } else {
+            stringResource(R.string.engine_log_time_overtime, step, hoursText(entry.tenths), hoursText(entry.overtime))
+        }
+        is LogEntry.DayEnded -> if (entry.overtime == 0) {
+            stringResource(R.string.engine_log_day_ended, step, Formats.integer(entry.day, locale))
+        } else {
+            stringResource(R.string.engine_log_day_ended_overtime, step, Formats.integer(entry.day, locale), hoursText(entry.overtime))
+        }
+        is LogEntry.WeekEnded -> stringResource(R.string.engine_log_week_ended, step, Formats.integer(entry.week, locale))
         is LogEntry.TableResult -> stringResource(
             R.string.engine_log_table,
             step,
@@ -320,6 +364,8 @@ private fun rejectionText(reason: Rejection): Int = when (reason) {
     Rejection.UNKNOWN_TABLE -> R.string.engine_rejected_table
     Rejection.TABLE_WITHOUT_DICE -> R.string.engine_rejected_no_dice
     Rejection.UNKNOWN_ROW -> R.string.engine_rejected_row
+    Rejection.NOT_ENOUGH_HOURS -> R.string.engine_rejected_hours
+    Rejection.NO_TIME -> R.string.engine_rejected_no_time
 }
 
 private const val DEFAULT_SEED = 1982L

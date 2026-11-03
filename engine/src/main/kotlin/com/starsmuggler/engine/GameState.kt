@@ -20,6 +20,7 @@ data class GameState(
     val rng: Rng,
     /** How many actions have been performed. */
     val step: Int,
+    val clock: Clock = Clock(),
     /** The game's history, oldest first (PRD section 7, log). */
     val log: List<LogEntry>,
 )
@@ -37,6 +38,21 @@ sealed interface LogEntry {
     @Serializable
     @SerialName("rolled")
     data class Rolled(override val step: Int, val roll: DiceRoll) : LogEntry
+
+    /** [tenths] of an hour went by; past the day's ten hours they were [overtime] (r203). */
+    @Serializable
+    @SerialName("time")
+    data class TimePassed(override val step: Int, val tenths: Int, val overtime: Int = 0) : LogEntry
+
+    /** Day [day] of the game closed, after [overtime] tenths of an hour past its ten (r203). */
+    @Serializable
+    @SerialName("day_ended")
+    data class DayEnded(override val step: Int, val day: Int, val overtime: Int = 0) : LogEntry
+
+    /** Week [week] closed with its last day: the loan payment falls due (r203e). */
+    @Serializable
+    @SerialName("week_ended")
+    data class WeekEnded(override val step: Int, val week: Int) : LogEntry
 
     /** The result of a modified roll [total] on [table], in its row [key]; null when no entry covers the roll. */
     @Serializable

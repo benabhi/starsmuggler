@@ -4,6 +4,19 @@ package com.starsmuggler.engine
 sealed interface Action {
     /** Roll on a table of the game, in its row [key] (null for a one-column table). */
     data class RollOnTable(val table: String, val key: String? = null, val modifier: Int = 0) : Action
+
+    /**
+     * Let [tenths] of an hour go by, such as for an event resolved by hand (PRD P2). An [event]
+     * that runs past the day's ten hours takes overtime the same day (r203); anything else must
+     * fit in the hours left.
+     */
+    data class PassTime(val tenths: Int, val event: Boolean = true) : Action
+
+    /** An event takes the rest of the day (r203). */
+    data object PassRestOfDay : Action
+
+    /** Close the day: end-of-day checks, end of the week every ten days, and the next morning (r203). */
+    data object EndDay : Action
 }
 
 /** Why an action cannot be performed now; the interface shows it next to the greyed-out action. */
@@ -13,6 +26,12 @@ enum class Rejection {
     /** The table is looked up by another number, not rolled (such as r238 by tech code). */
     TABLE_WITHOUT_DICE,
     UNKNOWN_ROW,
+
+    /** Not enough hours left today to start it (r203a). */
+    NOT_ENOUGH_HOURS,
+
+    /** No time to pass. */
+    NO_TIME,
 }
 
 /** What performing an action gave. */

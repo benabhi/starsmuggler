@@ -32,6 +32,13 @@ class Engine(private val content: GameContent) {
                 else -> null
             }
         }
+        is Action.PassTime -> when {
+            action.tenths <= 0 -> Rejection.NO_TIME
+            !action.event && !state.clock.fits(action.tenths) -> Rejection.NOT_ENOUGH_HOURS
+            else -> null
+        }
+        Action.PassRestOfDay -> if (state.clock.left == 0) Rejection.NO_TIME else null
+        Action.EndDay -> null
     }
 
     /**
@@ -44,6 +51,9 @@ class Engine(private val content: GameContent) {
         val turn = Turn(state, hand)
         when (action) {
             is Action.RollOnTable -> rollOnTable(turn, action)
+            is Action.PassTime -> turn.spend(action.tenths)
+            Action.PassRestOfDay -> turn.spend(turn.clock.left)
+            Action.EndDay -> endDay(turn)
         }
         return ActionResult.Done(turn.finish(), turn.entries)
     }
@@ -52,6 +62,14 @@ class Engine(private val content: GameContent) {
         val table = content.table(action.table)
         val roll = turn.roll(RollRequest(table.dice!!, table.rule, table.id, action.modifier))
         turn.log(LogEntry.TableResult(turn.step, table.id, action.key, roll.total, table.lookup(roll.total, action.key)))
+    }
+
+    /** Closes the day and opens the next one. The end-of-day breakdowns (r203d) and the weekly loan payment (r203e) hook in here. */
+    private fun endDay(turn: Turn) {
+        val clock = turn.clock
+        turn.log(LogEntry.DayEnded(turn.step, clock.day, clock.overtime))
+        if (clock.endsWeek) turn.log(LogEntry.WeekEnded(turn.step, clock.week))
+        turn.clock = clock.nextDay()
     }
 
     companion object {
@@ -64,6 +82,7 @@ class Engine(private val content: GameContent) {
 private class Turn(private val before: GameState, private val hand: DiceHand) {
     val step = before.step + 1
     private var rng = before.rng
+    var clock = before.clock
     val entries = mutableListOf<LogEntry>()
 
     suspend fun roll(request: RollRequest): DiceRoll {
@@ -78,9 +97,16 @@ private class Turn(private val before: GameState, private val hand: DiceHand) {
         return roll
     }
 
+    /** Lets [tenths] of an hour go by, past the day's ten hours if need be (r203). */
+    fun spend(tenths: Int) {
+        val overtimeBefore = clock.overtime
+        clock = clock.spend(tenths)
+        log(LogEntry.TimePassed(step, tenths, clock.overtime - overtimeBefore))
+    }
+
     fun log(entry: LogEntry) {
         entries += entry
     }
 
-    fun finish(): GameState = before.copy(rng = rng, step = step, log = before.log + entries)
+    fun finish(): GameState = before.copy(rng = rng, step = step, clock = clock, log = before.log + entries)
 }
