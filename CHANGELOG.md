@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.0.4] - 2026-11-02
+
+### Added
+
+- Add navigable main screen mock-up with fake data (SMUG-5)
+
 ## [0.0.3] - 2026-11-02
 
 ### Added
