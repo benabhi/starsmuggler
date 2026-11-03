@@ -15,11 +15,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
@@ -48,6 +50,7 @@ import com.starsmuggler.engine.content.Restriction
 import com.starsmuggler.engine.content.StarSystem
 import com.starsmuggler.engine.content.Tile
 import com.starsmuggler.ui.Formats
+import com.starsmuggler.ui.components.GameText
 import com.starsmuggler.ui.components.RecordCard
 import com.starsmuggler.ui.components.RecordLine
 import com.starsmuggler.ui.currentLocale
@@ -103,6 +106,7 @@ private fun LoadError(error: Throwable?) {
 private fun LoadedContentView(content: LoadedContent) {
     val game = content.game
     Counts(game)
+    TextsCard(content)
     TablesCard(content)
     SectorDiagram(content)
     game.systems.values.forEach { SystemCard(it, content) }
@@ -123,6 +127,50 @@ private fun Counts(game: GameContent) {
         RecordLine(stringResource(R.string.content_goods), Formats.integer(game.goods.size, locale))
     }
 }
+
+/** Any rule or event text by its id, with tappable references (SMUG-13). */
+@Composable
+private fun TextsCard(content: LoadedContent) {
+    var query by rememberSaveable { mutableStateOf(FIRST_TEXT) }
+    val id = query.trim().lowercase()
+    val entry = content.texts.find(id)
+    RecordCard(stringResource(R.string.content_texts)) {
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            label = { Text(stringResource(R.string.content_texts_search)) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        )
+        if (entry == null) {
+            Text(stringResource(R.string.content_texts_not_found, id), style = MaterialTheme.typography.bodyMedium, color = InkFaded)
+        } else {
+            Text(stringResource(R.string.content_text_title, id, entry.title), style = MaterialTheme.typography.titleMedium, color = Ink)
+            entry.group?.let { Text(it, style = MaterialTheme.typography.labelMedium, color = InkFaded) }
+            entry.duration?.let { Text(it, style = TeletypeStyles.small, color = RocketRed) }
+            entry.parent?.let { parent ->
+                Text(
+                    stringResource(R.string.content_text_parent, parent),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = RocketRed,
+                    modifier = Modifier.clickable { query = parent },
+                )
+            }
+            GameText(entry.blocks, onReference = { query = it }, modifier = Modifier.padding(vertical = 8.dp))
+            for (child in entry.children) {
+                Text(
+                    stringResource(R.string.content_text_title, child, content.texts.rule(child)?.title.orEmpty()),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = RocketRed,
+                    modifier = Modifier.clickable { query = child }.padding(vertical = 4.dp),
+                )
+            }
+        }
+    }
+}
+
+/** The text the card opens with: the first event of the game. */
+private const val FIRST_TEXT = "e001"
 
 /** Every table with a tap to roll on it, to check the transcription against the rule book (SMUG-12). */
 @Composable

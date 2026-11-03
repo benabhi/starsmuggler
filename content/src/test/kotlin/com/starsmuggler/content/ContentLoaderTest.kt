@@ -2,6 +2,7 @@ package com.starsmuggler.content
 
 import com.starsmuggler.engine.content.Air
 import com.starsmuggler.engine.content.AreaType
+import com.starsmuggler.engine.content.DurationKind
 import com.starsmuggler.engine.content.EventRef
 import com.starsmuggler.engine.content.Outcome
 import com.starsmuggler.engine.content.ParagraphKind
@@ -132,6 +133,59 @@ class ContentLoaderTest {
         val broken = File(assets, ContentLoader.PARAGRAPHS).readText().replace("\"rare_birds\"", "\"rare_bird\"")
         val error = assertFailsWith<ContentException> { ContentLoader(replacing(ContentLoader.PARAGRAPHS, broken)).load() }
         assertTrue("rare_bird" in error.message!!, error.message)
+    }
+
+    @Test
+    fun `every event has its duration and its Spanish text`() {
+        val content = ContentLoader(files).load()
+        val expected = ((1..199) + (400..431)).map { "e%03d".format(it) }
+        assertEquals(expected, content.game.events.keys.sorted())
+        assertEquals(expected, content.texts.events.keys.sorted())
+        assertEquals(DurationKind.HOURS, content.game.event(EventRef("e001")).duration.kind)
+        assertEquals(0, content.game.event(EventRef("e001")).duration.hours)
+        assertTrue(content.game.event(EventRef("e027")).duration.defaulted)
+        assertEquals("El comienzo de la aventura", content.texts.event("e001")!!.title)
+        assertEquals("Comprar y vender artículos", content.texts.event("e027")!!.group)
+    }
+
+    @Test
+    fun `every rule and event the data names has a text`() {
+        val content = ContentLoader(files).load()
+        val game = content.game
+        val rules = buildList {
+            add(game.sector.rule)
+            game.systems.values.forEach { add(it.rule) }
+            game.sector.patterns.forEach { add(it.rule) }
+            game.tables.values.forEach { add(it.rule) }
+            game.factors.values.forEach { add(it.rule) }
+            game.paragraphs.values.forEach { add(it.rule) }
+            game.equipment.values.forEach { add(it.rule) }
+            game.goods.values.forEach { add(it.rule) }
+            AreaType.entries.forEach { add(it.rule) }
+        }.map { it.id }
+        val results = game.tables.values.flatMap { t -> t.rows.flatMap { r -> r.entries.map { it.result } } }
+        val referenced = rules + results.filterIsInstance<Outcome.Rule>().map { it.ref.id }
+        // r295a is printed in the r233 City row but does not exist in the rule book (translation note 10).
+        val missingRules = referenced.toSet().filter { content.texts.rule(it) == null } - setOf("r295a")
+        assertEquals(emptyList(), missingRules)
+        val events = results.filterIsInstance<Outcome.Event>().map { it.ref.id } + game.systems.values.flatMap { s -> s.entryEvents.map { it.id } }
+        assertEquals(emptyList(), events.toSet().filter { content.texts.event(it) == null })
+    }
+
+    @Test
+    fun `texts are clean and sections list their subsections`() {
+        val texts = ContentLoader(files).load().texts
+        assertEquals(192, texts.rules.size)
+        assertEquals((0 until 10).map { "r207" + ('a' + it) }, texts.rule("r207")!!.children)
+        assertEquals("r207", texts.rule("r207a")!!.parent)
+        assertEquals("Regari", texts.rule("r207a")!!.title)
+        for ((id, entry) in texts.rules + texts.events) {
+            assertTrue(entry.title.isNotBlank(), "No title for $id")
+            assertTrue(entry.blocks.isNotEmpty() || entry.children.isNotEmpty(), "No text for $id")
+            for (block in entry.blocks) assertTrue("<!--" !in block.toString(), "Page marker left in $id")
+        }
+        val table = texts.rule("r241")!!.blocks.filterIsInstance<TextBlock.Table>().single()
+        assertEquals(12, table.rows.size)
     }
 
     @Test

@@ -65,6 +65,11 @@
     <string name="content_factor_tables">Tablas de factores</string>
     <string name="content_paragraphs">Párrafos r300–r339</string>
     <string name="content_goods">Artículos de comercio</string>
+    <string name="content_texts">Textos de reglas y eventos</string>
+    <string name="content_texts_search">Número de regla o evento (r233, e001)</string>
+    <string name="content_texts_not_found">No hay ningún texto «%1$s».</string>
+    <string name="content_text_title">%1$s · %2$s</string>
+    <string name="content_text_parent">Parte de %1$s</string>
     <string name="content_tables_roll">Tablas del juego</string>
     <string name="content_tables_hint">Tocá una tabla para tirar en una fila al azar.</string>
     <string name="content_table_line">%1$s · %2$s</string>

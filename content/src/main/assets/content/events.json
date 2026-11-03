@@ -1,0 +1,1639 @@
+{
+ "formatVersion": 1,
+ "events": [
+  {
+   "id": "e001",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e002",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e003",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e004",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e005",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e006",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e007",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e008",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e009",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e010",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e011",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e012",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e013",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e014",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e015",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e016",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e017",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e018",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e019",
+   "duration": {
+    "kind": "dice",
+    "dice": "1d6"
+   }
+  },
+  {
+   "id": "e020",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e021",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e022",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e023",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e024",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e025",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e026",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e027",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e028",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e029",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e030",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e031",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e032",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e033",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e034",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e035",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e036",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e037",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e038",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e039",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e040",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e041",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e042",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e043",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e044",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e045",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e046",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e047",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e048",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e049",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e050",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e051",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e052",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e053",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e054",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e055",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e056",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e057",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e058",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e059",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e060",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e061",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e062",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e063",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e064",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e065",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e066",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e067",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e068",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e069",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e070",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e071",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e072",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e073",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e074",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "defaulted": true
+   }
+  },
+  {
+   "id": "e075",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e076",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e077",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e078",
+   "duration": {
+    "kind": "per",
+    "hours": 1,
+    "per": "mine"
+   }
+  },
+  {
+   "id": "e079",
+   "duration": {
+    "kind": "per",
+    "hours": 1,
+    "per": "round"
+   }
+  },
+  {
+   "id": "e080",
+   "duration": {
+    "kind": "dice",
+    "dice": "1d6"
+   }
+  },
+  {
+   "id": "e081",
+   "duration": {
+    "kind": "per",
+    "hours": 1,
+    "per": "round"
+   }
+  },
+  {
+   "id": "e082",
+   "duration": {
+    "kind": "ends_game"
+   }
+  },
+  {
+   "id": "e083",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e084",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e085",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e086",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e087",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e088",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e089",
+   "duration": {
+    "kind": "hours",
+    "hours": 2
+   }
+  },
+  {
+   "id": "e090",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e091",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e092",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e093",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e094",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e095",
+   "duration": {
+    "kind": "per",
+    "hours": 1,
+    "per": "round"
+   }
+  },
+  {
+   "id": "e096",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e097",
+   "duration": {
+    "kind": "varies"
+   }
+  },
+  {
+   "id": "e098",
+   "duration": {
+    "kind": "varies"
+   }
+  },
+  {
+   "id": "e099",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e100",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e101",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e102",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e103",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e104",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e105",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e106",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e107",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e108",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e109",
+   "duration": {
+    "kind": "dice",
+    "dice": "1d6"
+   }
+  },
+  {
+   "id": "e110",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e111",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e112",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e113",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e114",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e115",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e116",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e117",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e118",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e119",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e120",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e121",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e122",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e123",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e124",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e125",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e126",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e127",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e128",
+   "duration": {
+    "kind": "dice",
+    "dice": "1d6"
+   }
+  },
+  {
+   "id": "e129",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e130",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e131",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e132",
+   "duration": {
+    "kind": "per",
+    "hours": 1,
+    "per": "round"
+   }
+  },
+  {
+   "id": "e133",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e134",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e135",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e136",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e137",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e138",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e139",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e140",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e141",
+   "duration": {
+    "kind": "see_reference"
+   }
+  },
+  {
+   "id": "e142",
+   "duration": {
+    "kind": "varies"
+   }
+  },
+  {
+   "id": "e143",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e144",
+   "duration": {
+    "kind": "per",
+    "hours": 1,
+    "per": "round"
+   }
+  },
+  {
+   "id": "e145",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e146",
+   "duration": {
+    "kind": "varies"
+   }
+  },
+  {
+   "id": "e147",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e148",
+   "duration": {
+    "kind": "hours",
+    "hours": 1,
+    "ifPresent": true
+   }
+  },
+  {
+   "id": "e149",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e150",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e151",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e152",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e153",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e154",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e155",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e156",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e157",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e158",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e159",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e160",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e161",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e162",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e163",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e164",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e165",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e166",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e167",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e168",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e169",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e170",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e171",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e172",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e173",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e174",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e175",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e176",
+   "duration": {
+    "kind": "travel"
+   }
+  },
+  {
+   "id": "e177",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e178",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e179",
+   "duration": {
+    "kind": "per",
+    "hours": 1,
+    "per": "round"
+   }
+  },
+  {
+   "id": "e180",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e181",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e182",
+   "duration": {
+    "kind": "hours",
+    "hours": 2
+   }
+  },
+  {
+   "id": "e183",
+   "duration": {
+    "kind": "varies"
+   }
+  },
+  {
+   "id": "e184",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e185",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e186",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e187",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e188",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e189",
+   "duration": {
+    "kind": "per",
+    "hours": 1,
+    "per": "round"
+   }
+  },
+  {
+   "id": "e190",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e191",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e192",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e193",
+   "duration": {
+    "kind": "per",
+    "hours": 1,
+    "per": "roll"
+   }
+  },
+  {
+   "id": "e194",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e195",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e196",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e197",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e198",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e199",
+   "duration": {
+    "kind": "per",
+    "hours": 1,
+    "per": "theft"
+   }
+  },
+  {
+   "id": "e400",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e401",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e402",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e403",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e404",
+   "duration": {
+    "kind": "varies"
+   }
+  },
+  {
+   "id": "e405",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e406",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e407",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e408",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e409",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e410",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e411",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e412",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e413",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e414",
+   "duration": {
+    "kind": "hours",
+    "hours": 2
+   }
+  },
+  {
+   "id": "e415",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e416",
+   "duration": {
+    "kind": "hours",
+    "hours": 0,
+    "instant": true
+   }
+  },
+  {
+   "id": "e417",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e418",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e419",
+   "duration": {
+    "kind": "dice",
+    "dice": "1d6"
+   }
+  },
+  {
+   "id": "e420",
+   "duration": {
+    "kind": "dice",
+    "dice": "1d6"
+   }
+  },
+  {
+   "id": "e421",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e422",
+   "duration": {
+    "kind": "per",
+    "hours": 1,
+    "per": "round"
+   }
+  },
+  {
+   "id": "e423",
+   "duration": {
+    "kind": "hours",
+    "hours": 0,
+    "instant": true
+   }
+  },
+  {
+   "id": "e424",
+   "duration": {
+    "kind": "rest_of_day"
+   }
+  },
+  {
+   "id": "e425",
+   "duration": {
+    "kind": "hours",
+    "hours": 0
+   }
+  },
+  {
+   "id": "e426",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e427",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  },
+  {
+   "id": "e428",
+   "duration": {
+    "kind": "hours",
+    "hours": 2
+   }
+  },
+  {
+   "id": "e429",
+   "duration": {
+    "kind": "dice",
+    "dice": "1d6"
+   }
+  },
+  {
+   "id": "e430",
+   "duration": {
+    "kind": "hours",
+    "hours": 3
+   }
+  },
+  {
+   "id": "e431",
+   "duration": {
+    "kind": "hours",
+    "hours": 1
+   }
+  }
+ ]
+}
