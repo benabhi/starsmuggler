@@ -185,4 +185,24 @@
     <string name="engine_rejected_table">No existe esa tabla.</string>
     <string name="engine_rejected_no_dice">Esa tabla no se tira: se consulta con otro número.</string>
     <string name="engine_rejected_row">Esa tabla no tiene esa fila.</string>
+    <string name="engine_rejected_hours">No quedan horas suficientes hoy para empezarla.</string>
+    <string name="engine_rejected_no_time">No hay tiempo para pasar.</string>
+    <string name="engine_clock">Reloj</string>
+    <string name="engine_clock_now">Hoy</string>
+    <string name="engine_clock_day">Día de la partida</string>
+    <string name="engine_clock_used">Horas usadas</string>
+    <string name="engine_clock_left">Horas que quedan</string>
+    <string name="engine_clock_overtime">Horas extra</string>
+    <string name="engine_hours">%1$s h</string>
+    <string name="engine_pass_tenth">+0,1 h</string>
+    <string name="engine_pass_hour">+1 h</string>
+    <string name="engine_pass_event">Evento de 3 h</string>
+    <string name="engine_pass_activity">Actividad de 2 h</string>
+    <string name="engine_rest_of_day">Resto del día</string>
+    <string name="engine_end_day">Terminar el día</string>
+    <string name="engine_log_time">Paso %1$s · Pasan %2$s</string>
+    <string name="engine_log_time_overtime">Paso %1$s · Pasan %2$s (%3$s extra)</string>
+    <string name="engine_log_day_ended">Paso %1$s · Termina el día %2$s</string>
+    <string name="engine_log_day_ended_overtime">Paso %1$s · Termina el día %2$s, con %3$s extra</string>
+    <string name="engine_log_week_ended">Paso %1$s · Termina la semana %2$s: vence el pago del préstamo</string>
 </resources>
