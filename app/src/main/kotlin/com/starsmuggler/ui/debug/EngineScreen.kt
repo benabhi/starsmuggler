@@ -1,0 +1,326 @@
+package com.starsmuggler.ui.debug
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.starsmuggler.R
+import com.starsmuggler.content.AssetContentSource
+import com.starsmuggler.content.ContentLoader
+import com.starsmuggler.content.LoadedContent
+import com.starsmuggler.content.TextLanguage
+import com.starsmuggler.engine.Action
+import com.starsmuggler.engine.ActionResult
+import com.starsmuggler.engine.Engine
+import com.starsmuggler.engine.GameState
+import com.starsmuggler.engine.LogEntry
+import com.starsmuggler.engine.Rejection
+import com.starsmuggler.engine.dice.DiceHand
+import com.starsmuggler.engine.dice.DiceRoll
+import com.starsmuggler.engine.dice.RollRequest
+import com.starsmuggler.engine.dice.RollSource
+import com.starsmuggler.engine.dice.Rng
+import com.starsmuggler.ui.Formats
+import com.starsmuggler.ui.components.RecordCard
+import com.starsmuggler.ui.components.RecordLine
+import com.starsmuggler.ui.components.StampButton
+import com.starsmuggler.ui.components.StampStyle
+import com.starsmuggler.ui.currentLocale
+import com.starsmuggler.ui.theme.Ink
+import com.starsmuggler.ui.theme.InkFaded
+import com.starsmuggler.ui.theme.PaperBackground
+import com.starsmuggler.ui.theme.RocketRed
+import com.starsmuggler.ui.theme.TeletypeStyles
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+
+/**
+ * A bench for the engine core (SMUG-18): start a game from a seed, roll on the game's tables with
+ * the app's dice or the player's own, read the log and check that a saved game loads the same.
+ * Debug builds only.
+ */
+@Composable
+fun EngineScreen() {
+    val context = LocalContext.current
+    val language = TextLanguage.resolve(currentLocale().toLanguageTag())
+    val result by produceState<Result<LoadedContent>?>(null, language) {
+        value = withContext(Dispatchers.IO) {
+            runCatching { ContentLoader(AssetContentSource(context.assets)).load(language) }
+        }
+    }
+    PaperBackground(Modifier.fillMaxSize()) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text(stringResource(R.string.engine_title), style = MaterialTheme.typography.headlineLarge, color = RocketRed)
+            Text(stringResource(R.string.engine_subtitle), style = MaterialTheme.typography.labelMedium, color = InkFaded)
+            val loaded = result
+            when {
+                loaded == null -> Text(stringResource(R.string.content_loading), style = MaterialTheme.typography.bodyLarge, color = Ink)
+                loaded.isFailure -> Text(loaded.exceptionOrNull()?.message.orEmpty(), style = TeletypeStyles.small, color = RocketRed)
+                else -> EngineBench(loaded.getOrThrow())
+            }
+        }
+    }
+}
+
+/** A physical roll waiting for the player's faces. */
+private class PendingRoll(val request: RollRequest, val answer: CompletableDeferred<List<Int>>)
+
+@Composable
+private fun EngineBench(content: LoadedContent) {
+    val engine = remember(content) { Engine(content.game) }
+    val scope = rememberCoroutineScope()
+    var seedText by remember { mutableStateOf(DEFAULT_SEED.toString()) }
+    var game by remember { mutableStateOf(engine.newGame(DEFAULT_SEED)) }
+    var ownDice by remember { mutableStateOf(false) }
+    var openTable by remember { mutableStateOf<String?>(null) }
+    var pending by remember { mutableStateOf<PendingRoll?>(null) }
+    var busy by remember { mutableStateOf(false) }
+    var notice by remember { mutableStateOf<Int?>(null) }
+    var roundTrip by remember { mutableStateOf<Pair<Int, Boolean>?>(null) }
+    val locale = currentLocale()
+
+    fun perform(action: Action) {
+        if (busy) return
+        busy = true
+        notice = null
+        val hand = if (ownDice) {
+            DiceHand.physical { request -> CompletableDeferred<List<Int>>().also { pending = PendingRoll(request, it) }.await() }
+        } else {
+            DiceHand.APP
+        }
+        scope.launch {
+            try {
+                when (val done = engine.perform(game, action, hand)) {
+                    is ActionResult.Done -> game = done.state
+                    is ActionResult.Rejected -> notice = rejectionText(done.reason)
+                }
+            } catch (_: CancellationException) {
+                notice = R.string.engine_roll_cancelled
+            } finally {
+                pending = null
+                busy = false
+            }
+        }
+    }
+
+    RecordCard(stringResource(R.string.engine_game)) {
+        OutlinedTextField(
+            value = seedText,
+            onValueChange = { text -> seedText = text.filter { it.isDigit() || it == '-' }.take(19) },
+            label = { Text(stringResource(R.string.engine_seed)) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            StampButton(stringResource(R.string.engine_new_game), enabled = !busy, onClick = {
+                game = engine.newGame(seedText.toLongOrNull() ?: DEFAULT_SEED)
+                roundTrip = null
+                notice = null
+            })
+            StampButton(stringResource(R.string.engine_save_load), enabled = !busy, onClick = {
+                val json = Json.encodeToString(game)
+                val loaded = Json.decodeFromString<GameState>(json)
+                roundTrip = json.toByteArray().size to (loaded == game)
+                game = loaded
+            })
+        }
+        RecordLine(stringResource(R.string.engine_step), Formats.integer(game.step, locale))
+        RecordLine(stringResource(R.string.engine_seed), game.seed.toString())
+        RecordLine(stringResource(R.string.engine_rng), java.lang.Long.toHexString(game.rng.state))
+        RecordLine(stringResource(R.string.engine_log_size), Formats.integer(game.log.size, locale))
+        roundTrip?.let { (bytes, same) ->
+            Text(
+                stringResource(if (same) R.string.engine_round_trip_same else R.string.engine_round_trip_differs, Formats.integer(bytes, locale)),
+                style = TeletypeStyles.small,
+                color = if (same) Ink else RocketRed,
+                modifier = Modifier.padding(vertical = 4.dp),
+            )
+        }
+    }
+
+    RecordCard(stringResource(R.string.engine_dice)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(vertical = 6.dp)) {
+            StampButton(
+                stringResource(R.string.engine_app_dice),
+                style = if (ownDice) StampStyle.Outline else StampStyle.Solid,
+                enabled = !busy,
+                onClick = { ownDice = false },
+            )
+            StampButton(
+                stringResource(R.string.engine_own_dice),
+                style = if (ownDice) StampStyle.Solid else StampStyle.Outline,
+                enabled = !busy,
+                onClick = { ownDice = true },
+            )
+        }
+        notice?.let { Text(stringResource(it), style = TeletypeStyles.small, color = RocketRed, modifier = Modifier.padding(vertical = 4.dp)) }
+    }
+
+    RecordCard(stringResource(R.string.engine_tables)) {
+        Text(stringResource(R.string.engine_tables_hint), style = MaterialTheme.typography.bodySmall, color = InkFaded, modifier = Modifier.padding(vertical = 4.dp))
+        for (table in content.game.tables.values) {
+            val dice = table.dice?.toString() ?: stringResource(R.string.content_no_dice)
+            Column(Modifier.fillMaxWidth()) {
+                Text(
+                    stringResource(R.string.content_table_line, table.id, dice),
+                    style = TeletypeStyles.medium,
+                    color = Ink,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(enabled = !busy) {
+                            if (table.rows.size == 1) perform(Action.RollOnTable(table.id)) else openTable = table.id.takeIf { it != openTable }
+                        }
+                        .padding(vertical = 6.dp),
+                )
+                if (openTable == table.id) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        for (row in table.rows) {
+                            Text(
+                                rowLabel(table.id, row.key, content),
+                                style = TeletypeStyles.small,
+                                color = RocketRed,
+                                modifier = Modifier.clickable(enabled = !busy) { perform(Action.RollOnTable(table.id, row.key)) }.padding(vertical = 6.dp),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pending?.let { roll ->
+        Dialog(onDismissRequest = { roll.answer.cancel() }) {
+            RecordCard(stringResource(R.string.engine_own_dice)) {
+                OwnDiceEntry(roll, onCancel = { roll.answer.cancel() })
+            }
+        }
+    }
+
+    RecordCard(stringResource(R.string.engine_log)) {
+        for (entry in game.log.asReversed()) {
+            Text(logText(entry, content), style = TeletypeStyles.small, color = Ink, modifier = Modifier.padding(vertical = 3.dp))
+        }
+    }
+}
+
+/** A quick picker for the faces of the player's own dice: one row of 1 to 6 per die. */
+@Composable
+private fun OwnDiceEntry(roll: PendingRoll, onCancel: () -> Unit) {
+    val faces = remember(roll) { mutableStateListOf<Int?>().apply { repeat(roll.request.dice.count) { add(null) } } }
+    val locale = currentLocale()
+    Column(Modifier.padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            stringResource(R.string.engine_roll_your_dice, roll.request.dice.toString(), roll.request.table ?: roll.request.rule.id),
+            style = MaterialTheme.typography.titleMedium,
+            color = RocketRed,
+        )
+        for (die in faces.indices) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                for (face in 1..Rng.FACES) {
+                    Text(
+                        Formats.integer(face, locale),
+                        style = TeletypeStyles.medium,
+                        color = if (faces[die] == face) RocketRed else InkFaded,
+                        modifier = Modifier.clickable { faces[die] = face }.padding(horizontal = 8.dp, vertical = 4.dp),
+                    )
+                }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            StampButton(
+                stringResource(R.string.engine_confirm),
+                style = StampStyle.Solid,
+                enabled = faces.all { it != null },
+                onClick = { roll.answer.complete(faces.map { it!! }) },
+            )
+            StampButton(stringResource(R.string.engine_cancel), onClick = onCancel)
+        }
+    }
+}
+
+@Composable
+private fun logText(entry: LogEntry, content: LoadedContent): String {
+    val locale = currentLocale()
+    val step = Formats.integer(entry.step, locale)
+    return when (entry) {
+        is LogEntry.GameStarted -> stringResource(R.string.engine_log_started, step, entry.seed.toString())
+        is LogEntry.Rolled -> rolledText(step, entry.roll)
+        is LogEntry.TableResult -> stringResource(
+            R.string.engine_log_table,
+            step,
+            entry.table,
+            rowLabel(entry.table, entry.key, content),
+            Formats.integer(entry.total, locale),
+            entry.outcome?.let { outcomeText(it, content) } ?: stringResource(R.string.engine_no_outcome),
+        )
+    }
+}
+
+@Composable
+private fun rolledText(step: String, roll: DiceRoll): String {
+    val locale = currentLocale()
+    val faces = roll.values.joinToString(DICE_SEPARATOR) { Formats.integer(it, locale) }
+    val source = stringResource(if (roll.source == RollSource.PHYSICAL) R.string.engine_source_own else R.string.engine_source_app)
+    val modifier = roll.request.modifier
+    return if (modifier == 0) {
+        stringResource(R.string.engine_log_rolled, step, roll.request.dice.toString(), faces, Formats.integer(roll.total, locale), source)
+    } else {
+        stringResource(
+            R.string.engine_log_rolled_modified,
+            step,
+            roll.request.dice.toString(),
+            faces,
+            Formats.integer(modifier, locale),
+            Formats.integer(roll.total, locale),
+            source,
+        )
+    }
+}
+
+private fun rejectionText(reason: Rejection): Int = when (reason) {
+    Rejection.UNKNOWN_TABLE -> R.string.engine_rejected_table
+    Rejection.TABLE_WITHOUT_DICE -> R.string.engine_rejected_no_dice
+    Rejection.UNKNOWN_ROW -> R.string.engine_rejected_row
+}
+
+private const val DEFAULT_SEED = 1982L
+private const val DICE_SEPARATOR = " + "

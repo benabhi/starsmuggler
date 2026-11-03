@@ -44,6 +44,7 @@ import com.starsmuggler.ui.components.RecordLine
 import com.starsmuggler.ui.components.StampButton
 import com.starsmuggler.ui.components.StampStyle
 import com.starsmuggler.ui.debug.ContentScreen
+import com.starsmuggler.ui.debug.EngineScreen
 import com.starsmuggler.ui.gallery.ComponentGallery
 import com.starsmuggler.ui.theme.ChromeOchre
 import com.starsmuggler.ui.theme.Ink
@@ -71,6 +72,7 @@ fun MainScreen() {
     var game by rememberSaveable(stateSaver = MockGameSaver) { mutableStateOf(MockGame()) }
     var showGallery by rememberSaveable { mutableStateOf(false) }
     var showContent by rememberSaveable { mutableStateOf(false) }
+    var showEngine by rememberSaveable { mutableStateOf(false) }
 
     if (showGallery) {
         BackHandler { showGallery = false }
@@ -80,6 +82,11 @@ fun MainScreen() {
     if (showContent) {
         BackHandler { showContent = false }
         ContentScreen()
+        return
+    }
+    if (showEngine) {
+        BackHandler { showEngine = false }
+        EngineScreen()
         return
     }
     // Back from any other tab returns to the bridge before leaving the app.
@@ -99,6 +106,7 @@ fun MainScreen() {
                         if (BuildConfig.DEBUG) {
                             StampButton(stringResource(R.string.open_gallery), onClick = { showGallery = true })
                             StampButton(stringResource(R.string.open_content), onClick = { showContent = true })
+                            StampButton(stringResource(R.string.open_engine), onClick = { showEngine = true })
                         }
                     }
                 }

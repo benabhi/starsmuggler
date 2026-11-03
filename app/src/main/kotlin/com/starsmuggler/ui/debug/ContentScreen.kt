@@ -234,7 +234,7 @@ private fun rollOn(table: DiceTable): Triple<String?, Int, Outcome>? {
 }
 
 @Composable
-private fun rowLabel(tableId: String, key: String?, content: LoadedContent): String = when {
+internal fun rowLabel(tableId: String, key: String?, content: LoadedContent): String = when {
     key == null -> stringResource(R.string.content_single_row)
     tableId == "r241" -> stringResource(R.string.content_row_wealth, key)
     tableId == "r235" -> stringResource(R.string.content_row_tech, key)
@@ -245,7 +245,7 @@ private fun rowLabel(tableId: String, key: String?, content: LoadedContent): Str
 }
 
 @Composable
-private fun outcomeText(outcome: Outcome, content: LoadedContent): String {
+internal fun outcomeText(outcome: Outcome, content: LoadedContent): String {
     val locale = currentLocale()
     return when (outcome) {
         is Outcome.Event -> outcome.ref.id

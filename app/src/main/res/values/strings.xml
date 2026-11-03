@@ -50,6 +50,7 @@
     <string name="end_day">Terminar el día</string>
     <string name="open_gallery">Ver muestrario</string>
     <string name="open_content">Ver contenido</string>
+    <string name="open_engine">Probar el motor</string>
 
     <!-- Loaded game content, debug builds only (SMUG-9). -->
     <string name="content_title">Contenido del juego</string>
@@ -152,4 +153,36 @@
         <item quantity="one">Queda %1$d hora del día</item>
         <item quantity="other">Quedan %1$d horas del día</item>
     </plurals>
+    <!-- Engine bench (SMUG-18), debug builds only. -->
+    <string name="engine_title">Motor de reglas</string>
+    <string name="engine_subtitle">Estado, acciones y dados con semilla · solo en depuración</string>
+    <string name="engine_game">Partida</string>
+    <string name="engine_seed">Semilla</string>
+    <string name="engine_new_game">Nueva partida</string>
+    <string name="engine_save_load">Guardar y cargar</string>
+    <string name="engine_step">Paso</string>
+    <string name="engine_rng">Generador</string>
+    <string name="engine_log_size">Entradas de la bitácora</string>
+    <string name="engine_round_trip_same">Partida guardada en %1$s bytes y cargada: idéntica.</string>
+    <string name="engine_round_trip_differs">Partida guardada en %1$s bytes y cargada: ¡distinta!</string>
+    <string name="engine_dice">Dados</string>
+    <string name="engine_app_dice">De la app</string>
+    <string name="engine_own_dice">Mis dados</string>
+    <string name="engine_roll_your_dice">Tirá %1$s para %2$s y marcá cada dado</string>
+    <string name="engine_confirm">Confirmar</string>
+    <string name="engine_cancel">Cancelar</string>
+    <string name="engine_roll_cancelled">Tirada cancelada: la partida no cambió.</string>
+    <string name="engine_tables">Tirar en una tabla</string>
+    <string name="engine_tables_hint">Tocá una tabla (y su fila, si tiene varias) para tirar con el motor. Cada tirada es una acción y queda en la bitácora.</string>
+    <string name="engine_log">Bitácora (lo último arriba)</string>
+    <string name="engine_log_started">Paso %1$s · Partida nueva, semilla %2$s</string>
+    <string name="engine_log_rolled">Paso %1$s · Tirada %2$s: %3$s = %4$s (%5$s)</string>
+    <string name="engine_log_rolled_modified">Paso %1$s · Tirada %2$s: %3$s, mod. %4$s = %5$s (%6$s)</string>
+    <string name="engine_log_table">Paso %1$s · %2$s, %3$s, con %4$s → %5$s</string>
+    <string name="engine_no_outcome">ninguna entrada</string>
+    <string name="engine_source_app">dados de la app</string>
+    <string name="engine_source_own">dados propios</string>
+    <string name="engine_rejected_table">No existe esa tabla.</string>
+    <string name="engine_rejected_no_dice">Esa tabla no se tira: se consulta con otro número.</string>
+    <string name="engine_rejected_row">Esa tabla no tiene esa fila.</string>
 </resources>
