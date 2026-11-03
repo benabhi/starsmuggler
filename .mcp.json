@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "lific": {
+      "args": [
+        "mcp"
+      ],
+      "command": "lific",
+      "env": {
+        "LIFIC_TOKEN": "${LIFIC_TOKEN}"
+      },
+      "type": "stdio"
+    }
+  }
+}

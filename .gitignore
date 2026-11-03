@@ -1,0 +1,35 @@
+# Original game resources (PDFs, scans, translations): local only, never in the repo
+/recursos/
+
+# Local Claude Code settings and secrets (.mcp.json is committed: it only references ${LIFIC_TOKEN})
+.claude/settings.local.json
+.env
+.env.*
+!.env.example
+
+# Lific lives in the user's global instance (%APPDATA%\lific); guard against local copies
+lific.db
+lific.db-wal
+lific.db-shm
+attachments/
+.lific-attachments.lock
+lific.log
+lific.toml
+backups/
+
+# Gradle and Android build outputs
+.gradle/
+build/
+/local.properties
+.kotlin/
+captures/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# IDE / OS
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
