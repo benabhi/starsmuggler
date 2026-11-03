@@ -2,4 +2,41 @@
 <resources>
     <!-- Same name in every language (PRD section 3). -->
     <string name="app_name" translatable="false">Star Smuggler</string>
+
+    <!-- Component gallery, debug builds only (SMUG-4). -->
+    <string name="gallery_subtitle">Componentes del tema retro · solo en depuración</string>
+    <string name="gallery_section_type">Tipografías</string>
+    <string name="gallery_section_stamps">Botones-sello</string>
+    <string name="gallery_section_actions">Tarjetas de acción</string>
+    <string name="gallery_section_dial">Dial del día</string>
+    <string name="gallery_section_card">Ficha</string>
+    <string name="gallery_section_palette">Paleta</string>
+    <string name="gallery_sample_headline">Sector Pavonis</string>
+    <string name="gallery_sample_tagline">Una aventura programada completa para un jugador</string>
+    <string name="gallery_sample_body">Duke Springer tiene que pagar 300 S de interés cada semana a los usureros que le financiaron la Antelope.</string>
+    <string name="gallery_sample_teletype">DÍA 3 · HORA 6 · COMB 12 · USV 8</string>
+    <string name="gallery_stamp_end_day">Terminar el día</string>
+    <string name="gallery_stamp_jump">Saltar</string>
+    <string name="gallery_stamp_disabled">Comerciar</string>
+    <string name="gallery_action_contact">Intentar contacto</string>
+    <string name="gallery_action_contact_desc">Tirada en la tabla de entrada y contacto del área.</string>
+    <string name="gallery_action_rrr">RRR</string>
+    <string name="gallery_action_rrr_desc">Reposo, Recuperación y Reparación.</string>
+    <string name="gallery_action_hopper">Viajar en la nave auxiliar</string>
+    <string name="gallery_action_hopper_disabled">No hay COMB</string>
+    <string name="gallery_card_title">Duke Springer</string>
+    <string name="stat_marksmanship">Puntería (P)</string>
+    <string name="stat_hand_to_hand">Combate cuerpo a cuerpo (C)</string>
+    <string name="stat_endurance">Resistencia (R)</string>
+    <string name="stat_cunning">Astucia</string>
+
+    <string name="cost_whole_day">Día</string>
+    <plurals name="cost_hours">
+        <item quantity="one">%1$d h</item>
+        <item quantity="other">%1$d h</item>
+    </plurals>
+    <plurals name="dial_hours_left">
+        <item quantity="one">Queda %1$d hora del día</item>
+        <item quantity="other">Quedan %1$d horas del día</item>
+    </plurals>
 </resources>

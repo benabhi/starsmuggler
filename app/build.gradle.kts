@@ -28,6 +28,8 @@ android {
 
     buildFeatures {
         compose = true
+        // BuildConfig.DEBUG gates the development-only screens, such as the component gallery (SMUG-4).
+        buildConfig = true
     }
 }
 
