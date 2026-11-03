@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.1.3] - 2026-11-02
+
+### Added
+
+- Add game tables, rule paragraphs, equipment and goods as data (SMUG-12)
+
 ## [0.1.2] - 2026-11-02
 
 ### Added
