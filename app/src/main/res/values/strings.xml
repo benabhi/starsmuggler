@@ -30,6 +30,54 @@
     <string name="stat_endurance">Resistencia (R)</string>
     <string name="stat_cunning">Astucia</string>
 
+    <!-- Main screen (SMUG-5). -->
+    <string name="tab_bridge">Puente</string>
+    <string name="tab_map">Mapa</string>
+    <string name="tab_sheet">Hoja</string>
+    <string name="tab_log">Bitácora</string>
+    <string name="tab_rules">Reglas</string>
+    <string name="clock_week_day">Semana %1$d · Día %2$d</string>
+    <string name="loan_due_today">PRÉSTAMO: %1$s HOY</string>
+    <plurals name="loan_due_in_days">
+        <item quantity="one">PRÉSTAMO: %2$s EN %1$d DÍA</item>
+        <item quantity="other">PRÉSTAMO: %2$s EN %1$d DÍAS</item>
+    </plurals>
+    <string name="money_label">Dinero</string>
+    <string name="money_sees">%1$s S</string>
+    <string name="location_line">Sistema %1$s · %2$s</string>
+    <string name="bridge_actions">Acciones disponibles</string>
+    <string name="reason_no_time">No quedan horas hoy</string>
+    <string name="end_day">Terminar el día</string>
+    <string name="open_gallery">Ver muestrario</string>
+
+    <!-- Fake data of the mock-up, removed when the engine arrives. -->
+    <string name="mock_location_system">Regari</string>
+    <string name="mock_location_area">Puerto espacial</string>
+    <string name="mock_location_air">AIRE BUENO</string>
+    <string name="mock_action_walk">Ir a pie a la Ciudad</string>
+    <string name="mock_action_walk_desc">Dos pasos terrestres desde el puerto espacial.</string>
+    <string name="mock_action_contact">Intentar contacto</string>
+    <string name="mock_action_contact_desc">Tirada en la tabla de entrada y contacto del área.</string>
+    <string name="mock_action_trade">Comerciar</string>
+    <string name="mock_action_trade_desc">Comprar o vender carga en el puerto.</string>
+    <string name="mock_action_rrr">RRR</string>
+    <string name="mock_action_rrr_desc">Reposo, Recuperación y Reparación: el resto del día.</string>
+    <string name="mock_action_hopper">Viajar en la nave auxiliar</string>
+    <string name="mock_action_hopper_disabled">No hay COMB</string>
+    <string name="mock_map_title">Mapa del sector</string>
+    <string name="mock_map_body">Los diez sistemas del Sector Pavonis, con las rutas de salto y el riesgo de cada una.</string>
+    <string name="mock_rules_title">Reglas y glosario</string>
+    <string name="mock_rules_body">Consulta del reglamento y de los eventos ya vistos, con búsqueda.</string>
+    <string name="mock_sheet_tabs">Duke · Nave y carga · Dinero y préstamo · Documentos</string>
+    <string name="mock_log_title">Bitácora de la partida</string>
+    <string name="mock_pending">Maqueta: esta pantalla se arma en un plan posterior.</string>
+    <string-array name="mock_log_lines">
+        <item>S1 D1 H0 · Salida de Regari con la Antelope.</item>
+        <item>S1 D2 H3 · Contacto en el puerto espacial: rumor de carga.</item>
+        <item>S1 D3 H1 · Venta de 4 UC de maquinaria por 1200 S.</item>
+        <item>S1 D3 H4 · Llegada al puerto espacial de Regari.</item>
+    </string-array>
+
     <string name="cost_whole_day">Día</string>
     <plurals name="cost_hours">
         <item quantity="one">%1$d h</item>

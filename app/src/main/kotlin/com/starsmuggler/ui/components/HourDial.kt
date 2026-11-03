@@ -41,6 +41,7 @@ fun HourDial(
     description: String,
     modifier: Modifier = Modifier,
     size: Dp = 160.dp,
+    showNumbers: Boolean = true,
 ) {
     val measurer = rememberTextMeasurer()
     val used = hoursUsed.coerceIn(0, HOURS_PER_DAY)
@@ -66,6 +67,7 @@ fun HourDial(
                 Offset(center.x + inner * cos(angle).toFloat(), center.y + inner * sin(angle).toFloat()),
                 strokeWidth = 1.5.dp.toPx(),
             )
+            if (!showNumbers) continue
             val label = measurer.measure(hour.toString(), TeletypeStyles.small)
             val textRadius = radius - ring * 2.3f
             drawText(
@@ -80,7 +82,7 @@ fun HourDial(
 
         val needle = Math.toRadians((START + SWEEP * used / HOURS_PER_DAY).toDouble())
         // Short enough to pass under the hour numbers.
-        val tip = radius * 0.48f
+        val tip = radius * if (showNumbers) 0.48f else 0.7f
         drawLine(
             ChromeOchre,
             center,
