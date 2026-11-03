@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.1.1] - 2026-11-02
+
+### Added
+
+- Add content data model, JSON loader and debug content screen (SMUG-9)
+
 ## [0.1.0] - 2026-11-02
 
 ### Added
