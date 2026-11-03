@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.starsmuggler.R
 import com.starsmuggler.ui.components.ActionCard
+import com.starsmuggler.ui.formatHours
 import com.starsmuggler.ui.components.HOURS_PER_DAY
 import com.starsmuggler.ui.components.HourDial
 import com.starsmuggler.ui.components.RecordCard
@@ -88,7 +89,7 @@ fun ComponentGallery() {
             ActionCard(
                 title = stringResource(R.string.gallery_action_contact),
                 description = stringResource(R.string.gallery_action_contact_desc),
-                cost = pluralStringResource(R.plurals.cost_hours, 1, 1),
+                cost = formatHours(1),
                 ruleRef = "r233",
                 onClick = { hoursUsed = (hoursUsed + 1).coerceAtMost(HOURS_PER_DAY) },
             )
@@ -101,7 +102,7 @@ fun ComponentGallery() {
             )
             ActionCard(
                 title = stringResource(R.string.gallery_action_hopper),
-                cost = pluralStringResource(R.plurals.cost_hours, 2, 2),
+                cost = formatHours(2),
                 disabledReason = stringResource(R.string.gallery_action_hopper_disabled),
                 ruleRef = "r214",
                 onClick = {},

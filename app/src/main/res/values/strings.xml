@@ -80,8 +80,8 @@
 
     <string name="cost_whole_day">Día</string>
     <plurals name="cost_hours">
-        <item quantity="one">%1$d h</item>
-        <item quantity="other">%1$d h</item>
+        <item quantity="one">%1$s h</item>
+        <item quantity="other">%1$s h</item>
     </plurals>
     <plurals name="dial_hours_left">
         <item quantity="one">Queda %1$d hora del día</item>

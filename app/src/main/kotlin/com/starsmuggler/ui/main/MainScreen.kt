@@ -51,7 +51,8 @@ import com.starsmuggler.ui.theme.PaperBackground
 import com.starsmuggler.ui.theme.PaperShade
 import com.starsmuggler.ui.theme.RocketRed
 import com.starsmuggler.ui.theme.TeletypeStyles
-import java.text.NumberFormat
+import com.starsmuggler.ui.formatHours
+import com.starsmuggler.ui.formatSees
 
 /** The five sections of the bottom bar (PRD section 7). */
 enum class MainTab(val label: Int) {
@@ -118,15 +119,15 @@ private fun ClockStrip(game: MockGame, modifier: Modifier = Modifier) {
             )
             Text(hoursLeftText, style = MaterialTheme.typography.titleSmall, color = Ink)
             val payment = if (game.daysToPayment == 0) {
-                stringResource(R.string.loan_due_today, sees(game.weeklyInterest))
+                stringResource(R.string.loan_due_today, formatSees(game.weeklyInterest))
             } else {
-                pluralStringResource(R.plurals.loan_due_in_days, game.daysToPayment, game.daysToPayment, sees(game.weeklyInterest))
+                pluralStringResource(R.plurals.loan_due_in_days, game.daysToPayment, game.daysToPayment, formatSees(game.weeklyInterest))
             }
             Text(payment, style = TeletypeStyles.small, color = if (game.daysToPayment <= 2) RocketRed else InkFaded)
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(stringResource(R.string.money_label).uppercase(), style = MaterialTheme.typography.labelSmall, color = InkFaded)
-            Text(sees(game.money), style = TeletypeStyles.large, color = Ink)
+            Text(formatSees(game.money), style = TeletypeStyles.large, color = Ink)
         }
     }
     HorizontalDivider(thickness = 2.dp, color = Ink)
@@ -173,7 +174,7 @@ private fun BridgePane(game: MockGame, onGame: (MockGame) -> Unit) {
             ActionCard(
                 title = stringResource(action.title),
                 description = action.description?.let { stringResource(it) },
-                cost = if (action.hours == WHOLE_DAY) stringResource(R.string.cost_whole_day) else pluralStringResource(R.plurals.cost_hours, hours, hours),
+                cost = if (action.hours == WHOLE_DAY) stringResource(R.string.cost_whole_day) else formatHours(hours),
                 ruleRef = action.ruleRef,
                 disabledReason = reason,
                 onClick = { onGame(game.spend(hours)) },
@@ -272,8 +273,3 @@ private fun TabBar(selected: MainTab, onSelect: (MainTab) -> Unit) {
         }
     }
 }
-
-/** Money in Sees, grouped by the phone's locale ("2450 S", "12.000 S"). */
-@Composable
-private fun sees(amount: Int): String =
-    stringResource(R.string.money_sees, NumberFormat.getIntegerInstance().format(amount))

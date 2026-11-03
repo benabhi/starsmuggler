@@ -11,8 +11,8 @@ android {
         applicationId = "com.starsmuggler"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.0.4"
+        versionCode = 5
+        versionName = "0.0.5"
     }
 
     buildTypes {
@@ -31,6 +31,12 @@ android {
         // BuildConfig.DEBUG gates the development-only screens, such as the component gallery (SMUG-4).
         buildConfig = true
     }
+
+    // Safeguards to localize later without rework (SMUG-6, PRD section 10).
+    lint {
+        error += "HardcodedText"
+        error += "MissingTranslation"
+    }
 }
 
 dependencies {
@@ -45,4 +51,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    // Plain JVM checks of the sources and resources, such as no visible text in the code (SMUG-6).
+    testImplementation(libs.junit4)
+    testImplementation(kotlin("test"))
 }
