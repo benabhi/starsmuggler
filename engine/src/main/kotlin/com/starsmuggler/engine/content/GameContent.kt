@@ -1,8 +1,8 @@
 package com.starsmuggler.engine.content
 
 /**
- * Everything the engine reads from the game: sector, tiles, tables, rule paragraphs, equipment
- * and goods, loaded from the versioned JSON of `:content`. It holds ids and values only; texts
+ * Everything the engine reads from the game: sector, tiles, tables, rule paragraphs, equipment,
+ * goods and event durations, loaded from the versioned JSON of `:content`. It holds ids and values only; texts
  * are looked up by id.
  */
 class GameContent(
@@ -13,6 +13,7 @@ class GameContent(
     paragraphs: List<RuleParagraph>,
     equipment: List<Equipment>,
     goods: List<Goods>,
+    events: List<GameEvent>,
 ) {
     val systems: Map<String, StarSystem> = sector.systems.associateByUnique("system") { it.id }
     val tiles: Map<String, Tile> = tiles.associateByUnique("tile") { it.id }
@@ -21,6 +22,7 @@ class GameContent(
     val paragraphs: Map<String, RuleParagraph> = paragraphs.associateByUnique("paragraph") { it.rule.id }
     val equipment: Map<String, Equipment> = equipment.associateByUnique("equipment") { it.id }
     val goods: Map<String, Goods> = goods.associateByUnique("goods") { it.id }
+    val events: Map<String, GameEvent> = events.associateByUnique("event") { it.id.id }
 
     init {
         for (pattern in sector.patterns) {
@@ -51,6 +53,8 @@ class GameContent(
     fun factors(id: String): FactorTable = factors[id] ?: throw NoSuchElementException("No factor table '$id'")
 
     fun paragraph(rule: RuleRef): RuleParagraph = paragraphs[rule.id] ?: throw NoSuchElementException("No paragraph '$rule'")
+
+    fun event(ref: EventRef): GameEvent = events[ref.id] ?: throw NoSuchElementException("No event '$ref'")
 
     fun pattern(id: String = Sector.STANDARD_PATTERN): ConnectionPattern =
         sector.patterns.firstOrNull { it.id == id } ?: throw NoSuchElementException("No connection pattern '$id'")

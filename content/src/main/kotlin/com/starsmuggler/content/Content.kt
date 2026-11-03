@@ -5,6 +5,7 @@ import com.starsmuggler.engine.content.Equipment
 import com.starsmuggler.engine.content.FactorTable
 import com.starsmuggler.engine.content.Goods
 import com.starsmuggler.engine.content.GameContent
+import com.starsmuggler.engine.content.GameEvent
 import com.starsmuggler.engine.content.RuleParagraph
 import com.starsmuggler.engine.content.Sector
 import com.starsmuggler.engine.content.Tile
@@ -18,8 +19,8 @@ fun interface ContentSource {
     fun read(path: String): String
 }
 
-/** The game content plus the names of its ids in one language. */
-class LoadedContent(val game: GameContent, val names: ContentNames)
+/** The game content plus the names and long texts of its ids in one language. */
+class LoadedContent(val game: GameContent, val names: ContentNames, val texts: GameTexts)
 
 /** A content file that could not be read, with the file and the reason. */
 class ContentException(val path: String, message: String, cause: Throwable? = null) : Exception("$path: $message", cause)
@@ -33,10 +34,13 @@ class ContentLoader(private val source: ContentSource) {
         val paragraphs = read(PARAGRAPHS, ParagraphsFile.serializer()).also { checkVersion(PARAGRAPHS, it.formatVersion) }.paragraphs
         val equipment = read(EQUIPMENT, EquipmentFile.serializer()).also { checkVersion(EQUIPMENT, it.formatVersion) }.equipment
         val goods = read(GOODS, GoodsFile.serializer()).also { checkVersion(GOODS, it.formatVersion) }.goods
-        val game = guard("content") { GameContent(sector, tiles, tables.tables, tables.factors, paragraphs, equipment, goods) }
-        val namesPath = "${TextLanguage.assetDir(language)}/$NAMES"
-        val names = read(namesPath, ContentNames.serializer()).also { checkVersion(namesPath, it.formatVersion) }
-        return LoadedContent(game, names)
+        val events = read(EVENTS, EventsFile.serializer()).also { checkVersion(EVENTS, it.formatVersion) }.events
+        val game = guard("content") { GameContent(sector, tiles, tables.tables, tables.factors, paragraphs, equipment, goods, events) }
+        val dir = TextLanguage.assetDir(language)
+        val names = read("$dir/$NAMES", ContentNames.serializer()).also { checkVersion("$dir/$NAMES", it.formatVersion) }
+        val rules = read("$dir/$RULE_TEXTS", TextsFile.serializer()).also { checkVersion("$dir/$RULE_TEXTS", it.formatVersion) }.texts
+        val eventTexts = read("$dir/$EVENT_TEXTS", TextsFile.serializer()).also { checkVersion("$dir/$EVENT_TEXTS", it.formatVersion) }.texts
+        return LoadedContent(game, names, GameTexts(rules, eventTexts))
     }
 
     private fun <T> read(path: String, strategy: DeserializationStrategy<T>): T {
@@ -67,7 +71,10 @@ class ContentLoader(private val source: ContentSource) {
         const val PARAGRAPHS = "content/paragraphs.json"
         const val EQUIPMENT = "content/equipment.json"
         const val GOODS = "content/goods.json"
+        const val EVENTS = "content/events.json"
         const val NAMES = "names.json"
+        const val RULE_TEXTS = "rules.json"
+        const val EVENT_TEXTS = "events.json"
 
         /** Strict on purpose: an unknown or misspelled key is an error, not silently dropped. */
         private val json = Json { ignoreUnknownKeys = false }
@@ -114,6 +121,12 @@ private class ParagraphsFile(val formatVersion: Int, val paragraphs: List<RulePa
 
 @Serializable
 private class GoodsFile(val formatVersion: Int, val goods: List<Goods>)
+
+@Serializable
+private class EventsFile(val formatVersion: Int, val events: List<GameEvent>)
+
+@Serializable
+private class TextsFile(val formatVersion: Int, val texts: Map<String, TextEntry>)
 
 @Serializable
 private class EquipmentFile(val formatVersion: Int, val equipment: List<Equipment>)

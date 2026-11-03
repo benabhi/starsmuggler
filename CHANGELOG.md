@@ -6,6 +6,13 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.1.4] - 2026-11-03
+
+### Added
+
+- Add Spanish rule and event texts with event durations (SMUG-13)
+- Size text table columns to their content and split column captions (SMUG-13)
+
 ## [0.1.3] - 2026-11-02
 
 ### Added
