@@ -7,10 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
-import com.starsmuggler.ui.gallery.ComponentGallery
-import com.starsmuggler.ui.theme.PaperBackground
+import com.starsmuggler.ui.main.MainScreen
 import com.starsmuggler.ui.theme.StarSmugglerTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,8 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             StarSmugglerTheme {
-                // The gallery stands in for the main screen until SMUG-5; release builds show bare paper.
-                if (BuildConfig.DEBUG) ComponentGallery() else PaperBackground(Modifier.fillMaxSize()) {}
+                MainScreen()
             }
         }
     }
