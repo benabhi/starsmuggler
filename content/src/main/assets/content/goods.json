@@ -1,0 +1,110 @@
+{
+  "formatVersion": 1,
+  "goods": [
+    {
+      "id": "fine_liquor",
+      "rule": "r331",
+      "capacity": 1
+    },
+    {
+      "id": "robot_servos",
+      "rule": "r331",
+      "capacity": 2
+    },
+    {
+      "id": "small_arms_ammo",
+      "rule": "r331",
+      "capacity": 1
+    },
+    {
+      "id": "expensive_clothing",
+      "rule": "r331",
+      "capacity": 2
+    },
+    {
+      "id": "rare_birds",
+      "rule": "r331",
+      "capacity": 1
+    },
+    {
+      "id": "rare_wood",
+      "rule": "r331",
+      "capacity": 4
+    },
+    {
+      "id": "radioactive_materials",
+      "rule": "r332",
+      "capacity": 4
+    },
+    {
+      "id": "rare_spices",
+      "rule": "r332",
+      "capacity": 1
+    },
+    {
+      "id": "stolen_art",
+      "rule": "r332",
+      "capacity": 1
+    },
+    {
+      "id": "cut_gems",
+      "rule": "r332",
+      "capacity": 1
+    },
+    {
+      "id": "young_slaves",
+      "rule": "r332",
+      "capacity": 1
+    },
+    {
+      "id": "antique_small_arms",
+      "rule": "r332",
+      "capacity": 1
+    },
+    {
+      "id": "starship_papers",
+      "rule": "r333"
+    },
+    {
+      "id": "robot_plans",
+      "rule": "r333",
+      "capacity": 1
+    },
+    {
+      "id": "antique_ground_vehicle",
+      "rule": "r333",
+      "capacity": 10
+    },
+    {
+      "id": "radar_software",
+      "rule": "r333",
+      "capacity": 1
+    },
+    {
+      "id": "hypnogem",
+      "rule": "r333",
+      "capacity": 1
+    },
+    {
+      "id": "mining_mole",
+      "rule": "r333",
+      "capacity": 12
+    },
+    {
+      "id": "hallucinogenic_drugs",
+      "rule": "r337"
+    },
+    {
+      "id": "small_arms_case",
+      "rule": "r338"
+    },
+    {
+      "id": "frag_grenades_pack",
+      "rule": "r338"
+    },
+    {
+      "id": "alien_artifact",
+      "rule": "r339"
+    }
+  ]
+}

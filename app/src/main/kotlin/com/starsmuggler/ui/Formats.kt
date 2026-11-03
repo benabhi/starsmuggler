@@ -15,6 +15,10 @@ import java.util.Locale
 object Formats {
     /** A whole number with the locale's grouping: 12.000 in Spanish, 12,000 in English. */
     fun integer(value: Int, locale: Locale): String = NumberFormat.getIntegerInstance(locale).format(value)
+
+    /** A number with up to one decimal, such as 1,5 in Spanish (price multipliers, r241). */
+    fun decimal(value: Double, locale: Locale): String =
+        NumberFormat.getNumberInstance(locale).apply { maximumFractionDigits = 1 }.format(value)
 }
 
 /** The locale the screen is drawn in. */

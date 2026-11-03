@@ -1,6 +1,7 @@
 package com.starsmuggler.ui.debug
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -37,6 +41,8 @@ import com.starsmuggler.content.TextLanguage
 import com.starsmuggler.engine.content.Air
 import com.starsmuggler.engine.content.Area
 import com.starsmuggler.engine.content.ConnectorKind
+import com.starsmuggler.engine.content.DiceTable
+import com.starsmuggler.engine.content.Outcome
 import com.starsmuggler.engine.content.GameContent
 import com.starsmuggler.engine.content.Restriction
 import com.starsmuggler.engine.content.StarSystem
@@ -53,6 +59,7 @@ import com.starsmuggler.ui.theme.RocketRed
 import com.starsmuggler.ui.theme.TeletypeStyles
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.random.Random
 
 /** What the content loader read from the JSON assets, to check the data on the phone (SMUG-9). Debug builds only. */
 @Composable
@@ -96,6 +103,7 @@ private fun LoadError(error: Throwable?) {
 private fun LoadedContentView(content: LoadedContent) {
     val game = content.game
     Counts(game)
+    TablesCard(content)
     SectorDiagram(content)
     game.systems.values.forEach { SystemCard(it, content) }
     game.tiles.values.forEach { TileCard(it, content) }
@@ -109,7 +117,84 @@ private fun Counts(game: GameContent) {
         RecordLine(stringResource(R.string.content_systems), Formats.integer(game.systems.size, locale))
         RecordLine(stringResource(R.string.content_tiles), Formats.integer(game.tiles.size, locale))
         RecordLine(stringResource(R.string.content_tables), Formats.integer(game.tables.size, locale))
+        RecordLine(stringResource(R.string.content_factor_tables), Formats.integer(game.factors.size, locale))
+        RecordLine(stringResource(R.string.content_paragraphs), Formats.integer(game.paragraphs.size, locale))
         RecordLine(stringResource(R.string.content_equipment), Formats.integer(game.equipment.size, locale))
+        RecordLine(stringResource(R.string.content_goods), Formats.integer(game.goods.size, locale))
+    }
+}
+
+/** Every table with a tap to roll on it, to check the transcription against the rule book (SMUG-12). */
+@Composable
+private fun TablesCard(content: LoadedContent) {
+    var rolled by remember { mutableStateOf<Pair<String, String>?>(null) }
+    val locale = currentLocale()
+    RecordCard(stringResource(R.string.content_tables_roll)) {
+        Text(stringResource(R.string.content_tables_hint), style = MaterialTheme.typography.bodySmall, color = InkFaded, modifier = Modifier.padding(vertical = 4.dp))
+        for (table in content.game.tables.values) {
+            val dice = table.dice?.toString() ?: stringResource(R.string.content_no_dice)
+            val roll = rollOn(table)
+            val result = roll?.let { (row, value, outcome) ->
+                stringResource(R.string.content_roll_result, rowLabel(table.id, row, content), Formats.integer(value, locale), outcomeText(outcome, content))
+            }
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { rolled = table.id to (result ?: "") }
+                    .padding(vertical = 6.dp),
+            ) {
+                Text(stringResource(R.string.content_table_line, table.id, dice), style = TeletypeStyles.medium, color = Ink)
+                if (rolled?.first == table.id) {
+                    Text(rolled!!.second, style = TeletypeStyles.small, color = RocketRed)
+                }
+            }
+        }
+    }
+}
+
+/** A random roll on [table]: its row key, the rolled number and the result. */
+private fun rollOn(table: DiceTable): Triple<String?, Int, Outcome>? {
+    val row = table.rows.random()
+    val dice = table.dice
+    val value = if (dice != null) {
+        (1..dice.count).sumOf { Random.nextInt(1, 7) }
+    } else {
+        // Tables without dice are looked up by a number such as a tech code: pick one inside a random entry.
+        val range = row.entries.random().roll
+        val low = if (range.isOpenBelow) 0 else range.min
+        val high = if (range.isOpenEnded) range.min + 100 else range.max
+        Random.nextInt(low, high + 1)
+    }
+    val outcome = table.lookup(value, row.key) ?: return null
+    return Triple(row.key, value, outcome)
+}
+
+@Composable
+private fun rowLabel(tableId: String, key: String?, content: LoadedContent): String = when {
+    key == null -> stringResource(R.string.content_single_row)
+    tableId == "r241" -> stringResource(R.string.content_row_wealth, key)
+    tableId == "r235" -> stringResource(R.string.content_row_tech, key)
+    tableId == "r238" -> content.names.travelMode(key)
+    key in content.names.areaTypes -> content.names.areaType(key)
+    key in content.names.systems -> content.names.system(key)
+    else -> key
+}
+
+@Composable
+private fun outcomeText(outcome: Outcome, content: LoadedContent): String {
+    val locale = currentLocale()
+    return when (outcome) {
+        is Outcome.Event -> outcome.ref.id
+        is Outcome.Rule -> outcome.ref.id
+        Outcome.SystemTable -> stringResource(R.string.content_result_system)
+        Outcome.NoMoreRolls -> stringResource(R.string.content_result_stop)
+        is Outcome.Key -> content.names.results[outcome.key] ?: content.names.goods(outcome.key)
+        is Outcome.Multiplier -> stringResource(R.string.content_result_multiplier, Formats.decimal(outcome.value, locale))
+        is Outcome.Value -> if (outcome.marked) {
+            stringResource(R.string.content_result_marked, Formats.integer(outcome.value, locale))
+        } else {
+            Formats.integer(outcome.value, locale)
+        }
     }
 }
 

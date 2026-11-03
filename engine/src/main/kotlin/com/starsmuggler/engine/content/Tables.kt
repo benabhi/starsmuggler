@@ -3,16 +3,17 @@ package com.starsmuggler.engine.content
 import kotlinx.serialization.Serializable
 
 /**
- * A dice table of the rules (r233 to r242). A one-column table has a single row with no key;
- * a cross table has one row per key, such as an area type or a system id, and each row maps
- * the roll to its result.
+ * A table of the rules (r233 to r242, r327 to r333). A one-column table has a single row with
+ * no key; a cross table has one row per key, such as an area type or a system id, and each row
+ * maps the roll to its result. Without [dice] the entries are looked up by another number,
+ * such as the system tech code (r238) or the days since a cache was placed (r242).
  */
 @Serializable
 data class DiceTable(
     /** Stable id, such as `r233` or `r233.system`. */
     val id: String,
     val rule: RuleRef,
-    val dice: Dice,
+    val dice: Dice? = null,
     val rows: List<TableRow>,
 ) {
     init {
@@ -41,3 +42,18 @@ data class TableRow(
 
 @Serializable
 data class TableEntry(val roll: RollRange, val result: Outcome)
+
+/**
+ * A factor that depends on where the player is, keyed by area type key or by a place such as
+ * `asteroids` or `orbit`: detection adjustments (r238) and base cache factors (r242).
+ */
+@Serializable
+data class FactorTable(
+    val id: String,
+    val rule: RuleRef,
+    val factors: Map<String, Int>,
+    /** The factor of any place not listed. */
+    val otherwise: Int = 0,
+) {
+    fun factor(place: String): Int = factors[place] ?: otherwise
+}

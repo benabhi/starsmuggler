@@ -24,6 +24,9 @@ class ContentModelTest {
         val open = RollRange.parse("6+")
         assertTrue(9 in open)
         assertEquals("6+", open.toString())
+        val low = RollRange.parse("2-")
+        assertTrue(-3 in low && 2 in low && 3 !in low)
+        assertEquals("2-", low.toString())
         assertFailsWith<IllegalArgumentException> { RollRange.parse("x") }
     }
 
@@ -34,7 +37,15 @@ class ContentModelTest {
         assertEquals(Outcome.SystemTable, Outcome.parse("SIST"))
         assertEquals(Outcome.NoMoreRolls, Outcome.parse("stop"))
         assertEquals(Outcome.Value(4), Outcome.parse("4"))
+        assertEquals(Outcome.Value(1, marked = true), Outcome.parse("*1"))
+        assertEquals(Outcome.Key("shields_fail"), Outcome.parse("#shields_fail"))
+        assertEquals(Outcome.Multiplier(3), Outcome.parse("x1.5"))
+        assertEquals(1.5, Outcome.Multiplier(3).value)
+        for (text in listOf("e129", "r295a", "SIST", "stop", "#cargo_hold", "x20", "x1.5", "*1", "10000")) {
+            assertEquals(text, Outcome.parse(text).toString())
+        }
         assertFailsWith<IllegalArgumentException> { Outcome.parse("maybe") }
+        assertFailsWith<IllegalArgumentException> { Outcome.parse("#Bad Key") }
     }
 
     @Test
@@ -85,5 +96,12 @@ class ContentModelTest {
         assertFailsWith<IllegalArgumentException> { StarSystem("s", RuleRef("r207a"), 0, 30, listOf(EventRef("e090")), listOf(planet)) }
         val events = (1..6).map { EventRef("e09$it") }
         assertEquals(EventRef("e096"), StarSystem("s", RuleRef("r207a"), 0, 30, events, listOf(planet)).entryEvent(6))
+    }
+
+    @Test
+    fun `factor tables fall back to their default`() {
+        val factors = FactorTable("f", RuleRef("r242"), mapOf("asteroids" to 0, "city" to 3), otherwise = 5)
+        assertEquals(0, factors.factor("asteroids"))
+        assertEquals(5, factors.factor("palace"))
     }
 }

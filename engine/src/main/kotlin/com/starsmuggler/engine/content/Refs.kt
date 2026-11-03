@@ -62,8 +62,8 @@ data class Dice(val count: Int) {
 }
 
 /**
- * The modified roll results a table entry covers, written `3`, `1-2` or `6+` in the data:
- * `6+` also takes any higher result, as the tables do after modifiers.
+ * The modified roll results a table entry covers, written `3`, `1-2`, `6+` or `2-` in the data:
+ * `6+` also takes any higher result and `2-` any lower one, as the tables do after modifiers.
  */
 @Serializable(with = RollRangeSerializer::class)
 data class RollRange(val min: Int, val max: Int) {
@@ -75,21 +75,25 @@ data class RollRange(val min: Int, val max: Int) {
 
     val isOpenEnded: Boolean get() = max == Int.MAX_VALUE
 
+    val isOpenBelow: Boolean get() = min == Int.MIN_VALUE
+
     override fun toString(): String = when {
         isOpenEnded -> "$min+"
+        isOpenBelow -> "$max-"
         min == max -> "$min"
         else -> "$min-$max"
     }
 
     companion object {
-        private val PATTERN = Regex("(-?\\d+)(?:(\\+)|-(\\d+))?")
+        private val PATTERN = Regex("(-?\\d+)(?:(\\+)|-(\\d+)|(-))?")
 
         fun parse(text: String): RollRange {
-            val match = PATTERN.matchEntire(text) ?: throw IllegalArgumentException("Not a roll range: '$text' (expected 3, 1-2 or 6+)")
-            val (min, plus, max) = match.destructured
+            val match = PATTERN.matchEntire(text) ?: throw IllegalArgumentException("Not a roll range: '$text' (expected 3, 1-2, 6+ or 2-)")
+            val (min, plus, max, minus) = match.destructured
             val low = min.toInt()
             return when {
                 plus.isNotEmpty() -> RollRange(low, Int.MAX_VALUE)
+                minus.isNotEmpty() -> RollRange(Int.MIN_VALUE, low)
                 max.isNotEmpty() -> RollRange(low, max.toInt())
                 else -> RollRange(low, low)
             }

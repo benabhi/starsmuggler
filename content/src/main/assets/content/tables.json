@@ -9,25 +9,529 @@
         {
           "key": "city",
           "entries": [
-            { "roll": "0", "result": "e129" },
-            { "roll": "1", "result": "r337" },
-            { "roll": "2", "result": "r339" },
-            { "roll": "3", "result": "e011" },
-            { "roll": "4", "result": "e185" },
-            { "roll": "5", "result": "r295a" },
-            { "roll": "6+", "result": "SIST" }
+            {
+              "roll": "0",
+              "result": "e129"
+            },
+            {
+              "roll": "1",
+              "result": "r337"
+            },
+            {
+              "roll": "2",
+              "result": "r339"
+            },
+            {
+              "roll": "3",
+              "result": "e011"
+            },
+            {
+              "roll": "4",
+              "result": "e185"
+            },
+            {
+              "roll": "5",
+              "result": "r295a"
+            },
+            {
+              "roll": "6+",
+              "result": "SIST"
+            }
+          ]
+        },
+        {
+          "key": "colony",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e019"
+            },
+            {
+              "roll": "1",
+              "result": "e185"
+            },
+            {
+              "roll": "2",
+              "result": "e137"
+            },
+            {
+              "roll": "3",
+              "result": "r329"
+            },
+            {
+              "roll": "4",
+              "result": "e198"
+            },
+            {
+              "roll": "5",
+              "result": "r205b"
+            },
+            {
+              "roll": "6+",
+              "result": "SIST"
+            }
+          ]
+        },
+        {
+          "key": "craters",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e070"
+            },
+            {
+              "roll": "1",
+              "result": "SIST"
+            },
+            {
+              "roll": "2",
+              "result": "e140"
+            },
+            {
+              "roll": "3",
+              "result": "e196"
+            },
+            {
+              "roll": "4",
+              "result": "e085"
+            },
+            {
+              "roll": "5",
+              "result": "r205c"
+            },
+            {
+              "roll": "6+",
+              "result": "e168"
+            }
+          ]
+        },
+        {
+          "key": "gambling",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e006"
+            },
+            {
+              "roll": "1",
+              "result": "r331"
+            },
+            {
+              "roll": "2",
+              "result": "r334"
+            },
+            {
+              "roll": "3",
+              "result": "e014"
+            },
+            {
+              "roll": "4",
+              "result": "SIST"
+            },
+            {
+              "roll": "5",
+              "result": "r205d"
+            },
+            {
+              "roll": "6+",
+              "result": "e071"
+            }
+          ]
+        },
+        {
+          "key": "industrial",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e181"
+            },
+            {
+              "roll": "1",
+              "result": "r333"
+            },
+            {
+              "roll": "2",
+              "result": "e010"
+            },
+            {
+              "roll": "3",
+              "result": "r335"
+            },
+            {
+              "roll": "4",
+              "result": "e146"
+            },
+            {
+              "roll": "5",
+              "result": "r205e"
+            },
+            {
+              "roll": "6+",
+              "result": "SIST"
+            }
+          ]
+        },
+        {
+          "key": "military",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e059"
+            },
+            {
+              "roll": "1",
+              "result": "e077"
+            },
+            {
+              "roll": "2",
+              "result": "e003"
+            },
+            {
+              "roll": "3",
+              "result": "e086"
+            },
+            {
+              "roll": "4",
+              "result": "SIST"
+            },
+            {
+              "roll": "5",
+              "result": "r205f"
+            },
+            {
+              "roll": "6+",
+              "result": "e018"
+            }
+          ]
+        },
+        {
+          "key": "mining",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e181"
+            },
+            {
+              "roll": "1",
+              "result": "e005"
+            },
+            {
+              "roll": "2",
+              "result": "e190"
+            },
+            {
+              "roll": "3",
+              "result": "SIST"
+            },
+            {
+              "roll": "4",
+              "result": "e072"
+            },
+            {
+              "roll": "5",
+              "result": "r205g"
+            },
+            {
+              "roll": "6+",
+              "result": "e172"
+            }
+          ]
+        },
+        {
+          "key": "palace",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e059"
+            },
+            {
+              "roll": "1",
+              "result": "e199"
+            },
+            {
+              "roll": "2",
+              "result": "e012"
+            },
+            {
+              "roll": "3",
+              "result": "r336"
+            },
+            {
+              "roll": "4",
+              "result": "SIST"
+            },
+            {
+              "roll": "5",
+              "result": "e131"
+            },
+            {
+              "roll": "6+",
+              "result": "e175"
+            }
+          ]
+        },
+        {
+          "key": "prison",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e417"
+            },
+            {
+              "roll": "1",
+              "result": "e008"
+            },
+            {
+              "roll": "2",
+              "result": "e190"
+            },
+            {
+              "roll": "3",
+              "result": "e087"
+            },
+            {
+              "roll": "4",
+              "result": "SIST"
+            },
+            {
+              "roll": "5",
+              "result": "r205i"
+            },
+            {
+              "roll": "6+",
+              "result": "e073"
+            }
+          ]
+        },
+        {
+          "key": "rough_terrain",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e154"
+            },
+            {
+              "roll": "1",
+              "result": "e015"
+            },
+            {
+              "roll": "2",
+              "result": "SIST"
+            },
+            {
+              "roll": "3",
+              "result": "e168"
+            },
+            {
+              "roll": "4",
+              "result": "e188"
+            },
+            {
+              "roll": "5",
+              "result": "e196"
+            },
+            {
+              "roll": "6+",
+              "result": "e178"
+            }
+          ]
+        },
+        {
+          "key": "ruins",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e150"
+            },
+            {
+              "roll": "1",
+              "result": "SIST"
+            },
+            {
+              "roll": "2",
+              "result": "e004"
+            },
+            {
+              "roll": "3",
+              "result": "e070"
+            },
+            {
+              "roll": "4",
+              "result": "e088"
+            },
+            {
+              "roll": "5",
+              "result": "r205k"
+            },
+            {
+              "roll": "6+",
+              "result": "e084"
+            }
+          ]
+        },
+        {
+          "key": "rural",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "r338"
+            },
+            {
+              "roll": "1",
+              "result": "e016"
+            },
+            {
+              "roll": "2",
+              "result": "e005"
+            },
+            {
+              "roll": "3",
+              "result": "SIST"
+            },
+            {
+              "roll": "4",
+              "result": "e188"
+            },
+            {
+              "roll": "5",
+              "result": "r205l"
+            },
+            {
+              "roll": "6+",
+              "result": "e180"
+            }
+          ]
+        },
+        {
+          "key": "scientific",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e017"
+            },
+            {
+              "roll": "1",
+              "result": "e009"
+            },
+            {
+              "roll": "2",
+              "result": "e127"
+            },
+            {
+              "roll": "3",
+              "result": "e158"
+            },
+            {
+              "roll": "4",
+              "result": "r205m"
+            },
+            {
+              "roll": "5",
+              "result": "SIST"
+            },
+            {
+              "roll": "6+",
+              "result": "e075"
+            }
+          ]
+        },
+        {
+          "key": "slum",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e142"
+            },
+            {
+              "roll": "1",
+              "result": "r332"
+            },
+            {
+              "roll": "2",
+              "result": "r337"
+            },
+            {
+              "roll": "3",
+              "result": "e076"
+            },
+            {
+              "roll": "4",
+              "result": "e013"
+            },
+            {
+              "roll": "5",
+              "result": "r205n"
+            },
+            {
+              "roll": "6+",
+              "result": "SIST"
+            }
           ]
         },
         {
           "key": "spaceport",
           "entries": [
-            { "roll": "0", "result": "e019" },
-            { "roll": "1", "result": "e409" },
-            { "roll": "2", "result": "r330" },
-            { "roll": "3", "result": "e185" },
-            { "roll": "4", "result": "SIST" },
-            { "roll": "5", "result": "e002" },
-            { "roll": "6+", "result": "r205o" }
+            {
+              "roll": "0",
+              "result": "e019"
+            },
+            {
+              "roll": "1",
+              "result": "e409"
+            },
+            {
+              "roll": "2",
+              "result": "r330"
+            },
+            {
+              "roll": "3",
+              "result": "e185"
+            },
+            {
+              "roll": "4",
+              "result": "SIST"
+            },
+            {
+              "roll": "5",
+              "result": "e002"
+            },
+            {
+              "roll": "6+",
+              "result": "r205o"
+            }
+          ]
+        },
+        {
+          "key": "space_station",
+          "entries": [
+            {
+              "roll": "0",
+              "result": "e019"
+            },
+            {
+              "roll": "1",
+              "result": "SIST"
+            },
+            {
+              "roll": "2",
+              "result": "e002"
+            },
+            {
+              "roll": "3",
+              "result": "e007"
+            },
+            {
+              "roll": "4",
+              "result": "e125"
+            },
+            {
+              "roll": "5",
+              "result": "r328"
+            },
+            {
+              "roll": "6+",
+              "result": "r205p"
+            }
           ]
         }
       ]
@@ -37,17 +541,1397 @@
       "rule": "r233",
       "dice": "1d6",
       "rows": [
-        { "key": "regari", "entries": [{ "roll": "1-2", "result": "e122" }, { "roll": "3-5", "result": "e147" }, { "roll": "6", "result": "e192" }] },
-        { "key": "palatek", "entries": [{ "roll": "1-2", "result": "e126" }, { "roll": "3-5", "result": "e151" }, { "roll": "6", "result": "e139" }] },
-        { "key": "byzantium", "entries": [{ "roll": "1-2", "result": "e131" }, { "roll": "3-5", "result": "e155" }, { "roll": "6", "result": "e123" }] },
-        { "key": "imperia", "entries": [{ "roll": "1-2", "result": "e136" }, { "roll": "3-5", "result": "e159" }, { "roll": "6", "result": "e424" }] },
-        { "key": "talitar", "entries": [{ "roll": "1-2", "result": "e141" }, { "roll": "3-5", "result": "e134" }, { "roll": "6", "result": "e191" }] },
-        { "key": "cubro", "entries": [{ "roll": "1-2", "result": "e145" }, { "roll": "3-5", "result": "e124" }, { "roll": "6", "result": "e135" }] },
-        { "key": "uruskop", "entries": [{ "roll": "1-2", "result": "e149" }, { "roll": "3-5", "result": "e128" }, { "roll": "6", "result": "e188" }] },
-        { "key": "nipna", "entries": [{ "roll": "1-2", "result": "e153" }, { "roll": "3-5", "result": "e133" }, { "roll": "6", "result": "e156" }] },
-        { "key": "mynkuria", "entries": [{ "roll": "1-2", "result": "e157" }, { "roll": "3-5", "result": "e138" }, { "roll": "6", "result": "e152" }] },
-        { "key": "new_karma", "entries": [{ "roll": "1-2", "result": "e089" }, { "roll": "3-5", "result": "e143" }, { "roll": "6", "result": "e148" }] }
+        {
+          "key": "regari",
+          "entries": [
+            {
+              "roll": "1-2",
+              "result": "e122"
+            },
+            {
+              "roll": "3-5",
+              "result": "e147"
+            },
+            {
+              "roll": "6",
+              "result": "e192"
+            }
+          ]
+        },
+        {
+          "key": "palatek",
+          "entries": [
+            {
+              "roll": "1-2",
+              "result": "e126"
+            },
+            {
+              "roll": "3-5",
+              "result": "e151"
+            },
+            {
+              "roll": "6",
+              "result": "e139"
+            }
+          ]
+        },
+        {
+          "key": "byzantium",
+          "entries": [
+            {
+              "roll": "1-2",
+              "result": "e131"
+            },
+            {
+              "roll": "3-5",
+              "result": "e155"
+            },
+            {
+              "roll": "6",
+              "result": "e123"
+            }
+          ]
+        },
+        {
+          "key": "imperia",
+          "entries": [
+            {
+              "roll": "1-2",
+              "result": "e136"
+            },
+            {
+              "roll": "3-5",
+              "result": "e159"
+            },
+            {
+              "roll": "6",
+              "result": "e424"
+            }
+          ]
+        },
+        {
+          "key": "talitar",
+          "entries": [
+            {
+              "roll": "1-2",
+              "result": "e141"
+            },
+            {
+              "roll": "3-5",
+              "result": "e134"
+            },
+            {
+              "roll": "6",
+              "result": "e191"
+            }
+          ]
+        },
+        {
+          "key": "cubro",
+          "entries": [
+            {
+              "roll": "1-2",
+              "result": "e145"
+            },
+            {
+              "roll": "3-5",
+              "result": "e124"
+            },
+            {
+              "roll": "6",
+              "result": "e135"
+            }
+          ]
+        },
+        {
+          "key": "uruskop",
+          "entries": [
+            {
+              "roll": "1-2",
+              "result": "e149"
+            },
+            {
+              "roll": "3-5",
+              "result": "e128"
+            },
+            {
+              "roll": "6",
+              "result": "e188"
+            }
+          ]
+        },
+        {
+          "key": "nipna",
+          "entries": [
+            {
+              "roll": "1-2",
+              "result": "e153"
+            },
+            {
+              "roll": "3-5",
+              "result": "e133"
+            },
+            {
+              "roll": "6",
+              "result": "e156"
+            }
+          ]
+        },
+        {
+          "key": "mynkuria",
+          "entries": [
+            {
+              "roll": "1-2",
+              "result": "e157"
+            },
+            {
+              "roll": "3-5",
+              "result": "e138"
+            },
+            {
+              "roll": "6",
+              "result": "e152"
+            }
+          ]
+        },
+        {
+          "key": "new_karma",
+          "entries": [
+            {
+              "roll": "1-2",
+              "result": "e089"
+            },
+            {
+              "roll": "3-5",
+              "result": "e143"
+            },
+            {
+              "roll": "6",
+              "result": "e148"
+            }
+          ]
+        }
       ]
+    },
+    {
+      "id": "r235",
+      "rule": "r235",
+      "dice": "1d6",
+      "rows": [
+        {
+          "key": "10",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "*1"
+            },
+            {
+              "roll": "2",
+              "result": "1"
+            },
+            {
+              "roll": "3",
+              "result": "1"
+            },
+            {
+              "roll": "4",
+              "result": "*1"
+            },
+            {
+              "roll": "5",
+              "result": "1"
+            },
+            {
+              "roll": "6",
+              "result": "1"
+            }
+          ]
+        },
+        {
+          "key": "15",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "1"
+            },
+            {
+              "roll": "2",
+              "result": "1"
+            },
+            {
+              "roll": "3",
+              "result": "*1"
+            },
+            {
+              "roll": "4",
+              "result": "1"
+            },
+            {
+              "roll": "5",
+              "result": "1"
+            },
+            {
+              "roll": "6",
+              "result": "2"
+            }
+          ]
+        },
+        {
+          "key": "20",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "1"
+            },
+            {
+              "roll": "2",
+              "result": "*1"
+            },
+            {
+              "roll": "3",
+              "result": "1"
+            },
+            {
+              "roll": "4",
+              "result": "1"
+            },
+            {
+              "roll": "5",
+              "result": "2"
+            },
+            {
+              "roll": "6",
+              "result": "3"
+            }
+          ]
+        },
+        {
+          "key": "25",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "*1"
+            },
+            {
+              "roll": "2",
+              "result": "1"
+            },
+            {
+              "roll": "3",
+              "result": "1"
+            },
+            {
+              "roll": "4",
+              "result": "2"
+            },
+            {
+              "roll": "5",
+              "result": "3"
+            },
+            {
+              "roll": "6",
+              "result": "4"
+            }
+          ]
+        },
+        {
+          "key": "30",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "1"
+            },
+            {
+              "roll": "2",
+              "result": "1"
+            },
+            {
+              "roll": "3",
+              "result": "2"
+            },
+            {
+              "roll": "4",
+              "result": "3"
+            },
+            {
+              "roll": "5",
+              "result": "4"
+            },
+            {
+              "roll": "6",
+              "result": "5"
+            }
+          ]
+        },
+        {
+          "key": "40",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "1"
+            },
+            {
+              "roll": "2",
+              "result": "2"
+            },
+            {
+              "roll": "3",
+              "result": "3"
+            },
+            {
+              "roll": "4",
+              "result": "4"
+            },
+            {
+              "roll": "5",
+              "result": "5"
+            },
+            {
+              "roll": "6",
+              "result": "6"
+            }
+          ]
+        },
+        {
+          "key": "50",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "2"
+            },
+            {
+              "roll": "2",
+              "result": "3"
+            },
+            {
+              "roll": "3",
+              "result": "4"
+            },
+            {
+              "roll": "4",
+              "result": "5"
+            },
+            {
+              "roll": "5",
+              "result": "6"
+            },
+            {
+              "roll": "6",
+              "result": "6"
+            }
+          ]
+        },
+        {
+          "key": "60",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "3"
+            },
+            {
+              "roll": "2",
+              "result": "4"
+            },
+            {
+              "roll": "3",
+              "result": "5"
+            },
+            {
+              "roll": "4",
+              "result": "6"
+            },
+            {
+              "roll": "5",
+              "result": "6"
+            },
+            {
+              "roll": "6",
+              "result": "6"
+            }
+          ]
+        },
+        {
+          "key": "70",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "4"
+            },
+            {
+              "roll": "2",
+              "result": "5"
+            },
+            {
+              "roll": "3",
+              "result": "6"
+            },
+            {
+              "roll": "4",
+              "result": "6"
+            },
+            {
+              "roll": "5",
+              "result": "6"
+            },
+            {
+              "roll": "6",
+              "result": "6"
+            }
+          ]
+        },
+        {
+          "key": "100",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "5"
+            },
+            {
+              "roll": "2",
+              "result": "6"
+            },
+            {
+              "roll": "3",
+              "result": "6"
+            },
+            {
+              "roll": "4",
+              "result": "6"
+            },
+            {
+              "roll": "5",
+              "result": "6"
+            },
+            {
+              "roll": "6",
+              "result": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r237.starship",
+      "rule": "r237",
+      "dice": "1d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "1",
+              "result": "#shields_fail"
+            },
+            {
+              "roll": "2",
+              "result": "#ecm_fail"
+            },
+            {
+              "roll": "3",
+              "result": "#life_support_fail"
+            },
+            {
+              "roll": "4",
+              "result": "#comms_fail"
+            },
+            {
+              "roll": "5",
+              "result": "#engines_fail"
+            },
+            {
+              "roll": "6",
+              "result": "#compartment_breach"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r237.compartment",
+      "rule": "r237",
+      "dice": "1d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "1",
+              "result": "#cockpit"
+            },
+            {
+              "roll": "2",
+              "result": "#crew_quarters"
+            },
+            {
+              "roll": "3",
+              "result": "#turret"
+            },
+            {
+              "roll": "4",
+              "result": "#engineering"
+            },
+            {
+              "roll": "5",
+              "result": "#cargo_hold"
+            },
+            {
+              "roll": "6",
+              "result": "#boat_bay"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r237.vehicle",
+      "rule": "r237",
+      "dice": "1d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "1-3",
+              "result": "#vehicle_breakdown"
+            },
+            {
+              "roll": "4",
+              "result": "#carried_equipment_breakdown"
+            },
+            {
+              "roll": "5-6",
+              "result": "#cargo_hits"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r238",
+      "rule": "r238",
+      "rows": [
+        {
+          "key": "on_foot",
+          "entries": [
+            {
+              "roll": "24-",
+              "result": "1"
+            },
+            {
+              "roll": "25-39",
+              "result": "1"
+            },
+            {
+              "roll": "40-69",
+              "result": "2"
+            },
+            {
+              "roll": "70+",
+              "result": "3"
+            }
+          ]
+        },
+        {
+          "key": "commercial_vehicle",
+          "entries": [
+            {
+              "roll": "24-",
+              "result": "1"
+            },
+            {
+              "roll": "25-39",
+              "result": "1"
+            },
+            {
+              "roll": "40-69",
+              "result": "3"
+            },
+            {
+              "roll": "70+",
+              "result": "4"
+            }
+          ]
+        },
+        {
+          "key": "skimmer",
+          "entries": [
+            {
+              "roll": "24-",
+              "result": "1"
+            },
+            {
+              "roll": "25-39",
+              "result": "2"
+            },
+            {
+              "roll": "40-69",
+              "result": "4"
+            },
+            {
+              "roll": "70+",
+              "result": "4"
+            }
+          ]
+        },
+        {
+          "key": "ships_boat",
+          "entries": [
+            {
+              "roll": "24-",
+              "result": "2"
+            },
+            {
+              "roll": "25-39",
+              "result": "3"
+            },
+            {
+              "roll": "40-69",
+              "result": "4"
+            },
+            {
+              "roll": "70+",
+              "result": "5"
+            }
+          ]
+        },
+        {
+          "key": "orbital_shuttle",
+          "entries": [
+            {
+              "roll": "24-",
+              "result": "2"
+            },
+            {
+              "roll": "25-39",
+              "result": "3"
+            },
+            {
+              "roll": "40-69",
+              "result": "5"
+            },
+            {
+              "roll": "70+",
+              "result": "6"
+            }
+          ]
+        },
+        {
+          "key": "starship",
+          "entries": [
+            {
+              "roll": "24-",
+              "result": "3"
+            },
+            {
+              "roll": "25-39",
+              "result": "4"
+            },
+            {
+              "roll": "40-69",
+              "result": "5"
+            },
+            {
+              "roll": "70+",
+              "result": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r240",
+      "rule": "r240",
+      "dice": "1d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "1",
+              "result": "#stasis_lost"
+            },
+            {
+              "roll": "2",
+              "result": "#stasis_culture_shock"
+            },
+            {
+              "roll": "3",
+              "result": "#stasis_1200_years"
+            },
+            {
+              "roll": "4",
+              "result": "#stasis_230_years"
+            },
+            {
+              "roll": "5",
+              "result": "#stasis_3_years"
+            },
+            {
+              "roll": "6",
+              "result": "#stasis_1_year"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r241",
+      "rule": "r241",
+      "dice": "1d6",
+      "rows": [
+        {
+          "key": "0",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "x1"
+            },
+            {
+              "roll": "2",
+              "result": "x1"
+            },
+            {
+              "roll": "3",
+              "result": "x1"
+            },
+            {
+              "roll": "4",
+              "result": "x1"
+            },
+            {
+              "roll": "5",
+              "result": "x1"
+            },
+            {
+              "roll": "6",
+              "result": "x1.5"
+            }
+          ]
+        },
+        {
+          "key": "10",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "x1"
+            },
+            {
+              "roll": "2",
+              "result": "x1"
+            },
+            {
+              "roll": "3",
+              "result": "x1"
+            },
+            {
+              "roll": "4",
+              "result": "x1"
+            },
+            {
+              "roll": "5",
+              "result": "x1"
+            },
+            {
+              "roll": "6",
+              "result": "x2"
+            }
+          ]
+        },
+        {
+          "key": "15",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "x1"
+            },
+            {
+              "roll": "2",
+              "result": "x1"
+            },
+            {
+              "roll": "3",
+              "result": "x1"
+            },
+            {
+              "roll": "4",
+              "result": "x1"
+            },
+            {
+              "roll": "5",
+              "result": "x1.5"
+            },
+            {
+              "roll": "6",
+              "result": "x2"
+            }
+          ]
+        },
+        {
+          "key": "20",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "x1"
+            },
+            {
+              "roll": "2",
+              "result": "x1"
+            },
+            {
+              "roll": "3",
+              "result": "x1"
+            },
+            {
+              "roll": "4",
+              "result": "x1"
+            },
+            {
+              "roll": "5",
+              "result": "x2"
+            },
+            {
+              "roll": "6",
+              "result": "x3"
+            }
+          ]
+        },
+        {
+          "key": "25",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "x1"
+            },
+            {
+              "roll": "2",
+              "result": "x1"
+            },
+            {
+              "roll": "3",
+              "result": "x1"
+            },
+            {
+              "roll": "4",
+              "result": "x1.5"
+            },
+            {
+              "roll": "5",
+              "result": "x2"
+            },
+            {
+              "roll": "6",
+              "result": "x3"
+            }
+          ]
+        },
+        {
+          "key": "30",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "x1"
+            },
+            {
+              "roll": "2",
+              "result": "x1"
+            },
+            {
+              "roll": "3",
+              "result": "x1"
+            },
+            {
+              "roll": "4",
+              "result": "x2"
+            },
+            {
+              "roll": "5",
+              "result": "x3"
+            },
+            {
+              "roll": "6",
+              "result": "x3"
+            }
+          ]
+        },
+        {
+          "key": "40",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "x1"
+            },
+            {
+              "roll": "2",
+              "result": "x1"
+            },
+            {
+              "roll": "3",
+              "result": "x1.5"
+            },
+            {
+              "roll": "4",
+              "result": "x2"
+            },
+            {
+              "roll": "5",
+              "result": "x3"
+            },
+            {
+              "roll": "6",
+              "result": "x5"
+            }
+          ]
+        },
+        {
+          "key": "50",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "x1"
+            },
+            {
+              "roll": "2",
+              "result": "x1"
+            },
+            {
+              "roll": "3",
+              "result": "x2"
+            },
+            {
+              "roll": "4",
+              "result": "x3"
+            },
+            {
+              "roll": "5",
+              "result": "x3"
+            },
+            {
+              "roll": "6",
+              "result": "x5"
+            }
+          ]
+        },
+        {
+          "key": "60",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "x1"
+            },
+            {
+              "roll": "2",
+              "result": "x1.5"
+            },
+            {
+              "roll": "3",
+              "result": "x2"
+            },
+            {
+              "roll": "4",
+              "result": "x3"
+            },
+            {
+              "roll": "5",
+              "result": "x5"
+            },
+            {
+              "roll": "6",
+              "result": "x10"
+            }
+          ]
+        },
+        {
+          "key": "70",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "x1"
+            },
+            {
+              "roll": "2",
+              "result": "x2"
+            },
+            {
+              "roll": "3",
+              "result": "x3"
+            },
+            {
+              "roll": "4",
+              "result": "x3"
+            },
+            {
+              "roll": "5",
+              "result": "x5"
+            },
+            {
+              "roll": "6",
+              "result": "x10"
+            }
+          ]
+        },
+        {
+          "key": "100",
+          "entries": [
+            {
+              "roll": "1",
+              "result": "x2"
+            },
+            {
+              "roll": "2",
+              "result": "x3"
+            },
+            {
+              "roll": "3",
+              "result": "x5"
+            },
+            {
+              "roll": "4",
+              "result": "x5"
+            },
+            {
+              "roll": "5",
+              "result": "x10"
+            },
+            {
+              "roll": "6",
+              "result": "x20"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r242.time",
+      "rule": "r242",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "9-",
+              "result": "0"
+            },
+            {
+              "roll": "10-39",
+              "result": "1"
+            },
+            {
+              "roll": "40-364",
+              "result": "2"
+            },
+            {
+              "roll": "365-36499",
+              "result": "3"
+            },
+            {
+              "roll": "36500-364999",
+              "result": "4"
+            },
+            {
+              "roll": "365000+",
+              "result": "5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r327",
+      "rule": "r327",
+      "dice": "2d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "2-",
+              "result": "r306"
+            },
+            {
+              "roll": "3",
+              "result": "r304"
+            },
+            {
+              "roll": "4",
+              "result": "r305"
+            },
+            {
+              "roll": "5",
+              "result": "r316"
+            },
+            {
+              "roll": "6",
+              "result": "r317"
+            },
+            {
+              "roll": "7",
+              "result": "r313"
+            },
+            {
+              "roll": "8",
+              "result": "r314"
+            },
+            {
+              "roll": "9",
+              "result": "r315"
+            },
+            {
+              "roll": "10",
+              "result": "r301"
+            },
+            {
+              "roll": "11",
+              "result": "r312"
+            },
+            {
+              "roll": "12+",
+              "result": "r300"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r328",
+      "rule": "r328",
+      "dice": "1d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "1-3",
+              "result": "#rumor_false"
+            },
+            {
+              "roll": "4-6",
+              "result": "#rumor_true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r329",
+      "rule": "r329",
+      "dice": "1d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "1",
+              "result": "#map_excellent"
+            },
+            {
+              "roll": "2",
+              "result": "#map_good"
+            },
+            {
+              "roll": "3",
+              "result": "#map_fair"
+            },
+            {
+              "roll": "4",
+              "result": "#map_trap"
+            },
+            {
+              "roll": "5-6",
+              "result": "#map_inaccurate"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r331",
+      "rule": "r331",
+      "dice": "1d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "1",
+              "result": "#fine_liquor"
+            },
+            {
+              "roll": "2",
+              "result": "#robot_servos"
+            },
+            {
+              "roll": "3",
+              "result": "#small_arms_ammo"
+            },
+            {
+              "roll": "4",
+              "result": "#expensive_clothing"
+            },
+            {
+              "roll": "5",
+              "result": "#rare_birds"
+            },
+            {
+              "roll": "6",
+              "result": "#rare_wood"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r332",
+      "rule": "r332",
+      "dice": "1d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "1",
+              "result": "#radioactive_materials"
+            },
+            {
+              "roll": "2",
+              "result": "#rare_spices"
+            },
+            {
+              "roll": "3",
+              "result": "#stolen_art"
+            },
+            {
+              "roll": "4",
+              "result": "#cut_gems"
+            },
+            {
+              "roll": "5",
+              "result": "#young_slaves"
+            },
+            {
+              "roll": "6",
+              "result": "#antique_small_arms"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r333",
+      "rule": "r333",
+      "dice": "1d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "1",
+              "result": "#starship_papers"
+            },
+            {
+              "roll": "2",
+              "result": "#robot_plans"
+            },
+            {
+              "roll": "3",
+              "result": "#antique_ground_vehicle"
+            },
+            {
+              "roll": "4",
+              "result": "#radar_software"
+            },
+            {
+              "roll": "5",
+              "result": "#hypnogem"
+            },
+            {
+              "roll": "6",
+              "result": "#mining_mole"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r333.antique_vehicle",
+      "rule": "r333",
+      "dice": "1d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "1-3",
+              "result": "#not_interested"
+            },
+            {
+              "roll": "4-5",
+              "result": "x3"
+            },
+            {
+              "roll": "6",
+              "result": "x5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r333.radar_software",
+      "rule": "r333",
+      "dice": "1d6",
+      "rows": [
+        {
+          "entries": [
+            {
+              "roll": "1",
+              "result": "#not_interested"
+            },
+            {
+              "roll": "2",
+              "result": "#taken_for_nothing"
+            },
+            {
+              "roll": "3",
+              "result": "e130"
+            },
+            {
+              "roll": "4",
+              "result": "1000"
+            },
+            {
+              "roll": "5",
+              "result": "2000"
+            },
+            {
+              "roll": "6+",
+              "result": "10000"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "factors": [
+    {
+      "id": "r238.area",
+      "rule": "r238",
+      "factors": {
+        "prison": 2,
+        "space_station": 2,
+        "military": 1,
+        "palace": 1,
+        "rough_terrain": -1,
+        "ruins": -1,
+        "craters": -2
+      }
+    },
+    {
+      "id": "r242.base",
+      "rule": "r242",
+      "factors": {
+        "asteroids": 0,
+        "craters": 1,
+        "ruins": 1,
+        "mining": 2,
+        "orbit": 2,
+        "rough_terrain": 2,
+        "rural": 2,
+        "city": 3,
+        "colony": 3,
+        "industrial": 3,
+        "scientific": 3,
+        "military": 4,
+        "slum": 4
+      },
+      "otherwise": 5
     }
   ]
 }
