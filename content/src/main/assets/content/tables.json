@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "tables": [
+    {
+      "id": "r233",
+      "rule": "r233",
+      "dice": "1d6",
+      "rows": [
+        {
+          "key": "city",
+          "entries": [
+            { "roll": "0", "result": "e129" },
+            { "roll": "1", "result": "r337" },
+            { "roll": "2", "result": "r339" },
+            { "roll": "3", "result": "e011" },
+            { "roll": "4", "result": "e185" },
+            { "roll": "5", "result": "r295a" },
+            { "roll": "6+", "result": "SIST" }
+          ]
+        },
+        {
+          "key": "spaceport",
+          "entries": [
+            { "roll": "0", "result": "e019" },
+            { "roll": "1", "result": "e409" },
+            { "roll": "2", "result": "r330" },
+            { "roll": "3", "result": "e185" },
+            { "roll": "4", "result": "SIST" },
+            { "roll": "5", "result": "e002" },
+            { "roll": "6+", "result": "r205o" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r233.system",
+      "rule": "r233",
+      "dice": "1d6",
+      "rows": [
+        { "key": "regari", "entries": [{ "roll": "1-2", "result": "e122" }, { "roll": "3-5", "result": "e147" }, { "roll": "6", "result": "e192" }] },
+        { "key": "palatek", "entries": [{ "roll": "1-2", "result": "e126" }, { "roll": "3-5", "result": "e151" }, { "roll": "6", "result": "e139" }] },
+        { "key": "byzantium", "entries": [{ "roll": "1-2", "result": "e131" }, { "roll": "3-5", "result": "e155" }, { "roll": "6", "result": "e123" }] },
+        { "key": "imperia", "entries": [{ "roll": "1-2", "result": "e136" }, { "roll": "3-5", "result": "e159" }, { "roll": "6", "result": "e424" }] },
+        { "key": "talitar", "entries": [{ "roll": "1-2", "result": "e141" }, { "roll": "3-5", "result": "e134" }, { "roll": "6", "result": "e191" }] },
+        { "key": "cubro", "entries": [{ "roll": "1-2", "result": "e145" }, { "roll": "3-5", "result": "e124" }, { "roll": "6", "result": "e135" }] },
+        { "key": "uruskop", "entries": [{ "roll": "1-2", "result": "e149" }, { "roll": "3-5", "result": "e128" }, { "roll": "6", "result": "e188" }] },
+        { "key": "nipna", "entries": [{ "roll": "1-2", "result": "e153" }, { "roll": "3-5", "result": "e133" }, { "roll": "6", "result": "e156" }] },
+        { "key": "mynkuria", "entries": [{ "roll": "1-2", "result": "e157" }, { "roll": "3-5", "result": "e138" }, { "roll": "6", "result": "e152" }] },
+        { "key": "new_karma", "entries": [{ "roll": "1-2", "result": "e089" }, { "roll": "3-5", "result": "e143" }, { "roll": "6", "result": "e148" }] }
+      ]
+    }
+  ]
+}

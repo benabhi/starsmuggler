@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "tiles": [
+    {
+      "id": "J",
+      "areas": [
+        { "id": "ruins", "type": "ruins", "restriction": "white", "position": { "x": 0.22, "y": 0.26 } },
+        { "id": "industrial", "type": "industrial", "restriction": "yellow", "ownAir": true, "bank": true, "position": { "x": 0.13, "y": 0.53 } },
+        { "id": "colony", "type": "colony", "restriction": "white", "ownAir": true, "bank": true, "medical": true, "position": { "x": 0.39, "y": 0.57 } },
+        { "id": "rural", "type": "rural", "restriction": "white", "ownAir": true, "bank": true, "position": { "x": 0.22, "y": 0.73 } }
+      ],
+      "connectors": [
+        { "from": "ruins", "to": "industrial", "kind": "single", "steps": 4 },
+        { "from": "ruins", "to": "colony", "kind": "single", "steps": 3 },
+        { "from": "industrial", "to": "colony", "kind": "single", "steps": 2 },
+        { "from": "industrial", "to": "rural", "kind": "single", "steps": 3 },
+        { "from": "rural", "to": "colony", "kind": "triple" }
+      ]
+    }
+  ]
+}

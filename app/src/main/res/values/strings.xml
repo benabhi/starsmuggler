@@ -49,6 +49,46 @@
     <string name="reason_no_time">No quedan horas hoy</string>
     <string name="end_day">Terminar el día</string>
     <string name="open_gallery">Ver muestrario</string>
+    <string name="open_content">Ver contenido</string>
+
+    <!-- Loaded game content, debug builds only (SMUG-9). -->
+    <string name="content_title">Contenido del juego</string>
+    <string name="content_subtitle">Datos leídos de los JSON · solo en depuración</string>
+    <string name="content_loading">Cargando el contenido…</string>
+    <string name="content_error_title">No se pudo cargar el contenido</string>
+    <string name="content_counts">Archivos cargados</string>
+    <string name="content_format">Versión del formato</string>
+    <string name="content_systems">Sistemas</string>
+    <string name="content_tiles">Losetas</string>
+    <string name="content_tables">Tablas</string>
+    <string name="content_equipment">Equipo</string>
+    <string name="content_system">%1$s (%2$s)</string>
+    <string name="content_wealth">Código de riqueza</string>
+    <string name="content_tech">Código tecnológico</string>
+    <string name="content_planet">Planeta %1$d</string>
+    <string name="content_planet_value">%1$s-%2$s · grav. %3$s · %4$s</string>
+    <string name="content_asteroids">Incluye asteroides</string>
+    <string name="content_entry_events">Entrada al sistema (1d6)</string>
+    <string name="content_entry_event">%1$s·%2$s</string>
+    <string name="content_jumps">A un salto</string>
+    <string name="content_tile">Loseta %1$s</string>
+    <string name="content_tile_edge">borde %1$d</string>
+    <string name="content_connector_triple">%1$s ≡ %2$s · contiguas, 1 h</string>
+    <plurals name="content_connector_steps">
+        <item quantity="one">%1$s — %2$s · %3$d paso terrestre</item>
+        <item quantity="other">%1$s — %2$s · %3$d pasos terrestres</item>
+    </plurals>
+    <string name="content_own_air">aire propio</string>
+    <string name="content_bank_mark">[b]</string>
+    <string name="content_medical_mark">[m]</string>
+    <string name="list_separator">" · "</string>
+    <string name="air_good">aire bueno</string>
+    <string name="air_bad">aire malo</string>
+    <string name="air_none">sin aire</string>
+    <string name="restriction_white">blanca</string>
+    <string name="restriction_yellow">amarilla</string>
+    <string name="restriction_red">roja</string>
+    <string name="restriction_purple">púrpura</string>
 
     <!-- Fake data of the mock-up, removed when the engine arrives. -->
     <string name="mock_location_system">Regari</string>

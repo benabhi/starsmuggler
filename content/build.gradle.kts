@@ -1,6 +1,7 @@
 // Game content (systems, tiles, tables, events) loaded from versioned JSON.
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -18,7 +19,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":engine"))
+    api(project(":engine"))
 
     testImplementation(libs.junit4)
     testImplementation(kotlin("test"))

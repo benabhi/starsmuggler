@@ -1,0 +1,32 @@
+{
+  "formatVersion": 1,
+  "systems": {
+    "regari": "Regari",
+    "palatek": "Palatek"
+  },
+  "areaTypes": {
+    "city": "Ciudad",
+    "colony": "Colonia",
+    "craters": "Cráteres",
+    "gambling": "Juegos de azar",
+    "industrial": "Industrial",
+    "military": "Militar",
+    "mining": "Minería",
+    "palace": "Palacio",
+    "prison": "Prisión",
+    "rough_terrain": "Terreno abrupto",
+    "ruins": "Ruinas",
+    "rural": "Rural",
+    "scientific": "Científico",
+    "slum": "Zona marginal",
+    "spaceport": "Puerto espacial",
+    "space_station": "Estación espacial"
+  },
+  "equipment": {
+    "fuel_unit": "Unidad de combustible (COMB)",
+    "life_support_unit": "Unidad de soporte vital (USV)",
+    "repair_unit": "Unidad de reparación (UR)",
+    "stasis_unit": "Unidad de estasis",
+    "starship": "Nave estelar"
+  }
+}

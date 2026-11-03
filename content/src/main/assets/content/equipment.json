@@ -1,0 +1,10 @@
+{
+  "formatVersion": 1,
+  "equipment": [
+    { "id": "fuel_unit", "rule": "r211c", "capacity": 1 },
+    { "id": "life_support_unit", "rule": "r213", "capacity": 1 },
+    { "id": "repair_unit", "rule": "r211b", "capacity": 1 },
+    { "id": "stasis_unit", "rule": "r212e", "capacity": 1, "sized": true },
+    { "id": "starship", "rule": "r212" }
+  ]
+}
