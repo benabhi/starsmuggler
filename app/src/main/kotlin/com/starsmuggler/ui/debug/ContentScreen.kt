@@ -188,7 +188,7 @@ private fun SystemCard(system: StarSystem, content: LoadedContent) {
         RecordLine(stringResource(R.string.content_wealth), Formats.integer(system.wealth, locale))
         RecordLine(stringResource(R.string.content_tech), Formats.integer(system.tech, locale))
         for (planet in system.planets) {
-            RecordLine(
+            StackedLine(
                 stringResource(R.string.content_planet, planet.number),
                 stringResource(
                     R.string.content_planet_value,
@@ -209,7 +209,16 @@ private fun SystemCard(system: StarSystem, content: LoadedContent) {
             modifier = Modifier.padding(vertical = 4.dp),
         )
         val neighbors = content.game.pattern().neighbors(system.id).joinToString { content.names.system(it) }
-        RecordLine(stringResource(R.string.content_jumps), neighbors)
+        StackedLine(stringResource(R.string.content_jumps), neighbors)
+    }
+}
+
+/** A label with its value below it, for values too long to share a ruled line with the label. */
+@Composable
+private fun StackedLine(label: String, value: String) {
+    Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = Ink)
+        Text(value, style = TeletypeStyles.medium, color = Ink)
     }
 }
 
