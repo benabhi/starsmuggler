@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -59,13 +58,13 @@ import com.starsmuggler.engine.dice.DiceHand
 import com.starsmuggler.engine.dice.DiceRoll
 import com.starsmuggler.engine.dice.RollRequest
 import com.starsmuggler.engine.dice.RollSource
-import com.starsmuggler.engine.dice.Rng
 import com.starsmuggler.ui.Formats
 import com.starsmuggler.ui.components.RecordCard
 import com.starsmuggler.ui.components.RecordLine
 import com.starsmuggler.ui.components.StampButton
 import com.starsmuggler.ui.components.StampStyle
 import com.starsmuggler.ui.currentLocale
+import com.starsmuggler.ui.dice.OwnDiceEntry
 import com.starsmuggler.ui.formatSees
 import com.starsmuggler.ui.game.SAVES_DIR
 import com.starsmuggler.ui.game.STARSHIP_GUNS
@@ -236,7 +235,7 @@ private fun EngineBench(content: LoadedContent) {
     pending?.let { roll ->
         Dialog(onDismissRequest = { roll.answer.cancel() }) {
             RecordCard(stringResource(R.string.engine_own_dice)) {
-                OwnDiceEntry(roll, onCancel = { roll.answer.cancel() })
+                OwnDiceEntry(roll.request, onRoll = { roll.answer.complete(it) }, onCancel = { roll.answer.cancel() })
             }
         }
     }
@@ -656,41 +655,6 @@ private fun ClockCard(game: GameState, enabled: Boolean, perform: (Action) -> Un
             StampButton(stringResource(R.string.engine_pass_activity), enabled = enabled, onClick = { perform(Action.PassTime(2 * Clock.HOUR, event = false)) })
             StampButton(stringResource(R.string.engine_rest_of_day), enabled = enabled, onClick = { perform(Action.PassRestOfDay) })
             StampButton(stringResource(R.string.engine_end_day), style = StampStyle.Solid, enabled = enabled, onClick = { perform(Action.EndDay) })
-        }
-    }
-}
-
-/** A quick picker for the faces of the player's own dice: one row of 1 to 6 per die. */
-@Composable
-private fun OwnDiceEntry(roll: PendingRoll, onCancel: () -> Unit) {
-    val faces = remember(roll) { mutableStateListOf<Int?>().apply { repeat(roll.request.dice.count) { add(null) } } }
-    val locale = currentLocale()
-    Column(Modifier.padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(
-            stringResource(R.string.engine_roll_your_dice, roll.request.dice.toString(), roll.request.table ?: roll.request.rule.id),
-            style = MaterialTheme.typography.titleMedium,
-            color = RocketRed,
-        )
-        for (die in faces.indices) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                for (face in 1..Rng.FACES) {
-                    Text(
-                        Formats.integer(face, locale),
-                        style = TeletypeStyles.medium,
-                        color = if (faces[die] == face) RocketRed else InkFaded,
-                        modifier = Modifier.clickable { faces[die] = face }.padding(horizontal = 8.dp, vertical = 4.dp),
-                    )
-                }
-            }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            StampButton(
-                stringResource(R.string.engine_confirm),
-                style = StampStyle.Solid,
-                enabled = faces.all { it != null },
-                onClick = { roll.answer.complete(faces.map { it!! }) },
-            )
-            StampButton(stringResource(R.string.engine_cancel), onClick = onCancel)
         }
     }
 }

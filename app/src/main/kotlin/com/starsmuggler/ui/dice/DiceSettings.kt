@@ -31,8 +31,14 @@ class DiceSettings(context: Context) {
         get() = prefs.getString(MODE, null)?.let { saved -> DiceMode.entries.find { it.name == saved } } ?: DiceMode.IMPORTANT
         set(value) = prefs.edit { putString(MODE, value.name) }
 
+    /** The player rolls their own dice (SMUG-30). */
+    var ownDice: Boolean
+        get() = prefs.getBoolean(OWN_DICE, false)
+        set(value) = prefs.edit { putBoolean(OWN_DICE, value) }
+
     private companion object {
         const val FILE = "dice" // not-ui
         const val MODE = "mode" // not-ui
+        const val OWN_DICE = "own_dice" // not-ui
     }
 }

@@ -146,8 +146,6 @@
     <string name="engine_dice">Dados</string>
     <string name="engine_app_dice">De la app</string>
     <string name="engine_own_dice">Mis dados</string>
-    <string name="engine_roll_your_dice">Tirá %1$s para %2$s y marcá cada dado</string>
-    <string name="engine_confirm">Confirmar</string>
     <string name="engine_cancel">Cancelar</string>
     <string name="engine_roll_cancelled">Tirada cancelada: la partida no cambió.</string>
     <string name="engine_tables">Tirar en una tabla</string>
@@ -168,6 +166,15 @@
     <string name="dice_mode_important_hint">Combate, saltos, contactos y eventos. Las demás suenan y se anotan.</string>
     <string name="dice_mode_none">Sin animación</string>
     <string name="dice_mode_none_hint">Ninguna tirada muestra dados: suenan y se anotan.</string>
+    <!-- The player's own dice (SMUG-30, PRD P7). -->
+    <string name="own_dice_option">Tiro con mis dados</string>
+    <string name="own_dice_option_hint">Cada tirada pide lo que salió en tus dados; la bitácora la marca como dados propios.</string>
+    <string name="own_dice_title">Mis dados</string>
+    <string name="own_dice_prompt">Tirá %1$s para %2$s y marcá cada dado</string>
+    <string name="own_dice_prompt_modified">Tirá %1$s para %2$s (mod. %3$s) y marcá cada dado</string>
+    <string name="own_dice_use">Usar</string>
+    <string name="own_dice_cancel">Cancelar</string>
+    <string name="roll_cancelled">Tirada cancelada: la partida no cambió.</string>
     <string name="engine_log_table">Paso %1$s · %2$s, %3$s, con %4$s → %5$s</string>
     <string name="engine_no_outcome">ninguna entrada</string>
     <string name="engine_source_app">dados de la app</string>

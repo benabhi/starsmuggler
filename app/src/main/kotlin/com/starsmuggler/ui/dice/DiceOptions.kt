@@ -7,9 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -45,6 +48,23 @@ fun DiceOptions(dice: AnimatedDice, modifier: Modifier = Modifier) {
                     Text(stringResource(mode.hint), style = MaterialTheme.typography.bodySmall, color = InkFaded)
                 }
             }
+        }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .toggleable(value = dice.ownDice, role = Role.Switch) { dice.changeOwnDice(it) }
+                .padding(top = 8.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f).padding(end = 12.dp)) {
+                Text(stringResource(R.string.own_dice_option), style = MaterialTheme.typography.bodyLarge, color = Ink)
+                Text(stringResource(R.string.own_dice_option_hint), style = MaterialTheme.typography.bodySmall, color = InkFaded)
+            }
+            Switch(
+                checked = dice.ownDice,
+                onCheckedChange = null,
+                colors = SwitchDefaults.colors(checkedTrackColor = RocketRed, uncheckedBorderColor = Ink, uncheckedThumbColor = Ink),
+            )
         }
     }
 }

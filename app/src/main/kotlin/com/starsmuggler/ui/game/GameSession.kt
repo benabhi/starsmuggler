@@ -18,6 +18,7 @@ import com.starsmuggler.engine.GameState
 import com.starsmuggler.engine.LogEntry
 import com.starsmuggler.engine.Rejection
 import com.starsmuggler.engine.dice.DiceHand
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,6 +63,10 @@ class GameSession(
 
     /** Why the last action could not be performed, if it could not. */
     var rejection: Rejection? by mutableStateOf(null)
+        private set
+
+    /** The player cancelled a roll of their own dice, and with it the last action (SMUG-30). */
+    var rollCancelled: Boolean by mutableStateOf(false)
         private set
 
     /** What the last action added to the log, to show it on the bridge. */
@@ -131,9 +136,13 @@ class GameSession(
         if (busy) return
         busy = true
         rejection = null
+        rollCancelled = false
         scope.launch {
             try {
                 block()
+            } catch (_: CancellationException) {
+                // The engine changes nothing until an action ends, so the game stays as it was.
+                rollCancelled = true
             } finally {
                 busy = false
             }

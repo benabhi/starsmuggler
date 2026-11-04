@@ -19,6 +19,7 @@ import com.starsmuggler.dice.DiceTable
 import com.starsmuggler.ui.dice.AnimatedDice
 import com.starsmuggler.ui.dice.DiceSettings
 import com.starsmuggler.ui.dice.LocalDice
+import com.starsmuggler.ui.dice.OwnDiceDialog
 import com.starsmuggler.ui.dice.RollCaption
 import com.starsmuggler.ui.main.MainScreen
 import com.starsmuggler.ui.theme.StarSmugglerTheme
@@ -51,6 +52,9 @@ class MainActivity : ComponentActivity() {
                         Box(Modifier.fillMaxSize()) {
                             MainScreen()
                             RollCaption(dice)
+                            dice.pending?.let { roll ->
+                                OwnDiceDialog(roll.request, onRoll = { roll.answer.complete(it) }, onCancel = { roll.answer.cancel() })
+                            }
                         }
                     }
                 }
