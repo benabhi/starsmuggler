@@ -21,6 +21,12 @@ data class GameState(
     /** How many actions have been performed. */
     val step: Int,
     val clock: Clock = Clock(),
+    val duke: Duke,
+    val ship: Ship = Ship(),
+    /** Cash in Duke's pocket, in Sees (r232a). */
+    val cash: Int,
+    val location: Location = Location.START,
+    val standing: Standing = Standing(),
     /** The game's history, oldest first (PRD section 7, log). */
     val log: List<LogEntry>,
 )
@@ -33,6 +39,21 @@ sealed interface LogEntry {
     @Serializable
     @SerialName("started")
     data class GameStarted(override val step: Int, val seed: Long, val rulesVersion: Int) : LogEntry
+
+    /** Astucia set at the start: rolled, or the [previous] game's one changed by [adjustment] (r202). */
+    @Serializable
+    @SerialName("astucia_set")
+    data class AstuciaSet(override val step: Int, val astucia: Int, val previous: Int? = null, val adjustment: Int = 0) : LogEntry
+
+    /** The cash Duke starts with (e001). */
+    @Serializable
+    @SerialName("starting_cash")
+    data class StartingCash(override val step: Int, val sees: Int) : LogEntry
+
+    /** An Astucia roll: [total] against [astucia], a success when it is not higher (r202). */
+    @Serializable
+    @SerialName("astucia_roll")
+    data class AstuciaRolled(override val step: Int, val astucia: Int, val total: Int, val success: Boolean) : LogEntry
 
     /** A roll of the dice, made by the app or by the player. */
     @Serializable

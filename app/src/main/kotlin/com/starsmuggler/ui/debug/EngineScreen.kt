@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,12 +38,15 @@ import com.starsmuggler.content.ContentLoader
 import com.starsmuggler.content.LoadedContent
 import com.starsmuggler.content.TextLanguage
 import com.starsmuggler.engine.Action
+import com.starsmuggler.engine.Astucia
+import com.starsmuggler.engine.AstuciaSetup
 import com.starsmuggler.engine.Clock
 import com.starsmuggler.engine.ActionResult
 import com.starsmuggler.engine.Engine
 import com.starsmuggler.engine.GameState
 import com.starsmuggler.engine.LogEntry
 import com.starsmuggler.engine.Rejection
+import com.starsmuggler.engine.Skill
 import com.starsmuggler.engine.dice.DiceHand
 import com.starsmuggler.engine.dice.DiceRoll
 import com.starsmuggler.engine.dice.RollRequest
@@ -54,6 +58,7 @@ import com.starsmuggler.ui.components.RecordLine
 import com.starsmuggler.ui.components.StampButton
 import com.starsmuggler.ui.components.StampStyle
 import com.starsmuggler.ui.currentLocale
+import com.starsmuggler.ui.formatSees
 import com.starsmuggler.ui.theme.Ink
 import com.starsmuggler.ui.theme.InkFaded
 import com.starsmuggler.ui.theme.PaperBackground
@@ -109,7 +114,10 @@ private fun EngineBench(content: LoadedContent) {
     val engine = remember(content) { Engine(content.game) }
     val scope = rememberCoroutineScope()
     var seedText by remember { mutableStateOf(DEFAULT_SEED.toString()) }
-    var game by remember { mutableStateOf(engine.newGame(DEFAULT_SEED)) }
+    var gameState by remember { mutableStateOf<GameState?>(null) }
+    var laterGame by remember { mutableStateOf(false) }
+    var previousAstucia by remember { mutableStateOf(3) }
+    var adjustment by remember { mutableStateOf(0) }
     var ownDice by remember { mutableStateOf(false) }
     var openTable by remember { mutableStateOf<String?>(null) }
     var pending by remember { mutableStateOf<PendingRoll?>(null) }
@@ -118,21 +126,19 @@ private fun EngineBench(content: LoadedContent) {
     var roundTrip by remember { mutableStateOf<Pair<Int, Boolean>?>(null) }
     val locale = currentLocale()
 
-    fun perform(action: Action) {
+    fun hand(): DiceHand = if (ownDice) {
+        DiceHand.physical { request -> CompletableDeferred<List<Int>>().also { pending = PendingRoll(request, it) }.await() }
+    } else {
+        DiceHand.APP
+    }
+
+    fun run(block: suspend () -> Unit) {
         if (busy) return
         busy = true
         notice = null
-        val hand = if (ownDice) {
-            DiceHand.physical { request -> CompletableDeferred<List<Int>>().also { pending = PendingRoll(request, it) }.await() }
-        } else {
-            DiceHand.APP
-        }
         scope.launch {
             try {
-                when (val done = engine.perform(game, action, hand)) {
-                    is ActionResult.Done -> game = done.state
-                    is ActionResult.Rejected -> notice = rejectionText(done.reason)
-                }
+                block()
             } catch (_: CancellationException) {
                 notice = R.string.engine_roll_cancelled
             } finally {
@@ -141,6 +147,31 @@ private fun EngineBench(content: LoadedContent) {
             }
         }
     }
+
+    fun perform(action: Action) = run {
+        when (val done = engine.perform(checkNotNull(gameState), action, hand())) {
+            is ActionResult.Done -> gameState = done.state
+            is ActionResult.Rejected -> notice = rejectionText(done.reason)
+        }
+    }
+
+    fun newGame() = run {
+        val astucia = if (laterGame) AstuciaSetup.Adjust(previousAstucia, adjustment) else AstuciaSetup.Roll
+        gameState = engine.newGame(seedText.toLongOrNull() ?: DEFAULT_SEED, astucia, hand())
+        roundTrip = null
+    }
+
+    LaunchedEffect(engine) {
+        if (gameState == null) gameState = engine.newGame(DEFAULT_SEED)
+    }
+    pending?.let { roll ->
+        Dialog(onDismissRequest = { roll.answer.cancel() }) {
+            RecordCard(stringResource(R.string.engine_own_dice)) {
+                OwnDiceEntry(roll, onCancel = { roll.answer.cancel() })
+            }
+        }
+    }
+    val game = gameState ?: return
 
     RecordCard(stringResource(R.string.engine_game)) {
         OutlinedTextField(
@@ -151,17 +182,21 @@ private fun EngineBench(content: LoadedContent) {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
         )
+        AstuciaSetupPicker(
+            laterGame = laterGame,
+            previous = previousAstucia,
+            adjustment = adjustment,
+            onLaterGame = { laterGame = it },
+            onPrevious = { previousAstucia = it },
+            onAdjustment = { adjustment = it },
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            StampButton(stringResource(R.string.engine_new_game), enabled = !busy, onClick = {
-                game = engine.newGame(seedText.toLongOrNull() ?: DEFAULT_SEED)
-                roundTrip = null
-                notice = null
-            })
+            StampButton(stringResource(R.string.engine_new_game), enabled = !busy, onClick = ::newGame)
             StampButton(stringResource(R.string.engine_save_load), enabled = !busy, onClick = {
                 val json = Json.encodeToString(game)
                 val loaded = Json.decodeFromString<GameState>(json)
                 roundTrip = json.toByteArray().size to (loaded == game)
-                game = loaded
+                gameState = loaded
             })
         }
         RecordLine(stringResource(R.string.engine_step), Formats.integer(game.step, locale))
@@ -177,6 +212,8 @@ private fun EngineBench(content: LoadedContent) {
             )
         }
     }
+
+    DukeCard(game, content, enabled = !busy, perform = ::perform)
 
     ClockCard(game, enabled = !busy, perform = ::perform)
 
@@ -230,20 +267,121 @@ private fun EngineBench(content: LoadedContent) {
         }
     }
 
-    pending?.let { roll ->
-        Dialog(onDismissRequest = { roll.answer.cancel() }) {
-            RecordCard(stringResource(R.string.engine_own_dice)) {
-                OwnDiceEntry(roll, onCancel = { roll.answer.cancel() })
-            }
-        }
-    }
-
     RecordCard(stringResource(R.string.engine_log)) {
         for (entry in game.log.asReversed()) {
             Text(logText(entry, content), style = TeletypeStyles.small, color = Ink, modifier = Modifier.padding(vertical = 3.dp))
         }
     }
 }
+
+/** How Astucia is set for the next game (r202): roll 1d6, or adjust the previous one. */
+@Composable
+private fun AstuciaSetupPicker(
+    laterGame: Boolean,
+    previous: Int,
+    adjustment: Int,
+    onLaterGame: (Boolean) -> Unit,
+    onPrevious: (Int) -> Unit,
+    onAdjustment: (Int) -> Unit,
+) {
+    val locale = currentLocale()
+    Column(Modifier.padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            StampButton(stringResource(R.string.engine_first_game), style = if (laterGame) StampStyle.Outline else StampStyle.Solid, onClick = { onLaterGame(false) })
+            StampButton(stringResource(R.string.engine_later_game), style = if (laterGame) StampStyle.Solid else StampStyle.Outline, onClick = { onLaterGame(true) })
+        }
+        if (!laterGame) {
+            Text(stringResource(R.string.engine_astucia_roll_hint), style = MaterialTheme.typography.bodySmall, color = InkFaded)
+        } else {
+            Text(stringResource(R.string.engine_previous_astucia), style = MaterialTheme.typography.labelMedium, color = Ink)
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                for (value in Astucia.MIN..Astucia.MAX) {
+                    Text(
+                        Formats.integer(value, locale),
+                        style = TeletypeStyles.medium,
+                        color = if (value == previous) RocketRed else InkFaded,
+                        modifier = Modifier.clickable { onPrevious(value) }.padding(horizontal = 10.dp, vertical = 4.dp),
+                    )
+                }
+            }
+            Text(stringResource(R.string.engine_adjustment), style = MaterialTheme.typography.labelMedium, color = Ink)
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                for ((value, label) in listOf(Astucia.suggestion(won = true) to R.string.engine_adjust_down, 0 to R.string.engine_adjust_none, Astucia.suggestion(won = false) to R.string.engine_adjust_up)) {
+                    Text(
+                        stringResource(label),
+                        style = TeletypeStyles.medium,
+                        color = if (value == adjustment) RocketRed else InkFaded,
+                        modifier = Modifier.clickable { onAdjustment(value) }.padding(horizontal = 10.dp, vertical = 4.dp),
+                    )
+                }
+            }
+            Text(
+                stringResource(R.string.engine_astucia_result, Formats.integer(Astucia.adjusted(previous, adjustment), locale)),
+                style = TeletypeStyles.small,
+                color = RocketRed,
+            )
+            Text(stringResource(R.string.engine_adjust_hint), style = MaterialTheme.typography.bodySmall, color = InkFaded)
+        }
+    }
+}
+
+/** Duke Springer and his ship as the game has them (SMUG-21). */
+@Composable
+private fun DukeCard(game: GameState, content: LoadedContent, enabled: Boolean, perform: (Action) -> Unit) {
+    val duke = game.duke
+    val ship = game.ship
+    val locale = currentLocale()
+    val names = content.names
+    RecordCard(stringResource(R.string.engine_duke)) {
+        RecordLine(stringResource(R.string.engine_marksmanship), Formats.integer(duke.marksmanship, locale))
+        RecordLine(stringResource(R.string.engine_melee), Formats.integer(duke.melee, locale))
+        RecordLine(stringResource(R.string.engine_endurance), Formats.integer(duke.endurance, locale))
+        RecordLine(stringResource(R.string.engine_astucia), Formats.integer(duke.astucia, locale))
+        for (skill in duke.skills) RecordLine(stringResource(R.string.engine_skill), stringResource(skillName(skill)))
+        RecordLine(stringResource(R.string.engine_cash), formatSees(game.cash))
+        for (item in duke.items) {
+            RecordLine(stringResource(R.string.engine_item), stringResource(R.string.engine_with_tech, names.equipment(item.id), Formats.integer(item.tech, locale)))
+        }
+        RecordLine(stringResource(R.string.engine_ship), stringResource(R.string.engine_with_tech, stringResource(R.string.engine_antelope), Formats.integer(ship.tech, locale)))
+        RecordLine(stringResource(R.string.engine_hypercharges), Formats.integer(ship.hypercharges, locale))
+        ship.guns?.let { RecordLine(names.equipment(STARSHIP_GUNS), stringResource(R.string.engine_tech, Formats.integer(it, locale))) }
+        RecordLine(names.equipment(STASIS_UNIT), stringResource(R.string.engine_capacity_units, Formats.integer(ship.stasis, locale)))
+        ship.boat?.let { boat ->
+            RecordLine(stringResource(R.string.engine_boat), stringResource(R.string.engine_with_tech, stringResource(R.string.engine_hopper), Formats.integer(boat.tech, locale)))
+            RecordLine(stringResource(R.string.engine_boat_fuel), Formats.integer(boat.fuel, locale))
+        }
+        RecordLine(
+            stringResource(R.string.engine_papers),
+            stringResource(if (game.standing.papersInOrder) R.string.engine_papers_in_order else R.string.engine_papers_missing),
+        )
+        RecordLine(
+            stringResource(R.string.engine_wanted),
+            game.standing.wantedIn.takeIf { it.isNotEmpty() }?.joinToString { names.system(it) } ?: stringResource(R.string.engine_wanted_nowhere),
+        )
+        val place = game.location
+        val area = content.game.tiles[place.tile]?.areas?.firstOrNull { it.id == place.area }
+        Text(
+            stringResource(
+                R.string.engine_location,
+                names.system(place.system),
+                Formats.integer(place.planet, locale),
+                area?.let { names.areaType(it.type.key) } ?: place.area,
+            ),
+            style = TeletypeStyles.small,
+            color = Ink,
+            modifier = Modifier.padding(vertical = 6.dp),
+        )
+        StampButton(stringResource(R.string.engine_astucia_check), enabled = enabled, onClick = { perform(Action.AstuciaRoll()) }, modifier = Modifier.padding(vertical = 6.dp))
+    }
+}
+
+private fun skillName(skill: Skill): Int = when (skill) {
+    Skill.PILOT_NAVIGATOR -> R.string.engine_skill_pilot
+    Skill.STARSHIP_GUNNER -> R.string.engine_skill_gunner
+}
+
+private const val STARSHIP_GUNS = "starship_guns" // not-ui
+private const val STASIS_UNIT = "stasis_unit" // not-ui
 
 /** The day clock (SMUG-19) and actions that make it run. */
 @Composable
@@ -317,6 +455,27 @@ private fun logText(entry: LogEntry, content: LoadedContent): String {
     return when (entry) {
         is LogEntry.GameStarted -> stringResource(R.string.engine_log_started, step, entry.seed.toString())
         is LogEntry.Rolled -> rolledText(step, entry.roll)
+        is LogEntry.AstuciaSet -> {
+            val previous = entry.previous
+            if (previous == null) {
+                stringResource(R.string.engine_log_astucia_rolled, step, Formats.integer(entry.astucia, locale))
+            } else {
+                stringResource(
+                    R.string.engine_log_astucia_adjusted,
+                    step,
+                    Formats.integer(entry.astucia, locale),
+                    Formats.integer(previous, locale),
+                    Formats.signed(entry.adjustment, locale),
+                )
+            }
+        }
+        is LogEntry.StartingCash -> stringResource(R.string.engine_log_starting_cash, step, formatSees(entry.sees))
+        is LogEntry.AstuciaRolled -> stringResource(
+            if (entry.success) R.string.engine_log_astucia_success else R.string.engine_log_astucia_failure,
+            step,
+            Formats.integer(entry.total, locale),
+            Formats.integer(entry.astucia, locale),
+        )
         is LogEntry.TimePassed -> if (entry.overtime == 0) {
             stringResource(R.string.engine_log_time, step, hoursText(entry.tenths))
         } else {

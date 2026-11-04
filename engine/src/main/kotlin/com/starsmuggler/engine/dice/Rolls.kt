@@ -1,6 +1,7 @@
 package com.starsmuggler.engine.dice
 
 import com.starsmuggler.engine.content.Dice
+import com.starsmuggler.engine.content.EventRef
 import com.starsmuggler.engine.content.RuleRef
 import kotlinx.serialization.Serializable
 
@@ -12,6 +13,8 @@ data class RollRequest(
     /** The table rolled on, such as `r233`, when the roll is a table lookup. */
     val table: String? = null,
     val modifier: Int = 0,
+    /** The event that asks for the roll, such as `e001`. */
+    val event: EventRef? = null,
 )
 
 /** Who rolled a die: the app, or the player with their own dice on the table (PRD section 11). */
