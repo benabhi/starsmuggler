@@ -156,6 +156,10 @@
     <string name="engine_log_started">Paso %1$s · Partida nueva, semilla %2$s</string>
     <string name="engine_log_rolled">Paso %1$s · Tirada %2$s: %3$s = %4$s (%5$s)</string>
     <string name="engine_log_rolled_modified">Paso %1$s · Tirada %2$s: %3$s, mod. %4$s = %5$s (%6$s)</string>
+    <!-- What the 3D dice show, under them (SMUG-28): rule or table, dice, faces, modifier and total. -->
+    <string name="dice_caption_single">%1$s · %2$s: %3$s</string>
+    <string name="dice_caption">%1$s · %2$s: %3$s = %4$s</string>
+    <string name="dice_caption_modified">%1$s · %2$s: %3$s, mod. %4$s = %5$s</string>
     <string name="engine_log_table">Paso %1$s · %2$s, %3$s, con %4$s → %5$s</string>
     <string name="engine_no_outcome">ninguna entrada</string>
     <string name="engine_source_app">dados de la app</string>

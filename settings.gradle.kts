@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "starsmuggler"
 
-include(":app", ":engine", ":content", ":data")
+include(":app", ":engine", ":content", ":data", ":dice")

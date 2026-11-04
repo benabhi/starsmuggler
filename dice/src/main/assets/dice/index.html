@@ -1,0 +1,334 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <style>
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+    #dice { position: absolute; inset: 0; opacity: 0; }
+    #dice.shown { opacity: 1; }
+    #dice.fading { opacity: 0; transition: opacity 300ms ease-in; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+<div id="dice"></div>
+<script src="dice-box-threejs.umd.js"></script>
+<script>
+  // 3D dice drawn above the whole app (SMUG-28, ported from irondroid). The engine decides every
+  // result and the app passes it in; this page only animates the d6 so they land on those values
+  // and reports what they show, with render metrics for the logs.
+  (function () {
+    const bridge = window.DiceBridge;
+    const container = document.getElementById("dice");
+    const DiceBox = window["dice-box-threejs"].default || window["dice-box-threejs"];
+
+    // Ink and paper, the app's own colours (ui/theme/Color.kt). The app says which each die is: the
+    // first die of a roll is ink and the rest paper, so 2d6 are told apart.
+    const INK = "#2b2118";
+    const PAPER = "#f3ead3";
+    const COLOR_SET = {
+      ink: { name: "ink", foreground: PAPER, background: INK, outline: INK, texture: "none", material: "plastic" },
+      paper: { name: "paper", foreground: INK, background: PAPER, outline: PAPER, texture: "none", material: "plastic" },
+    };
+    // How long the dice stay on the table once they land, before fading away.
+    const HOLD_MS = 1600;
+    const FADE_MS = 300;
+    // A short roll plays the same throw at this many physics steps per step, and the
+    // dice stay a shorter while.
+    const FAST_SPEED = 2;
+    const FAST_HOLD_MS = 900;
+
+    const SLOW_FRAME_MS = 20;
+    // Walls sit at this fraction of the visible area (the library uses 0.93), so dice tops seen
+    // in perspective do not spill past the screen edge.
+    const WALL_FRACTION = 0.88;
+    // A throw is redone, before anything is shown, if it needs more physics steps than this
+    // (60 per second) to settle: long settles are dice wobbling against each other.
+    const MAX_SETTLE_STEPS = 210;
+    const MAX_THROW_ATTEMPTS = 8;
+    // A die is unreadable if its lowest point is off the table (resting on another die) or its
+    // top face is tilted (leaning on another die).
+    const MAX_LIFT_FRACTION = 0.2;
+    const MAX_TILT_RAD = 0.15;
+    // Seconds a die must stay still to count as settled (the library waits 0.9 s, which makes
+    // the roll feel long after the dice have visibly stopped).
+    const SLEEP_TIME_LIMIT_S = 0.4;
+
+    let box = null;
+    let frameTimes = null;
+    let pendingNotation = null;
+    let throwLog = null;
+    let stepLog = null;
+    let simulationMs = 0;
+    let colors = { ink: null, paper: null };
+    // Whether each die of the throw being spawned is ink, in spawn order; restarted on every throw.
+    let dieInk = [];
+    let dieIndex = 0;
+    let warmup = null;
+    let holdTimer = null;
+    let speed = 1;
+    let fadeTimer = null;
+
+    function report(method, payload) {
+      if (bridge && bridge[method]) bridge[method](JSON.stringify(payload));
+    }
+
+    // Counts frames actually drawn by the library, not display refreshes, so a 120 Hz screen
+    // does not inflate the numbers.
+    function instrumentRenderer() {
+      const renderer = box.renderer;
+      const render = renderer.render.bind(renderer);
+      renderer.render = function (scene, camera) {
+        render(scene, camera);
+        if (frameTimes) frameTimes.push(performance.now());
+      };
+    }
+
+    async function loadColors() {
+      colors = {
+        ink: await box.DiceColors.makeColorSet(COLOR_SET.ink),
+        paper: await box.DiceColors.makeColorSet(COLOR_SET.paper),
+      };
+    }
+
+    // The library uses one colour set per box; switch it per die so each die takes the colour
+    // the host asked for.
+    function installPerDieColors() {
+      const factory = box.DiceFactory;
+      const create = factory.create.bind(factory);
+      factory.create = function (type) {
+        const ink = dieInk.length ? dieInk[dieIndex++ % dieInk.length] : type === "d6";
+        factory.applyColorSet(ink ? colors.ink : colors.paper);
+        return create(type);
+      };
+    }
+
+    function shortenSettleWait() {
+      const spawnDice = box.spawnDice.bind(box);
+      box.spawnDice = function (vector, existing) {
+        spawnDice(vector, existing);
+        const die = existing || box.diceList[box.diceList.length - 1];
+        if (die && die.body) die.body.sleepTimeLimit = SLEEP_TIME_LIMIT_S;
+      };
+    }
+
+    // Plays the throw faster by running several identical physics steps per animation step. The
+    // steps are the same as in the hidden simulation, so the dice still land on the same faces.
+    function installSpeed() {
+      const world = box.world;
+      const step = world.step.bind(world);
+      world.step = function () {
+        const times = box.animstate === "throw" ? speed : 1;
+        for (let i = 0; i < times; i++) step.apply(null, arguments);
+      };
+    }
+
+    function shrinkWalls() {
+      const makeWorldBox = box.makeWorldBox.bind(box);
+      box.makeWorldBox = function () {
+        makeWorldBox();
+        const k = WALL_FRACTION / 0.93;
+        const walls = box.box_body;
+        walls.topWall.position.y *= k;
+        walls.bottomWall.position.y *= k;
+        walls.leftWall.position.x *= k;
+        walls.rightWall.position.x *= k;
+      };
+    }
+
+    // Why a settled die cannot be read, or null if it lies flat on the table.
+    function unreadableReason(die) {
+      die.position.copy(die.body.position);
+      die.quaternion.copy(die.body.quaternion);
+      die.updateMatrixWorld(true);
+      const geometry = die.geometry;
+      if (!geometry.boundingSphere) geometry.computeBoundingSphere();
+      const radius = geometry.boundingSphere.radius;
+
+      const positions = geometry.getAttribute("position");
+      const v = die.position.clone();
+      let lowest = Infinity;
+      for (let i = 0; i < positions.count; i++) {
+        v.fromBufferAttribute(positions, i).applyMatrix4(die.matrixWorld);
+        lowest = Math.min(lowest, v.z);
+      }
+      if (lowest > radius * MAX_LIFT_FRACTION) return "stacked";
+
+      // Same face test the library uses to read the value: the face whose normal points up.
+      const normals = geometry.getAttribute("normal").array;
+      const up = v.clone().set(0, 0, die.shape === "d4" ? -1 : 1);
+      let tilt = Infinity;
+      for (let g = 0; g < geometry.groups.length; g++) {
+        if (geometry.groups[g].materialIndex === 0) continue;
+        const n = v.clone().set(normals[g * 9], normals[g * 9 + 1], normals[g * 9 + 2]);
+        tilt = Math.min(tilt, n.applyQuaternion(die.body.quaternion).angleTo(up));
+      }
+      return tilt > MAX_TILT_RAD ? "tilted" : null;
+    }
+
+    // The library simulates the whole throw before animating it. Inspect that hidden result and
+    // throw again until every die lands flat, apart and quickly enough.
+    function installCleanThrows() {
+      const simulate = box.simulateThrow.bind(box);
+      box.simulateThrow = function () {
+        const startedAt = performance.now();
+        for (let attempt = 1; ; attempt++) {
+          simulate();
+          let reason = box.iteration > MAX_SETTLE_STEPS ? "slow" : null;
+          for (const die of box.diceList) reason = reason || unreadableReason(die);
+          if (throwLog) throwLog.push(reason || "ok");
+          if (stepLog) stepLog.push(box.iteration);
+          if (!reason || attempt >= MAX_THROW_ATTEMPTS) break;
+          dieIndex = 0;
+          box.notationVectors = box.startClickThrow(pendingNotation);
+          for (const vector of box.notationVectors.vectors) box.spawnDice(vector);
+        }
+        simulationMs = performance.now() - startedAt;
+        // Frames drawn while clearing the table are not part of the animation.
+        if (frameTimes) frameTimes = [];
+      };
+    }
+
+    function frameStats(times, startedAt) {
+      const gaps = [];
+      for (let i = 1; i < times.length; i++) gaps.push(times[i] - times[i - 1]);
+      const span = times.length > 1 ? times[times.length - 1] - times[0] : 0;
+      return {
+        frames: times.length,
+        avgFps: span > 0 ? (times.length - 1) * 1000 / span : 0,
+        worstFrameMs: gaps.length ? Math.max(...gaps) : 0,
+        slowFrames: gaps.filter(g => g > SLOW_FRAME_MS).length,
+        firstFrameMs: times.length ? times[0] - startedAt : 0,
+      };
+    }
+
+    function show() {
+      clearTimeout(holdTimer);
+      clearTimeout(fadeTimer);
+      container.className = "shown";
+    }
+
+    // The dice stay a moment so the player can read them, then fade out and leave the app clear.
+    function scheduleClear() {
+      holdTimer = setTimeout(function () {
+        container.className = "fading";
+        fadeTimer = setTimeout(function () { box.clearDice(); }, FADE_MS);
+      }, speed > 1 ? FAST_HOLD_MS : HOLD_MS);
+    }
+
+    // The library's notation for dice in order, with the values they must land on, such as
+    // "2d6@4,3". Consecutive dice with the same sides form one group.
+    function notationOf(dice) {
+      const groups = [];
+      for (const die of dice) {
+        const last = groups[groups.length - 1];
+        if (last && last.sides === die.sides) last.count++;
+        else groups.push({ sides: die.sides, count: 1 });
+      }
+      return groups.map(g => g.count + "d" + g.sides).join("+") + "@" + dice.map(d => d.value).join(",");
+    }
+
+    async function throwDice(dice) {
+      const notation = notationOf(dice);
+      pendingNotation = notation;
+      dieInk = dice.map(d => !!d.ink);
+      dieIndex = 0;
+      const result = await box.roll(notation);
+      return { notation: notation, shown: result.sets.flatMap(set => set.rolls.map(r => r.value)) };
+    }
+
+    // Throws dice that land on the values the engine decided: [{ sides: 6, value, ink }];
+    // fast plays a short roll.
+    async function roll(dice, fast) {
+      if (!box) return;
+      if (warmup) await warmup;
+      speed = fast ? FAST_SPEED : 1;
+      show();
+      frameTimes = [];
+      throwLog = [];
+      stepLog = [];
+      const startedAt = performance.now();
+      try {
+        const thrown = await throwDice(dice);
+        const stats = frameStats(frameTimes, startedAt);
+        frameTimes = null;
+        report("onRollComplete", Object.assign({
+          notation: thrown.notation,
+          shown: thrown.shown,
+          durationMs: performance.now() - startedAt,
+          simulationMs: simulationMs,
+          throws: throwLog,
+          steps: stepLog,
+        }, stats));
+        scheduleClear();
+      } catch (e) {
+        frameTimes = null;
+        box.clearDice();
+        report("onError", { message: String(e) });
+      }
+    }
+
+    // The first throw compiles shaders and materials and stutters for almost half a second
+    // (irondroid IRON-12). Throw once while the table is invisible so the player never sees it.
+    async function warmUp() {
+      const startedAt = performance.now();
+      // Every die and colour the game throws: an ink d6 and a paper d6.
+      await throwDice([{ sides: 6, value: 1, ink: true }, { sides: 6, value: 1, ink: false }]);
+      box.clearDice();
+      return performance.now() - startedAt;
+    }
+
+    function clear() {
+      if (!box) return;
+      clearTimeout(holdTimer);
+      clearTimeout(fadeTimer);
+      container.className = "";
+      box.clearDice();
+    }
+
+    async function init() {
+      const startedAt = performance.now();
+      try {
+        box = new DiceBox("#dice", {
+          assetPath: "./",
+          sounds: false,
+          shadows: true,
+          theme_material: "plastic",
+          baseScale: 100,
+        });
+        shrinkWalls();
+        await box.initialize();
+        // The screen's real density: sharper, at no cost in frame rate (irondroid IRON-12).
+        box.renderer.setPixelRatio(window.devicePixelRatio);
+        box.renderer.setSize(box.container.clientWidth, box.container.clientHeight);
+        await loadColors();
+        installPerDieColors();
+        installCleanThrows();
+        shortenSettleWait();
+        installSpeed();
+        instrumentRenderer();
+        warmup = warmUp();
+        const warmupMs = await warmup;
+        warmup = null;
+        const gl = box.renderer.getContext();
+        const info = gl.getExtension("WEBGL_debug_renderer_info");
+        report("onReady", {
+          initMs: performance.now() - startedAt,
+          warmupMs: warmupMs,
+          width: window.innerWidth,
+          height: window.innerHeight,
+          pixelRatio: window.devicePixelRatio,
+          gpu: info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : "unknown",
+        });
+      } catch (e) {
+        report("onError", { message: String(e) });
+      }
+    }
+
+    window.starsmugglerDice = { roll: roll, clear: clear };
+    init();
+  })();
+</script>
+</body>
+</html>

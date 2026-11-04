@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.3.1] - 2026-11-03
+
+### Added
+
+- Roll the engine's dice with irondroid's 3D dice and sound (SMUG-28)
+
 ## [0.3.0] - 2026-11-03
 
 ### Added
