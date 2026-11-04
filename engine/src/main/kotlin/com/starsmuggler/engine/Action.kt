@@ -18,6 +18,12 @@ sealed interface Action {
     /** An Astucia roll asked for by an event: 1d6 plus [modifier], a success when not higher than Astucia (r202). */
     data class AstuciaRoll(val modifier: Int = 0) : Action
 
+    /** Pay [sees] of the loan's principal from cash (r203e). */
+    data class PayPrincipal(val sees: Int) : Action
+
+    /** Add (or, if negative, take) [sees] of cash, for an event resolved by hand (PRD P2). */
+    data class AdjustCash(val sees: Int) : Action
+
     /** Close the day: end-of-day checks, end of the week every ten days, and the next morning (r203). */
     data object EndDay : Action
 }
@@ -35,6 +41,15 @@ enum class Rejection {
 
     /** No time to pass. */
     NO_TIME,
+
+    /** Not that much cash in Duke's pocket. */
+    NOT_ENOUGH_CASH,
+
+    /** An amount of money that makes no sense here, such as zero or more than is owed. */
+    INVALID_AMOUNT,
+
+    /** The loan is already paid off. */
+    LOAN_PAID_OFF,
 }
 
 /** What performing an action gave. */

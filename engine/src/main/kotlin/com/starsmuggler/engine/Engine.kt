@@ -61,6 +61,17 @@ class Engine(private val content: GameContent) {
         Action.PassRestOfDay -> if (state.clock.left == 0) Rejection.NO_TIME else null
         Action.EndDay -> null
         is Action.AstuciaRoll -> null
+        is Action.PayPrincipal -> when {
+            state.loan.isPaidOff -> Rejection.LOAN_PAID_OFF
+            action.sees <= 0 || action.sees > state.loan.principal -> Rejection.INVALID_AMOUNT
+            action.sees > state.cash -> Rejection.NOT_ENOUGH_CASH
+            else -> null
+        }
+        is Action.AdjustCash -> when {
+            action.sees == 0 -> Rejection.INVALID_AMOUNT
+            state.cash + action.sees < 0 -> Rejection.NOT_ENOUGH_CASH
+            else -> null
+        }
     }
 
     /**
@@ -77,6 +88,11 @@ class Engine(private val content: GameContent) {
             Action.PassRestOfDay -> turn.spend(turn.clock.left)
             Action.EndDay -> endDay(turn)
             is Action.AstuciaRoll -> astuciaRoll(turn, state.duke.astucia, action.modifier)
+            is Action.PayPrincipal -> payPrincipal(turn, action.sees)
+            is Action.AdjustCash -> {
+                turn.cash += action.sees
+                turn.log(LogEntry.CashAdjusted(turn.step, action.sees, turn.cash))
+            }
         }
         return ActionResult.Done(turn.finish(), turn.entries)
     }
@@ -92,12 +108,42 @@ class Engine(private val content: GameContent) {
         turn.log(LogEntry.AstuciaRolled(turn.step, astucia, total, success = total <= astucia))
     }
 
-    /** Closes the day and opens the next one. The end-of-day breakdowns (r203d) and the weekly loan payment (r203e) hook in here. */
+    /** Closes the day and opens the next one. The end-of-day breakdowns (r203d) hook in here. */
     private fun endDay(turn: Turn) {
         val clock = turn.clock
         turn.log(LogEntry.DayEnded(turn.step, clock.day, clock.overtime))
-        if (clock.endsWeek) turn.log(LogEntry.WeekEnded(turn.step, clock.week))
+        if (clock.endsWeek) {
+            turn.log(LogEntry.WeekEnded(turn.step, clock.week))
+            weeklyInterest(turn)
+        }
         turn.clock = clock.nextDay()
+        val deadline = turn.loan.deadline
+        if (turn.loan.isDefaulted && !turn.loan.repossession && deadline != null && turn.clock.day > deadline) {
+            turn.loan = turn.loan.copy(repossession = true)
+            turn.log(LogEntry.RepossessionStarted(turn.step, turn.clock.day))
+        }
+    }
+
+    /** The interest due at the end of each week, paid from cash or the loan defaults (r203e). */
+    private fun weeklyInterest(turn: Turn) {
+        val loan = turn.loan
+        if (loan.isPaidOff || loan.isDefaulted) return
+        val week = turn.clock.week
+        if (turn.cash >= Loan.WEEKLY_INTEREST) {
+            turn.cash -= Loan.WEEKLY_INTEREST
+            turn.log(LogEntry.InterestPaid(turn.step, week, Loan.WEEKLY_INTEREST))
+        } else {
+            turn.loan = loan.copy(defaultedOn = turn.clock.day)
+            turn.log(LogEntry.LoanDefaulted(turn.step, week, loan.principal, checkNotNull(turn.loan.deadline)))
+        }
+    }
+
+    private fun payPrincipal(turn: Turn, sees: Int) {
+        turn.cash -= sees
+        val principal = turn.loan.principal - sees
+        turn.loan = if (principal == 0) Loan(principal = 0) else turn.loan.copy(principal = principal)
+        turn.log(LogEntry.PrincipalPaid(turn.step, sees, principal))
+        if (principal == 0) turn.log(LogEntry.LoanPaidOff(turn.step))
     }
 
     companion object {
@@ -117,6 +163,8 @@ class Engine(private val content: GameContent) {
 private class Turn(private val before: GameState, private val hand: DiceHand, val step: Int = before.step + 1) {
     private var rng = before.rng
     var clock = before.clock
+    var cash = before.cash
+    var loan = before.loan
     val entries = mutableListOf<LogEntry>()
 
     suspend fun roll(request: RollRequest): DiceRoll {
@@ -142,5 +190,5 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
         entries += entry
     }
 
-    fun finish(): GameState = before.copy(rng = rng, step = step, clock = clock, log = before.log + entries)
+    fun finish(): GameState = before.copy(rng = rng, step = step, clock = clock, cash = cash, loan = loan, log = before.log + entries)
 }

@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -45,6 +46,7 @@ import com.starsmuggler.engine.ActionResult
 import com.starsmuggler.engine.Engine
 import com.starsmuggler.engine.GameState
 import com.starsmuggler.engine.LogEntry
+import com.starsmuggler.engine.Loan
 import com.starsmuggler.engine.Rejection
 import com.starsmuggler.engine.Skill
 import com.starsmuggler.engine.dice.DiceHand
@@ -215,6 +217,8 @@ private fun EngineBench(content: LoadedContent) {
 
     DukeCard(game, content, enabled = !busy, perform = ::perform)
 
+    LoanCard(game, enabled = !busy, perform = ::perform)
+
     ClockCard(game, enabled = !busy, perform = ::perform)
 
     RecordCard(stringResource(R.string.engine_dice)) {
@@ -375,6 +379,49 @@ private fun DukeCard(game: GameState, content: LoadedContent, enabled: Boolean, 
     }
 }
 
+/** The ship's loan (SMUG-20) and buttons to move money around. */
+@Composable
+private fun LoanCard(game: GameState, enabled: Boolean, perform: (Action) -> Unit) {
+    val loan = game.loan
+    val locale = currentLocale()
+    RecordCard(stringResource(R.string.engine_loan)) {
+        RecordLine(stringResource(R.string.engine_cash), formatSees(game.cash))
+        RecordLine(stringResource(R.string.engine_principal), formatSees(loan.principal))
+        val deadline = loan.deadline
+        val status = when {
+            loan.isPaidOff -> stringResource(R.string.engine_loan_paid_off)
+            loan.repossession -> stringResource(R.string.engine_loan_repossession)
+            loan.isDefaulted && deadline != null -> stringResource(R.string.engine_loan_defaulted, Formats.integer(deadline, locale))
+            else -> pluralStringResource(
+                R.plurals.engine_loan_interest_due,
+                loan.interestDueIn(game.clock) ?: 0,
+                formatSees(Loan.WEEKLY_INTEREST),
+                Formats.integer(loan.interestDueIn(game.clock) ?: 0, locale),
+            )
+        }
+        Text(status, style = TeletypeStyles.small, color = if (loan.isDefaulted) RocketRed else Ink, modifier = Modifier.padding(vertical = 6.dp))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(vertical = 8.dp),
+        ) {
+            StampButton(stringResource(R.string.engine_cash_plus), enabled = enabled, onClick = { perform(Action.AdjustCash(CASH_STEP)) })
+            StampButton(stringResource(R.string.engine_cash_minus), enabled = enabled, onClick = { perform(Action.AdjustCash(-CASH_STEP)) })
+            StampButton(stringResource(R.string.engine_cash_empty), enabled = enabled, onClick = { perform(Action.AdjustCash(-game.cash)) })
+            StampButton(stringResource(R.string.engine_pay_some), enabled = enabled, onClick = { perform(Action.PayPrincipal(CASH_STEP)) })
+            StampButton(
+                stringResource(R.string.engine_pay_all),
+                style = StampStyle.Solid,
+                enabled = enabled,
+                onClick = { perform(Action.PayPrincipal(loan.principal)) },
+            )
+            StampButton(stringResource(R.string.engine_get_rich), enabled = enabled, onClick = { perform(Action.AdjustCash(Loan.PRINCIPAL)) })
+        }
+    }
+}
+
+private const val CASH_STEP = 1000
+
 private fun skillName(skill: Skill): Int = when (skill) {
     Skill.PILOT_NAVIGATOR -> R.string.engine_skill_pilot
     Skill.STARSHIP_GUNNER -> R.string.engine_skill_gunner
@@ -470,6 +517,18 @@ private fun logText(entry: LogEntry, content: LoadedContent): String {
             }
         }
         is LogEntry.StartingCash -> stringResource(R.string.engine_log_starting_cash, step, formatSees(entry.sees))
+        is LogEntry.InterestPaid -> stringResource(R.string.engine_log_interest_paid, step, formatSees(entry.sees), Formats.integer(entry.week, locale))
+        is LogEntry.LoanDefaulted -> stringResource(
+            R.string.engine_log_loan_defaulted,
+            step,
+            Formats.integer(entry.week, locale),
+            formatSees(entry.principal),
+            Formats.integer(entry.deadline, locale),
+        )
+        is LogEntry.RepossessionStarted -> stringResource(R.string.engine_log_repossession, step, Formats.integer(entry.day, locale))
+        is LogEntry.PrincipalPaid -> stringResource(R.string.engine_log_principal_paid, step, formatSees(entry.sees), formatSees(entry.principal))
+        is LogEntry.LoanPaidOff -> stringResource(R.string.engine_log_loan_paid_off, step)
+        is LogEntry.CashAdjusted -> stringResource(R.string.engine_log_cash_adjusted, step, formatSignedSees(entry.sees), formatSees(entry.cash))
         is LogEntry.AstuciaRolled -> stringResource(
             if (entry.success) R.string.engine_log_astucia_success else R.string.engine_log_astucia_failure,
             step,
@@ -525,7 +584,14 @@ private fun rejectionText(reason: Rejection): Int = when (reason) {
     Rejection.UNKNOWN_ROW -> R.string.engine_rejected_row
     Rejection.NOT_ENOUGH_HOURS -> R.string.engine_rejected_hours
     Rejection.NO_TIME -> R.string.engine_rejected_no_time
+    Rejection.NOT_ENOUGH_CASH -> R.string.engine_rejected_cash
+    Rejection.INVALID_AMOUNT -> R.string.engine_rejected_amount
+    Rejection.LOAN_PAID_OFF -> R.string.engine_rejected_paid_off
 }
+
+/** A change of money with its sign, such as "+1.000 S". */
+@Composable
+private fun formatSignedSees(sees: Int): String = stringResource(R.string.money_sees, Formats.signed(sees, currentLocale()))
 
 private const val DEFAULT_SEED = 1982L
 private const val DICE_SEPARATOR = " + "
