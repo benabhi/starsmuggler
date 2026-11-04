@@ -178,12 +178,13 @@ with open(DATA, "w", encoding="utf-8", newline="\n") as f:
     json.dump({"formatVersion": 1, "tiles": tiles}, f, ensure_ascii=False, indent=1)
     f.write("\n")
 
-# The app shows the scans as WebP; the originals stay in recursos/, outside the repo.
+# The app shows the scans retouched as WebP (SMUG-40); the originals stay in recursos/, outside the repo.
 if os.path.isdir(SCANS):
-    from PIL import Image
+    import sys
 
-    os.makedirs(IMAGES, exist_ok=True)
-    for t in TILES:
-        Image.open(SCANS + SCAN_NAMES[t["id"]]).convert("RGB").save(IMAGES + "%s.webp" % t["id"].lower(), "WEBP", quality=82)
+    sys.path.insert(0, os.path.dirname(__file__))
+    import retouch_tiles
+
+    retouch_tiles.run({t["id"]: SCAN_NAMES[t["id"]] for t in TILES})
 
 print(len(tiles), "tiles,", sum(len(t["areas"]) for t in tiles), "areas,", sum(len(t["connectors"]) for t in tiles), "connectors")
