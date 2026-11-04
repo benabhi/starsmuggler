@@ -488,4 +488,16 @@
     <string name="map_risk_value">%1$s · %2$s %%</string>
     <string name="map_risk_hint">El salto falla si 1d6 sale igual o menor que el riesgo: la nave se disipa (r212c-d).</string>
     <string name="map_jump_to">Saltar a %1$s</string>
+
+    <!-- System map (SMUG-39, r207, r212g) -->
+    <string name="map_view_system">Sistema</string>
+    <string name="map_view_sector">Sector</string>
+    <string name="map_star">Estrella de %1$s</string>
+    <string name="map_outward">Hacia fuera</string>
+    <string name="map_outward_detail">Espacio abierto, de 1 a 4 horas de los planetas. Desde 4 el salto no falla.</string>
+    <string name="map_asteroids_detail">Seis asteroides y una estación espacial; gravedad 0, sin aire (r206).</string>
+    <string name="map_ship_here">Nave: %1$s</string>
+    <string name="map_moves_title">Mover la nave aquí · 1 h cada movimiento</string>
+    <string name="map_moves_none">La nave no llega aquí en un movimiento subluz desde donde está.</string>
+    <string name="map_duke_at">Duke está en %1$s.</string>
 </resources>
