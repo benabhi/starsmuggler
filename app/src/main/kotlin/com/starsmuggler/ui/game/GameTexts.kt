@@ -1,6 +1,7 @@
 package com.starsmuggler.ui.game
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.starsmuggler.R
 import com.starsmuggler.content.LoadedContent
@@ -115,6 +116,21 @@ fun logText(entry: LogEntry, game: GameState, content: LoadedContent): String {
             step,
             shipPositionText(entry.from, content),
             shipPositionText(entry.to, content),
+        )
+        is LogEntry.Jumped -> stringResource(
+            if (entry.succeeded) R.string.log_jump_ok else R.string.log_jump_failed,
+            step,
+            content.names.system(entry.from),
+            content.names.system(entry.to),
+            pluralStringResource(R.plurals.jump_hypercharges, entry.hypercharges, Formats.integer(entry.hypercharges, locale)),
+        )
+        is LogEntry.Dissipated -> stringResource(if (entry.inStasis) R.string.log_dissipated_stasis else R.string.log_dissipated_dead, step)
+        is LogEntry.StasisRecovered -> stringResource(
+            R.string.log_stasis_recovered,
+            step,
+            locationText(entry.place, content),
+            content.names.system(entry.place.system),
+            formatSees(entry.cash),
         )
         is LogEntry.TableResult -> stringResource(
             R.string.engine_log_table,

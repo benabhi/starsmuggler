@@ -15,6 +15,7 @@ import com.starsmuggler.engine.AstuciaSetup
 import com.starsmuggler.engine.Ending
 import com.starsmuggler.engine.Engine
 import com.starsmuggler.engine.GameState
+import com.starsmuggler.engine.JumpOption
 import com.starsmuggler.engine.LogEntry
 import com.starsmuggler.engine.Rejection
 import com.starsmuggler.engine.ShipPosition
@@ -128,6 +129,9 @@ class GameSession(
     /** Every place the starship can reach with one sublight move (r212g). */
     fun sublightDestinations(): List<ShipPosition> = game?.let { engine.sublightDestinations(it) } ?: emptyList()
 
+    /** Every system the starship can jump to, with cost and risk (r212b-c). */
+    fun jumpOptions(): List<JumpOption> = game?.let { engine.jumpOptions(it) } ?: emptyList()
+
     fun perform(action: Action) = run {
         val state = checkNotNull(game)
         when (val result = engine.perform(state, action, hand)) {
@@ -136,6 +140,7 @@ class GameSession(
                 lastEntries = result.entries
                 save(result.state)
                 if (result.state.cash > state.cash) sounds?.play(SoundEffect.MONEY)
+                if (result.entries.any { it is LogEntry.Jumped }) sounds?.play(SoundEffect.JUMP)
                 if (result.state.clock.day > state.clock.day) warnOfLoan(result.state)
             }
             is ActionResult.Rejected -> rejection = result.reason

@@ -48,6 +48,8 @@ data class Ship(
     val gunsBroken: Boolean = false,
     /** Where it is in its system (r212g): landed at Regari's spaceport to start (e001). */
     val position: ShipPosition = ShipPosition.InArea(Location.START),
+    /** Lost in a hyperspace dissipation, with all it carried (r212d). */
+    val destroyed: Boolean = false,
 )
 
 /** The Hopper-class ship's boat (r214). */

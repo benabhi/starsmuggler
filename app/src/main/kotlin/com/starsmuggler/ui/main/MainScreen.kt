@@ -60,6 +60,7 @@ import com.starsmuggler.engine.Ending
 import com.starsmuggler.engine.won
 import com.starsmuggler.engine.Clock
 import com.starsmuggler.engine.GameState
+import com.starsmuggler.engine.JumpOption
 import com.starsmuggler.engine.Loan
 import com.starsmuggler.engine.ShipPosition
 import com.starsmuggler.engine.content.Air
@@ -293,6 +294,7 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
     var newGameDialog by remember { mutableStateOf(false) }
     var payDialog by remember { mutableStateOf(false) }
     var pilotDialog by remember { mutableStateOf(false) }
+    var jumpDialog by remember { mutableStateOf(false) }
     val enabled = !session.busy
     Column(
         Modifier
@@ -349,6 +351,16 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
             disabledReason = destinations.firstOrNull()?.let { session.check(Action.Sublight(it)) }?.let { stringResource(rejectionText(it)) },
             onClick = { if (enabled) pilotDialog = true },
         )
+        val jumps = session.jumpOptions()
+        ActionCard(
+            title = stringResource(R.string.bridge_jump),
+            description = stringResource(R.string.bridge_jump_desc),
+            cost = formatHours(0),
+            ruleRef = "r212b",
+            // The nearest system tells whether the ship can jump at all now.
+            disabledReason = jumps.firstOrNull()?.let { session.check(Action.Jump(it.system)) }?.let { stringResource(rejectionText(it)) },
+            onClick = { if (enabled) jumpDialog = true },
+        )
         for (coming in comingActions) {
             ActionCard(
                 title = stringResource(coming.title),
@@ -379,6 +391,7 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
     }
     if (eventDialog) EventDialog(session, game, onClose = { eventDialog = false })
     if (payDialog) PayDialog(session, game, onClose = { payDialog = false })
+    if (jumpDialog) JumpDialog(session, game, session.jumpOptions(), onClose = { jumpDialog = false })
     if (pilotDialog) PilotDialog(session, game, session.sublightDestinations(), onClose = { pilotDialog = false })
     if (endDialog) EndGameDialog(session, onClose = { endDialog = false })
     if (newGameDialog) NewGameDialog(session, onClose = { newGameDialog = false })
@@ -526,6 +539,55 @@ private fun PilotDialog(session: GameSession, game: GameState, destinations: Lis
                         shipPositionText(destination, session.content),
                         onClick = {
                             session.perform(Action.Sublight(destination))
+                            onClose()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+            StampButton(stringResource(R.string.engine_cancel), onClick = onClose, modifier = Modifier.padding(vertical = 10.dp))
+        }
+    }
+}
+
+/** A hyperspace jump to a system up to three routes away, with its hypercharges and risk (r212b-c). */
+@Composable
+private fun JumpDialog(session: GameSession, game: GameState, options: List<JumpOption>, onClose: () -> Unit) {
+    val locale = currentLocale()
+    val risk = options.firstOrNull()?.risk ?: 0
+    Dialog(onDismissRequest = onClose) {
+        RecordCard(stringResource(R.string.bridge_jump)) {
+            val charges = Formats.integer(game.ship.hypercharges, locale)
+            Text(
+                if (risk == 0) stringResource(R.string.jump_hint_safe, charges) else stringResource(R.string.jump_hint, charges, Formats.integer(risk, locale)),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (risk == 0) InkFaded else RocketRed,
+                modifier = Modifier.padding(vertical = 6.dp),
+            )
+            Column(
+                Modifier
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                for (option in options) {
+                    val jump = Action.Jump(option.system)
+                    StampButton(
+                        stringResource(
+                            R.string.jump_option,
+                            session.content.names.system(option.system),
+                            stringResource(
+                                when (option.hops) {
+                                    1 -> R.string.jump_single
+                                    2 -> R.string.jump_double
+                                    else -> R.string.jump_triple
+                                },
+                            ),
+                            pluralStringResource(R.plurals.jump_hypercharges, option.hypercharges, Formats.integer(option.hypercharges, locale)),
+                        ),
+                        enabled = session.check(jump) == null,
+                        onClick = {
+                            session.perform(jump)
                             onClose()
                         },
                         modifier = Modifier.fillMaxWidth(),

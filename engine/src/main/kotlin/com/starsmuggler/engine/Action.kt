@@ -39,6 +39,9 @@ sealed interface Action {
     /** Move the starship one hour with its sublight drive to [to] (r212g). */
     data class Sublight(val to: ShipPosition) : Action
 
+    /** Jump through hyperspace to the system [to], up to three systems along the routes (r212a-d). */
+    data class Jump(val to: String) : Action
+
     /** Close the day: end-of-day checks, end of the week every ten days, and the next morning (r203). */
     data object EndDay : Action
 }

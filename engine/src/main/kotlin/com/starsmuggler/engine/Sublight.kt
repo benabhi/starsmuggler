@@ -49,6 +49,7 @@ sealed interface ShipPosition {
 internal class Sublight(private val content: GameContent) {
     /** Why the starship cannot make a sublight move now, whatever the destination. */
     fun problem(state: GameState): Rejection? = when {
+        state.ship.destroyed -> Rejection.GEAR_MISSING
         state.ship.hypercharges < 1 -> Rejection.NO_HYPERCHARGES
         state.ship.broken -> Rejection.GEAR_BROKEN
         !state.dukeAboard -> Rejection.NOT_ABOARD
@@ -118,7 +119,7 @@ internal class Sublight(private val content: GameContent) {
  * sits in an area he must be in that same area to take off.
  */
 val GameState.dukeAboard: Boolean
-    get() = when (val position = ship.position) {
+    get() = !ship.destroyed && when (val position = ship.position) {
         is ShipPosition.InArea -> position.location == location
         else -> true
     }
