@@ -132,6 +132,14 @@ fun logText(entry: LogEntry, game: GameState, content: LoadedContent): String {
             content.names.system(entry.place.system),
             formatSees(entry.cash),
         )
+        is LogEntry.SystemEntry -> stringResource(R.string.log_system_entry, step, content.names.system(entry.system), entry.event.id)
+        is LogEntry.DetectionChecked -> stringResource(
+            if (entry.detected) R.string.log_detected else R.string.log_undetected,
+            step,
+            locationText(entry.place, content),
+            Formats.integer(entry.roll, locale),
+            Formats.integer(entry.factor, locale),
+        )
         is LogEntry.TableResult -> stringResource(
             R.string.engine_log_table,
             step,

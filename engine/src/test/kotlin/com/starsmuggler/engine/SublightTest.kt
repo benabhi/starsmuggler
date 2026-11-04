@@ -8,6 +8,7 @@ import com.starsmuggler.engine.content.ConnectionPattern
 import com.starsmuggler.engine.content.DiceTable
 import com.starsmuggler.engine.content.AreaType
 import com.starsmuggler.engine.content.EventRef
+import com.starsmuggler.engine.content.FactorTable
 import com.starsmuggler.engine.content.GameContent
 import com.starsmuggler.engine.content.MapPoint
 import com.starsmuggler.engine.content.Planet
@@ -140,6 +141,24 @@ class SublightTest {
     companion object {
         const val REGARI = "regari"
 
+        /** Detection by starship (r238): 4 at Regari's tech 30, +2 at a station, -1 at ruins. */
+        private val ENTRY_TABLES = listOf(
+            Json.decodeFromString<DiceTable>(
+                """{"id":"r238","rule":"r238","rows":[{"key":"starship","entries":[
+                   {"roll":"24-","result":"3"},{"roll":"25-39","result":"4"},{"roll":"40-69","result":"5"},{"roll":"70+","result":"6"}]}]}""",
+            ),
+            Json.decodeFromString<DiceTable>(
+                """{"id":"r233","rule":"r233","dice":"1d6","rows":[
+                   {"key":"spaceport","entries":[{"roll":"0-2","result":"e011"},{"roll":"3-5","result":"SIST"},{"roll":"6+","result":"e185"}]},
+                   {"key":"colony","entries":[{"roll":"0-2","result":"e011"},{"roll":"3-5","result":"SIST"},{"roll":"6+","result":"e185"}]},
+                   {"key":"space_station","entries":[{"roll":"0-2","result":"e011"},{"roll":"3-5","result":"SIST"},{"roll":"6+","result":"e185"}]}]}""",
+            ),
+            Json.decodeFromString<DiceTable>(
+                """{"id":"r233.system","rule":"r233","dice":"1d6","rows":[{"key":"regari","entries":[{"roll":"1-6","result":"e122"}]}]}""",
+            ),
+        )
+        private val DETECTION_AREAS = FactorTable("r238.area", RuleRef("r238"), mapOf("space_station" to 2, "ruins" to -1))
+
         private fun area(id: String, type: AreaType, restriction: Restriction) = Area(id, type, restriction, position = MapPoint(0.5f, 0.5f))
 
         /** Regari with two planets and the asteroids, and any [others] that a jump [pattern] needs. */
@@ -191,8 +210,8 @@ class SublightTest {
                     connectors = emptyList(),
                 ),
             ),
-            tables = tables,
-            factors = emptyList(),
+            tables = tables + ENTRY_TABLES,
+            factors = listOf(DETECTION_AREAS),
             paragraphs = emptyList(),
             equipment = emptyList(),
             goods = emptyList(),

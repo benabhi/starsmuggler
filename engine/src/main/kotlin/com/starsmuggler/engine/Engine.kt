@@ -1,5 +1,6 @@
 package com.starsmuggler.engine
 
+import com.starsmuggler.engine.content.AreaType
 import com.starsmuggler.engine.content.Dice
 import com.starsmuggler.engine.content.EventRef
 import com.starsmuggler.engine.content.GameContent
@@ -200,13 +201,49 @@ class Engine(private val content: GameContent) {
     }
 
     /** One hour of sublight flight; Duke flies with the ship, and the ship was used today (r203d, r212g). */
-    private fun moveShip(turn: Turn, to: ShipPosition) {
+    private suspend fun moveShip(turn: Turn, to: ShipPosition) {
         val from = turn.ship.position
         turn.spend(Sublight.MOVE)
         turn.ship = turn.ship.copy(position = to)
         if (to is ShipPosition.InArea) turn.location = to.location
         if (GearRef.Starship !in turn.usedToday) turn.usedToday += GearRef.Starship
         turn.log(LogEntry.ShipMoved(turn.step, from, to))
+        // Landing or docking enters an area; the orbit and outward space never do (r212g).
+        if (to is ShipPosition.InArea) entryCheck(turn, to.location, STARSHIP_ENTRY)
+    }
+
+    /** Arriving from hyperspace: 1d6 on the system's entry table (r226, r207), whatever comes next. */
+    private suspend fun systemEntry(turn: Turn, systemId: String) {
+        val roll = turn.roll(RollRequest(D6, SYSTEM_ENTRY_RULE)).total
+        turn.log(LogEntry.SystemEntry(turn.step, systemId, content.system(systemId).entryEvent(roll)))
+    }
+
+    /**
+     * Entering [place] by [mode], a row of r238: the detection factor of the system's tech code
+     * plus the area's adjustment, against 1d6 (r225a). Detected, an entry encounter is rolled on
+     * r233 at -1 (r225b). The asteroids are entered unseen.
+     */
+    private suspend fun entryCheck(turn: Turn, place: Location, mode: String) {
+        val area = checkNotNull(content.tile(place.tile).area(place.area)) { "No area $place" }
+        if (area.type == AreaType.ASTEROID) return
+        val base = content.table(DETECTION_TABLE).lookup(content.system(place.system).tech, mode)
+        val factor = (base as Outcome.Value).value + content.factors(DETECTION_AREAS).factor(area.type.key)
+        val roll = turn.roll(RollRequest(D6, DETECTION_RULE)).total
+        val detected = roll <= factor
+        turn.log(LogEntry.DetectionChecked(turn.step, place, mode, factor, roll, detected))
+        if (detected) encounter(turn, area.type.key, place.system, ENTRY_ENCOUNTER_MODIFIER)
+    }
+
+    /** An encounter on r233 in the row of [areaKey]; a SIST result rolls again in the row of [systemId]. */
+    private suspend fun encounter(turn: Turn, areaKey: String, systemId: String, modifier: Int) {
+        val table = content.table(ENCOUNTER_TABLE)
+        val total = turn.roll(RollRequest(table.dice!!, table.rule, table.id, modifier)).total
+        val outcome = table.lookup(total, areaKey)
+        turn.log(LogEntry.TableResult(turn.step, table.id, areaKey, total, outcome))
+        if (outcome != Outcome.SystemTable) return
+        val systems = content.table(SYSTEM_ENCOUNTER_TABLE)
+        val again = turn.roll(RollRequest(systems.dice!!, systems.rule, systems.id)).total
+        turn.log(LogEntry.TableResult(turn.step, systems.id, systemId, again, systems.lookup(again, systemId)))
     }
 
     /** A hyperspace jump: the hypercharges go, and the risk roll brings the ship out at 4 moves outward or dissipates it (r212b-d). */
@@ -219,6 +256,7 @@ class Engine(private val content: GameContent) {
         turn.log(LogEntry.Jumped(turn.step, from, option.system, option.hops, option.hypercharges, option.risk, roll, succeeded))
         if (succeeded) {
             turn.ship = turn.ship.copy(position = ShipPosition.Outward(option.system, ShipPosition.MAX_OUTWARD))
+            systemEntry(turn, option.system)
         } else {
             dissipate(turn, option.system)
         }
@@ -273,6 +311,16 @@ class Engine(private val content: GameContent) {
         private val MONEY_RULE = RuleRef("r232a")
         private val START_EVENT = EventRef("e001")
         private val JUMP_RISK_RULE = RuleRef("r212c")
+        private val SYSTEM_ENTRY_RULE = RuleRef("r226")
+        private val DETECTION_RULE = RuleRef("r225a")
+        private const val DETECTION_TABLE = "r238"
+        private const val DETECTION_AREAS = "r238.area"
+        private const val ENCOUNTER_TABLE = "r233"
+        private const val SYSTEM_ENCOUNTER_TABLE = "r233.system"
+        private const val ENTRY_ENCOUNTER_MODIFIER = -1
+
+        /** The starship's row of the detection table (r238). */
+        const val STARSHIP_ENTRY = "starship"
         private const val STASIS_TABLE = "r240"
 
         /** Capacity units Duke takes inside a stasis unit (r211a). */

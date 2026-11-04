@@ -47,20 +47,24 @@ class HyperspaceTest {
     }
 
     @Test
-    fun `a sure jump rolls nothing and arrives four moves outward`() {
-        val done = done(at(engine.start(1), outward4), Action.Jump(IMPERIA), DiceHand.physical { error("No roll at risk 0") })
+    fun `a sure jump rolls no risk and arrives four moves outward`() {
+        val asked = mutableListOf<RuleRef>()
+        val done = done(at(engine.start(1), outward4), Action.Jump(IMPERIA), DiceHand.physical { asked += it.rule; listOf(3) })
+        assertEquals(listOf(RuleRef("r226")), asked)
         assertEquals(ShipPosition.Outward(IMPERIA, 4), done.state.ship.position)
         assertEquals(3, done.state.ship.hypercharges)
         assertEquals(0, done.state.clock.used)
         assertEquals(listOf(GearRef.Starship), done.state.usedToday)
-        assertEquals(LogEntry.Jumped(done.state.step, REGARI, IMPERIA, 2, 3, 0, null, succeeded = true), done.entries.last())
+        assertEquals(LogEntry.Jumped(done.state.step, REGARI, IMPERIA, 2, 3, 0, null, succeeded = true), done.entries.first { it is LogEntry.Jumped })
     }
 
     @Test
     fun `a roll above the risk jumps safely`() {
-        val done = done(at(engine.start(1), ShipPosition.Orbit(REGARI, 1)), Action.Jump(PALATEK), faces(5))
+        val done = done(at(engine.start(1), ShipPosition.Orbit(REGARI, 1)), Action.Jump(PALATEK), faces(5, 2))
         assertEquals(ShipPosition.Outward(PALATEK, 4), done.state.ship.position)
         assertNull(done.state.ending)
+        // The system entry table of Palatek (r226).
+        assertEquals(LogEntry.SystemEntry(done.state.step, PALATEK, EventRef("e091")), done.entries.last())
     }
 
     @Test
@@ -130,7 +134,7 @@ class HyperspaceTest {
         )
 
         private fun system(id: String) =
-            StarSystem(id, RuleRef("r207b"), wealth = 0, tech = 0, entryEvents = List(6) { EventRef("e090") }, planets = listOf(Planet(1, listOf("J", "K"), 5, Air.GOOD)))
+            StarSystem(id, RuleRef("r207b"), wealth = 0, tech = 0, entryEvents = List(6) { EventRef("e09$it") }, planets = listOf(Planet(1, listOf("J", "K"), 5, Air.GOOD)))
 
         fun content() = SublightTest.content(
             others = listOf(PALATEK, IMPERIA, TALITAR, CUBRO).map(::system),
