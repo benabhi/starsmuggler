@@ -204,7 +204,7 @@
     <string name="engine_log_time_overtime">Paso %1$s · Pasan %2$s (%3$s extra)</string>
     <string name="engine_log_day_ended">Paso %1$s · Termina el día %2$s</string>
     <string name="engine_log_day_ended_overtime">Paso %1$s · Termina el día %2$s, con %3$s extra</string>
-    <string name="engine_log_week_ended">Paso %1$s · Termina la semana %2$s: vence el pago del préstamo</string>
+    <string name="engine_log_week_ended">Paso %1$s · Termina la semana %2$s</string>
     <string name="engine_first_game">Primera partida</string>
     <string name="engine_later_game">Partida siguiente</string>
     <string name="engine_astucia_roll_hint">La Astucia se tira con 1d6 (r202); el dinero inicial, 1d6 × 100 + 150 S (e001).</string>
@@ -246,4 +246,28 @@
     <string name="engine_log_starting_cash">Paso %1$s · Efectivo inicial: %2$s</string>
     <string name="engine_log_astucia_success">Paso %1$s · Tirada de Astucia: %2$s contra %3$s, éxito</string>
     <string name="engine_log_astucia_failure">Paso %1$s · Tirada de Astucia: %2$s contra %3$s, fracaso</string>
+    <string name="engine_loan">Préstamo de la nave</string>
+    <string name="engine_principal">Capital que se debe</string>
+    <plurals name="engine_loan_interest_due">
+        <item quantity="one">Al día: vencen %1$s de interés en %2$s día (al terminar el día).</item>
+        <item quantity="other">Al día: vencen %1$s de interés en %2$s días.</item>
+    </plurals>
+    <string name="engine_loan_defaulted">En mora: hay que pagar todo el capital antes de terminar el día %1$s.</string>
+    <string name="engine_loan_repossession">Embargo en curso: la compañía intenta quitarte la nave.</string>
+    <string name="engine_loan_paid_off">Préstamo pagado: ¡victoria! (r203f)</string>
+    <string name="engine_cash_plus">+1.000 S</string>
+    <string name="engine_cash_minus">−1.000 S</string>
+    <string name="engine_cash_empty">Vaciar el bolsillo</string>
+    <string name="engine_pay_some">Pagar 1.000 S de capital</string>
+    <string name="engine_pay_all">Pagar todo el capital</string>
+    <string name="engine_get_rich">+120.000 S</string>
+    <string name="engine_rejected_cash">No alcanza el efectivo.</string>
+    <string name="engine_rejected_amount">Ese monto no tiene sentido acá.</string>
+    <string name="engine_rejected_paid_off">El préstamo ya está pagado.</string>
+    <string name="engine_log_interest_paid">Paso %1$s · Pagados %2$s de interés de la semana %3$s</string>
+    <string name="engine_log_loan_defaulted">Paso %1$s · Sin pago del interés de la semana %2$s: vencen los %3$s de capital, con plazo hasta el día %4$s</string>
+    <string name="engine_log_repossession">Paso %1$s · Día %2$s: empieza el embargo de la nave</string>
+    <string name="engine_log_principal_paid">Paso %1$s · Pagados %2$s de capital; se deben %3$s</string>
+    <string name="engine_log_loan_paid_off">Paso %1$s · ¡Préstamo pagado por completo!</string>
+    <string name="engine_log_cash_adjusted">Paso %1$s · Efectivo %2$s, queda %3$s</string>
 </resources>

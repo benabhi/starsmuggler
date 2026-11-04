@@ -88,7 +88,7 @@ class ClockTest {
         repeat(9) { game = play(game, Action.EndDay) }
         assertEquals(10, game.clock.day)
         val done = done(game, Action.EndDay)
-        assertEquals(listOf(LogEntry.DayEnded(10, 10), LogEntry.WeekEnded(10, 1)), done.entries)
+        assertEquals(listOf(LogEntry.DayEnded(10, 10), LogEntry.WeekEnded(10, 1)), done.entries.take(2))
         assertEquals(2, done.state.clock.week)
         assertEquals(1, done.state.clock.dayOfWeek)
         game = done.state

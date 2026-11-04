@@ -25,6 +25,7 @@ data class GameState(
     val ship: Ship = Ship(),
     /** Cash in Duke's pocket, in Sees (r232a). */
     val cash: Int,
+    val loan: Loan = Loan(),
     val location: Location = Location.START,
     val standing: Standing = Standing(),
     /** The game's history, oldest first (PRD section 7, log). */
@@ -74,6 +75,36 @@ sealed interface LogEntry {
     @Serializable
     @SerialName("week_ended")
     data class WeekEnded(override val step: Int, val week: Int) : LogEntry
+
+    /** The weekly interest of the loan was paid from cash (r203e). */
+    @Serializable
+    @SerialName("interest_paid")
+    data class InterestPaid(override val step: Int, val week: Int, val sees: Int) : LogEntry
+
+    /** The interest of [week] could not be paid: the whole [principal] is due by day [deadline] (r203e). */
+    @Serializable
+    @SerialName("loan_defaulted")
+    data class LoanDefaulted(override val step: Int, val week: Int, val principal: Int, val deadline: Int) : LogEntry
+
+    /** The 30 days after a default went by: the loan company tries to repossess the ship from [day] on (r203e, e002). */
+    @Serializable
+    @SerialName("repossession")
+    data class RepossessionStarted(override val step: Int, val day: Int) : LogEntry
+
+    /** [sees] of principal paid; [principal] is what is still owed (r203e). */
+    @Serializable
+    @SerialName("principal_paid")
+    data class PrincipalPaid(override val step: Int, val sees: Int, val principal: Int) : LogEntry
+
+    /** The whole loan is paid off: the victory of r203f, by as much as the money kept. */
+    @Serializable
+    @SerialName("loan_paid_off")
+    data class LoanPaidOff(override val step: Int) : LogEntry
+
+    /** Cash changed by [sees] for an event resolved by hand (PRD P2); [cash] is the new amount. */
+    @Serializable
+    @SerialName("cash_adjusted")
+    data class CashAdjusted(override val step: Int, val sees: Int, val cash: Int) : LogEntry
 
     /** The result of a modified roll [total] on [table], in its row [key]; null when no entry covers the roll. */
     @Serializable

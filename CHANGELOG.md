@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.2.4] - 2026-11-03
+
+### Added
+
+- Add the ship loan: weekly interest, default, repossession and principal payments (SMUG-20)
+
 ## [0.2.3] - 2026-11-03
 
 ### Added
