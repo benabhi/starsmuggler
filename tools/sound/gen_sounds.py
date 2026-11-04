@@ -1,7 +1,9 @@
-"""Generates the app's sound effects (SMUG-31) as small WAV files in app/src/main/res/raw.
+"""Generates the app's sound effects (SMUG-31) as small WAV files: the dice roll in the :dice
+module, the rest in app/src/main/res/raw.
 
 Every sound is synthesized here, in the style of early-80s sound chips, so the app carries no
-third-party audio. The dice keep irondroid's clip (SMUG-28). Run from the repo root:
+third-party audio; the dice roll replaced irondroid's clip for the same reason (benabhi,
+04/11/2026). Run from the repo root:
 
     python tools/sound/gen_sounds.py
 """
@@ -13,7 +15,9 @@ import wave
 from pathlib import Path
 
 RATE = 22050
-OUT = Path(__file__).resolve().parents[2] / "app" / "src" / "main" / "res" / "raw"
+ROOT = Path(__file__).resolve().parents[2]
+OUT = ROOT / "app" / "src" / "main" / "res" / "raw"
+DICE_OUT = ROOT / "dice" / "src" / "main" / "res" / "raw"
 
 
 def square(phase: float) -> float:
@@ -24,17 +28,18 @@ def saw(phase: float) -> float:
     return 2.0 * (phase % 1.0) - 1.0
 
 
-def write(name: str, samples: list[float], volume: float) -> None:
+def write(name: str, samples: list[float], volume: float, out: Path = OUT) -> None:
     """Writes 16-bit mono PCM, normalized to [volume] of full scale."""
     peak = max(abs(s) for s in samples) or 1.0
     frames = b"".join(struct.pack("<h", int(s / peak * volume * 32767)) for s in samples)
-    path = OUT / f"{name}.wav"
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / f"{name}.wav"
     with wave.open(str(path), "wb") as f:
         f.setnchannels(1)
         f.setsampwidth(2)
         f.setframerate(RATE)
         f.writeframes(frames)
-    print(f"{path.relative_to(OUT.parents[3])}: {len(samples) / RATE * 1000:.0f} ms")
+    print(f"{path.relative_to(ROOT)}: {len(samples) / RATE * 1000:.0f} ms")
 
 
 def fade(samples: list[float], attack_ms: float = 2, release_ms: float = 10) -> list[float]:
@@ -101,8 +106,32 @@ def laser_shot() -> list[float]:
     return fade(out, release_ms=15)
 
 
+def dice_roll() -> list[float]:
+    """Two plastic dice thrown on a table: a thud, then clicks that come closer and fainter as they settle."""
+    rng = random.Random(6)
+    n = int(RATE * 0.95)
+    out = [0.0] * n
+    for die in range(2):
+        t = 0.01 + die * 0.035
+        gap = 0.11 + die * 0.02
+        strength = 1.0
+        while t < 0.85 and strength > 0.05:
+            start = int(t * RATE)
+            ping = rng.uniform(2300, 4200)
+            for i in range(min(int(RATE * 0.045), n - start)):
+                s = i / RATE
+                click = rng.uniform(-1, 1) * math.exp(-s * 900) + 0.7 * square(ping * s) * math.exp(-s * 160)
+                # The first hits land with the body of the die, a low thud.
+                thud = 0.8 * math.sin(2 * math.pi * 170 * s) * math.exp(-s * 70) if strength > 0.6 else 0.0
+                out[start + i] += strength * (click + thud)
+            t += gap * rng.uniform(0.8, 1.15)
+            gap *= 0.72
+            strength *= rng.uniform(0.62, 0.78)
+    return fade(out, attack_ms=0.5, release_ms=40)
+
+
 def main() -> None:
-    OUT.mkdir(parents=True, exist_ok=True)
+    write("dice_roll", dice_roll(), 0.8, DICE_OUT)
     write("ui_click", ui_click(), 0.45)
     write("loan_warning", loan_warning(), 0.55)
     write("hyperspace_jump", hyperspace_jump(), 0.7)

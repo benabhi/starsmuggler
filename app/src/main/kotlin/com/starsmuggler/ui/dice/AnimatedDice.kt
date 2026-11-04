@@ -38,7 +38,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 
 /**
- * The engine's dice shown on screen (SMUG-28): every roll the engine makes plays the irondroid roll
+ * The engine's dice shown on screen (SMUG-28): every roll the engine makes plays the roll
  * sound, throws the 3D dice so they land on the faces the engine chose, and then shows what was
  * rolled, with its modifier, while the dice stay on the table. The player's [mode] says which rolls
  * get the 3D dice (SMUG-29); the rest are only heard and written, as without a [table] (previews,
