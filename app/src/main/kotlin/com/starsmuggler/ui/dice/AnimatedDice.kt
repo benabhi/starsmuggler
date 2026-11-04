@@ -38,7 +38,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 
 /**
- * The engine's dice shown on screen (SMUG-28): every roll the engine makes plays the irondroid roll
+ * The engine's dice shown on screen (SMUG-28): every roll the engine makes plays the roll
  * sound, throws the 3D dice so they land on the faces the engine chose, and then shows what was
  * rolled, with its modifier, while the dice stay on the table. The player's [mode] says which rolls
  * get the 3D dice (SMUG-29); the rest are only heard and written, as without a [table] (previews,
@@ -49,6 +49,8 @@ class AnimatedDice(
     private val table: DiceTable?,
     private val sound: DiceSound?,
     private val settings: DiceSettings? = null,
+    /** Whether the app may make sounds (SMUG-31). */
+    private val soundOn: () -> Boolean = { true },
 ) : DiceHand {
     /** Which rolls the 3D dice show (PRD P7). */
     var mode: DiceMode by mutableStateOf(settings?.mode ?: DiceMode.IMPORTANT)
@@ -83,7 +85,7 @@ class AnimatedDice(
     override suspend fun show(roll: DiceRoll) {
         // The player's own dice are already on their table: only what they entered is written.
         if (roll.source == RollSource.APP) {
-            sound?.play()
+            if (soundOn()) sound?.play()
             if (mode.throws(roll.request)) table?.roll(ThrownDie.of(roll.values))
         }
         shown = ShownRoll(roll, ++count)

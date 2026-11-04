@@ -5,9 +5,9 @@ import android.media.AudioAttributes
 import android.media.SoundPool
 
 /**
- * The sound of a roll, the same clip as irondroid (benabhi, 03/11/2026): loaded once and played as
- * the dice are thrown. It plays through the media volume, so the phone's volume and silent mode
- * still rule it.
+ * The sound of a roll, synthesized like the app's other sounds by `tools/sound/gen_sounds.py`
+ * (benabhi, 04/11/2026; it replaced irondroid's clip): loaded once and played as the dice are
+ * thrown. It plays through the media volume, so the phone's volume and silent mode still rule it.
  */
 class DiceSound(context: Context) {
     private val pool = SoundPool.Builder()
@@ -19,7 +19,7 @@ class DiceSound(context: Context) {
                 .build(),
         )
         .build()
-    private val clip = pool.load(context, R.raw.die_roll, 1)
+    private val clip = pool.load(context, R.raw.dice_roll, 1)
 
     /** Plays the roll; a clip that has not finished loading yet is skipped, as the game never waits for it. */
     fun play() {

@@ -24,6 +24,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
+import com.starsmuggler.ui.sound.LocalSoundBoard
+import com.starsmuggler.ui.sound.SoundEffect
 import com.starsmuggler.ui.theme.ChromeOchre
 import com.starsmuggler.ui.theme.Ink
 import com.starsmuggler.ui.theme.InkFaded
@@ -46,13 +48,17 @@ fun ActionCard(
     ruleRef: String? = null,
 ) {
     val enabled = disabledReason == null
+    val sounds = LocalSoundBoard.current
     val shape = RoundedCornerShape(4.dp)
     Row(
         modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .clip(shape)
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .clickable(enabled = enabled, role = Role.Button) {
+                sounds?.play(SoundEffect.CLICK)
+                onClick()
+            }
             .background(PaperShade)
             .border(1.5.dp, if (enabled) Ink else InkFaded, shape)
             .padding(end = 12.dp),
