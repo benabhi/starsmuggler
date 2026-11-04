@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import com.starsmuggler.ui.sound.LocalSoundBoard
+import com.starsmuggler.ui.sound.SoundEffect
 import com.starsmuggler.ui.theme.InkFaded
 import com.starsmuggler.ui.theme.RocketRed
 import com.starsmuggler.ui.theme.RocketRedDark
@@ -39,6 +41,7 @@ fun StampButton(
     tilt: Float = -1.5f,
 ) {
     val interaction = remember { MutableInteractionSource() }
+    val sounds = LocalSoundBoard.current
     val pressed by interaction.collectIsPressedAsState()
     val ink = when {
         !enabled -> InkFaded
@@ -51,7 +54,10 @@ fun StampButton(
     Box(
         modifier
             .rotate(if (pressed) 0f else tilt)
-            .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
+            .clickable(interaction, indication = null, enabled = enabled, role = Role.Button) {
+                sounds?.play(SoundEffect.CLICK)
+                onClick()
+            }
             .border(2.dp, ink, outer)
             .padding(3.dp)
             .then(if (solid) Modifier.background(ink, inner) else Modifier.border(1.dp, ink, inner))

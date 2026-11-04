@@ -67,6 +67,9 @@ import com.starsmuggler.ui.currentLocale
 import com.starsmuggler.ui.dice.DiceOptions
 import com.starsmuggler.ui.dice.LocalDice
 import com.starsmuggler.ui.game.GameSession
+import com.starsmuggler.ui.sound.LocalSoundBoard
+import com.starsmuggler.ui.sound.SoundEffect
+import com.starsmuggler.ui.sound.SoundOptions
 import com.starsmuggler.ui.game.endingText
 import com.starsmuggler.ui.game.hoursText
 import com.starsmuggler.ui.game.logText
@@ -139,7 +142,8 @@ fun MainScreen() {
     val scope = rememberCoroutineScope()
     val content = loaded?.getOrNull()
     val dice = LocalDice.current
-    val session = remember(content) { content?.let { GameSession(it, context.filesDir, scope, dice) } }
+    val sounds = LocalSoundBoard.current
+    val session = remember(content) { content?.let { GameSession(it, context.filesDir, scope, dice, sounds) } }
     LaunchedEffect(session) { session?.start() }
     val game = session?.game
 
@@ -173,6 +177,7 @@ fun MainScreen() {
                     MainTab.Log -> LogPane(game, session.content)
                     MainTab.Rules -> MockPane(R.string.mock_rules_title, R.string.mock_rules_body) {
                         DiceOptions(dice, Modifier.padding(vertical = 8.dp))
+                        sounds?.let { SoundOptions(it, Modifier.padding(bottom = 8.dp)) }
                         StampButton(stringResource(R.string.open_records), onClick = { showRecords = true })
                         if (BuildConfig.DEBUG) {
                             StampButton(stringResource(R.string.open_gallery), onClick = { showGallery = true })
@@ -582,12 +587,16 @@ private fun TabBar(selected: MainTab, onSelect: (MainTab) -> Unit) {
     ) {
         HorizontalDivider(thickness = 2.dp, color = Ink)
         Row(Modifier.fillMaxWidth()) {
+            val sounds = LocalSoundBoard.current
             MainTab.entries.forEach { tab ->
                 val active = tab == selected
                 Box(
                     Modifier
                         .weight(1f)
-                        .clickable(role = Role.Tab) { onSelect(tab) }
+                        .clickable(role = Role.Tab) {
+                            sounds?.play(SoundEffect.CLICK)
+                            onSelect(tab)
+                        }
                         .background(if (active) RocketRed else PaperShade)
                         .padding(vertical = 14.dp),
                     contentAlignment = Alignment.Center,

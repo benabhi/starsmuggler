@@ -22,6 +22,8 @@ import com.starsmuggler.ui.dice.LocalDice
 import com.starsmuggler.ui.dice.OwnDiceDialog
 import com.starsmuggler.ui.dice.RollCaption
 import com.starsmuggler.ui.main.MainScreen
+import com.starsmuggler.ui.sound.LocalSoundBoard
+import com.starsmuggler.ui.sound.SoundBoard
 import com.starsmuggler.ui.theme.StarSmugglerTheme
 
 /**
@@ -32,6 +34,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var diceTable: DiceTable
     private lateinit var diceSound: DiceSound
+    private lateinit var sounds: SoundBoard
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Transparent bars with dark icons over the paper, also with three-button navigation.
@@ -42,13 +45,14 @@ class MainActivity : ComponentActivity() {
         val root = FrameLayout(this)
         diceTable = DiceTable(root)
         diceSound = DiceSound(this)
-        val dice = AnimatedDice(diceTable, diceSound, DiceSettings(this))
+        sounds = SoundBoard(this)
+        val dice = AnimatedDice(diceTable, diceSound, DiceSettings(this), soundOn = { sounds.enabled })
         val composeView = ComposeView(this).apply {
             setContent {
                 // The page loads while the game does, so the first roll does not wait for it.
                 LaunchedEffect(Unit) { dice.preload() }
                 StarSmugglerTheme {
-                    CompositionLocalProvider(LocalDice provides dice) {
+                    CompositionLocalProvider(LocalDice provides dice, LocalSoundBoard provides sounds) {
                         Box(Modifier.fillMaxSize()) {
                             MainScreen()
                             RollCaption(dice)
@@ -77,6 +81,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         diceTable.destroy()
         diceSound.release()
+        sounds.release()
         super.onDestroy()
     }
 }

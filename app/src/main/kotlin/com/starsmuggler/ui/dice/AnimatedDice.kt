@@ -49,6 +49,8 @@ class AnimatedDice(
     private val table: DiceTable?,
     private val sound: DiceSound?,
     private val settings: DiceSettings? = null,
+    /** Whether the app may make sounds (SMUG-31). */
+    private val soundOn: () -> Boolean = { true },
 ) : DiceHand {
     /** Which rolls the 3D dice show (PRD P7). */
     var mode: DiceMode by mutableStateOf(settings?.mode ?: DiceMode.IMPORTANT)
@@ -83,7 +85,7 @@ class AnimatedDice(
     override suspend fun show(roll: DiceRoll) {
         // The player's own dice are already on their table: only what they entered is written.
         if (roll.source == RollSource.APP) {
-            sound?.play()
+            if (soundOn()) sound?.play()
             if (mode.throws(roll.request)) table?.roll(ThrownDie.of(roll.values))
         }
         shown = ShownRoll(roll, ++count)

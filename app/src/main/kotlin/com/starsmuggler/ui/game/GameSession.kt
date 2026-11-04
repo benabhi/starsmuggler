@@ -18,6 +18,8 @@ import com.starsmuggler.engine.GameState
 import com.starsmuggler.engine.LogEntry
 import com.starsmuggler.engine.Rejection
 import com.starsmuggler.engine.dice.DiceHand
+import com.starsmuggler.ui.sound.SoundBoard
+import com.starsmuggler.ui.sound.SoundEffect
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +39,8 @@ class GameSession(
     private val scope: CoroutineScope,
     /** Shows every roll, such as with the 3D dice (SMUG-28). */
     private val hand: DiceHand = DiceHand.APP,
+    /** Plays the game's sounds, such as the loan warning (SMUG-31). */
+    private val sounds: SoundBoard? = null,
 ) {
     private val engine = Engine(content.game)
     private val slots = SaveSlots(File(filesDir, SAVES_DIR))
@@ -127,9 +131,17 @@ class GameSession(
                 game = result.state
                 lastEntries = result.entries
                 save(result.state)
+                if (result.state.clock.day > state.clock.day) warnOfLoan(result.state)
             }
             is ActionResult.Rejected -> rejection = result.reason
         }
+    }
+
+    /** A new day with the loan payment two days away or less beeps a warning (PRD P11, r203e). */
+    private fun warnOfLoan(state: GameState) {
+        val due = state.loan.interestDueIn(state.clock) ?: return
+        // Due in 1 is when today ends, so 3 is two days after today.
+        if (due <= LOAN_WARNING_DAYS + 1) sounds?.play(SoundEffect.LOAN_WARNING)
     }
 
     private fun run(block: suspend () -> Unit) {
@@ -151,3 +163,6 @@ class GameSession(
 
     private suspend fun save(state: GameState) = withContext(Dispatchers.IO) { slots.save(slot, state) }
 }
+
+/** Days ahead of the loan payment that a new day starts warning (PRD P11). */
+private const val LOAN_WARNING_DAYS = 2

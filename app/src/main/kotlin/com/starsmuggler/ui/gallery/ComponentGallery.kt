@@ -42,6 +42,8 @@ import com.starsmuggler.ui.components.RecordCard
 import com.starsmuggler.ui.components.RecordLine
 import com.starsmuggler.ui.components.StampButton
 import com.starsmuggler.ui.components.StampStyle
+import com.starsmuggler.ui.sound.LocalSoundBoard
+import com.starsmuggler.ui.sound.SoundEffect
 import com.starsmuggler.ui.theme.ChromeOchre
 import com.starsmuggler.ui.theme.ChromeTurquoise
 import com.starsmuggler.ui.theme.Ink
@@ -122,6 +124,16 @@ fun ComponentGallery() {
                 RecordLine(stringResource(R.string.stat_hand_to_hand), "3")
                 RecordLine(stringResource(R.string.stat_endurance), "5")
                 RecordLine(stringResource(R.string.stat_cunning), "2")
+            }
+
+            // Every sound effect, also the ones whose actions come in later plans (SMUG-31).
+            LocalSoundBoard.current?.let { sounds ->
+                Section(R.string.gallery_section_sounds)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    StampButton(stringResource(R.string.gallery_sound_loan), onClick = { sounds.play(SoundEffect.LOAN_WARNING) })
+                    StampButton(stringResource(R.string.gallery_sound_jump), onClick = { sounds.play(SoundEffect.JUMP) })
+                    StampButton(stringResource(R.string.gallery_sound_shot), onClick = { sounds.play(SoundEffect.SHOT) })
+                }
             }
 
             Section(R.string.gallery_section_palette)
