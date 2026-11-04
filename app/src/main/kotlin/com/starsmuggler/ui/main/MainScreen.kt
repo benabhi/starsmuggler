@@ -77,6 +77,7 @@ import com.starsmuggler.ui.game.hoursText
 import com.starsmuggler.ui.game.locationText
 import com.starsmuggler.ui.game.logText
 import com.starsmuggler.ui.game.shipPositionText
+import com.starsmuggler.ui.map.SectorMap
 import com.starsmuggler.ui.game.rejectionText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -176,7 +177,7 @@ fun MainScreen() {
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 when (tab) {
                     MainTab.Bridge -> BridgePane(session, game, onRecords = { showRecords = true })
-                    MainTab.Map -> MockPane(R.string.mock_map_title, R.string.mock_map_body)
+                    MainTab.Map -> SectorMap(session, game)
                     MainTab.Sheet -> RecordSheet(session, game)
                     MainTab.Log -> LogPane(game, session.content)
                     MainTab.Rules -> MockPane(R.string.mock_rules_title, R.string.mock_rules_body) {
