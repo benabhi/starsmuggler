@@ -30,7 +30,13 @@ import kotlin.random.Random
  * current state, and the save slot it is written to after every action (PRD P8). Its fields are
  * Compose state, so the screens redraw when an action lands.
  */
-class GameSession(val content: LoadedContent, filesDir: File, private val scope: CoroutineScope) {
+class GameSession(
+    val content: LoadedContent,
+    filesDir: File,
+    private val scope: CoroutineScope,
+    /** Shows every roll, such as with the 3D dice (SMUG-28). */
+    private val hand: DiceHand = DiceHand.APP,
+) {
     private val engine = Engine(content.game)
     private val slots = SaveSlots(File(filesDir, SAVES_DIR))
     private val history = GameHistory(filesDir)
@@ -81,7 +87,7 @@ class GameSession(val content: LoadedContent, filesDir: File, private val scope:
     fun newGame(astucia: AstuciaSetup) = run { startGame(astucia) }
 
     private suspend fun startGame(astucia: AstuciaSetup) {
-        val state = engine.newGame(Random.nextLong(), astucia, DiceHand.APP)
+        val state = engine.newGame(Random.nextLong(), astucia, hand)
         game = state
         lastEntries = state.log
         save(state)
@@ -89,7 +95,7 @@ class GameSession(val content: LoadedContent, filesDir: File, private val scope:
 
     /** Ends the game (r203f) and adds it to the history. */
     fun endGame(ending: Ending) = run {
-        val result = engine.perform(checkNotNull(game), Action.EndGame(ending), DiceHand.APP)
+        val result = engine.perform(checkNotNull(game), Action.EndGame(ending), hand)
         if (result !is ActionResult.Done) {
             rejection = (result as ActionResult.Rejected).reason
             return@run
@@ -111,7 +117,7 @@ class GameSession(val content: LoadedContent, filesDir: File, private val scope:
 
     fun perform(action: Action) = run {
         val state = checkNotNull(game)
-        when (val result = engine.perform(state, action, DiceHand.APP)) {
+        when (val result = engine.perform(state, action, hand)) {
             is ActionResult.Done -> {
                 game = result.state
                 lastEntries = result.entries

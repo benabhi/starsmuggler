@@ -43,6 +43,7 @@ dependencies {
     implementation(project(":engine"))
     implementation(project(":content"))
     implementation(project(":data"))
+    implementation(project(":dice"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

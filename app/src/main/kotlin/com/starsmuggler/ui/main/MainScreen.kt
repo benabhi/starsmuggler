@@ -64,6 +64,7 @@ import com.starsmuggler.engine.Loan
 import com.starsmuggler.engine.content.Air
 import com.starsmuggler.ui.Formats
 import com.starsmuggler.ui.currentLocale
+import com.starsmuggler.ui.dice.LocalDice
 import com.starsmuggler.ui.game.GameSession
 import com.starsmuggler.ui.game.endingText
 import com.starsmuggler.ui.game.hoursText
@@ -136,7 +137,8 @@ fun MainScreen() {
     }
     val scope = rememberCoroutineScope()
     val content = loaded?.getOrNull()
-    val session = remember(content) { content?.let { GameSession(it, context.filesDir, scope) } }
+    val dice = LocalDice.current
+    val session = remember(content) { content?.let { GameSession(it, context.filesDir, scope, dice) } }
     LaunchedEffect(session) { session?.start() }
     val game = session?.game
 
