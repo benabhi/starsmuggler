@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,16 +59,34 @@ import kotlin.math.roundToInt
  * Duke is wanted (r228). Touching a system shows it, and jumps there when it can.
  */
 @Composable
-fun SectorMap(session: GameSession, game: GameState) {
+fun MapPane(session: GameSession, game: GameState) {
+    var sector by rememberSaveable { mutableStateOf(false) }
+    var place by rememberSaveable { mutableStateOf<Int?>(null) }
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            StampButton(
+                stringResource(R.string.map_view_system),
+                style = if (sector) StampStyle.Outline else StampStyle.Solid,
+                onClick = { sector = false },
+            )
+            StampButton(
+                stringResource(R.string.map_view_sector),
+                style = if (sector) StampStyle.Solid else StampStyle.Outline,
+                onClick = { sector = true },
+            )
+        }
+        if (sector) SectorMap(session, game) else SystemMap(session, game, place, onSelect = { place = it })
+    }
+}
+
+@Composable
+private fun SectorMap(session: GameSession, game: GameState) {
     val content = session.content
     val here = game.ship.position.system
     val options = session.jumpOptions().associateBy { it.system }
     var selected by rememberSaveable { mutableStateOf<String?>(null) }
     Column(
-        Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+        Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Text(stringResource(R.string.map_sector_title).uppercase(), style = MaterialTheme.typography.labelMedium, color = RocketRed)
