@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.4.1] - 2026-11-04
+
+### Added
+
+- Add sublight movement within a star system (SMUG-35)
+
 ## [0.4.0] - 2026-11-03
 
 ### Added
