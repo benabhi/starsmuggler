@@ -14,6 +14,7 @@ import com.starsmuggler.engine.Maintainer
 import com.starsmuggler.engine.Rejection
 import com.starsmuggler.engine.SheetEdit
 import com.starsmuggler.engine.Stat
+import com.starsmuggler.engine.TravelMode
 import com.starsmuggler.engine.content.Outcome
 import com.starsmuggler.engine.dice.DiceRoll
 import com.starsmuggler.engine.dice.RollSource
@@ -132,6 +133,25 @@ fun logText(entry: LogEntry, game: GameState, content: LoadedContent): String {
             content.names.system(entry.place.system),
             formatSees(entry.cash),
         )
+        is LogEntry.Travelled -> if (entry.stepsLeft > 0) {
+            pluralStringResource(
+                R.plurals.log_walking,
+                entry.stepsLeft,
+                step,
+                locationText(entry.to, content),
+                Formats.integer(entry.stepsLeft, locale),
+            )
+        } else {
+            stringResource(R.string.log_travelled, step, stringResource(travelModeText(entry.mode)), locationText(entry.from, content), locationText(entry.to, content))
+        }
+        is LogEntry.VehicleRented -> stringResource(
+            R.string.log_vehicle_rented,
+            step,
+            Formats.integer(entry.capacity, locale),
+            hoursText(entry.hours * Clock.HOUR),
+            formatSees(entry.sees),
+        )
+        is LogEntry.BadAirBreakdown -> stringResource(R.string.log_bad_air_breakdown, step, gearName(entry.gear, game, content))
         is LogEntry.SystemEntry -> stringResource(R.string.log_system_entry, step, content.names.system(entry.system), entry.event.id)
         is LogEntry.DetectionChecked -> stringResource(
             if (entry.detected) R.string.log_detected else R.string.log_undetected,
@@ -172,6 +192,13 @@ fun rolledText(step: String, roll: DiceRoll): String {
     }
 }
 
+/** A way of travel over land (r203a). */
+fun travelModeText(mode: TravelMode): Int = when (mode) {
+    TravelMode.ON_FOOT -> R.string.travel_on_foot
+    TravelMode.COMMERCIAL -> R.string.travel_commercial
+    TravelMode.SKIMMER -> R.string.travel_skimmer
+}
+
 fun rejectionText(reason: Rejection): Int = when (reason) {
     Rejection.UNKNOWN_TABLE -> R.string.engine_rejected_table
     Rejection.TABLE_WITHOUT_DICE -> R.string.engine_rejected_no_dice
@@ -189,6 +216,13 @@ fun rejectionText(reason: Rejection): Int = when (reason) {
     Rejection.NO_HYPERCHARGES -> R.string.rejected_no_hypercharges
     Rejection.NOT_ABOARD -> R.string.rejected_not_aboard
     Rejection.UNREACHABLE -> R.string.rejected_unreachable
+    Rejection.ON_TREK -> R.string.rejected_on_trek
+    Rejection.RESTRICTED_AREA -> R.string.rejected_restricted_area
+    Rejection.NO_LIFE_SUPPORT -> R.string.rejected_no_life_support
+    Rejection.NO_VEHICLE -> R.string.rejected_no_vehicle
+    Rejection.RENTAL_TOO_SHORT -> R.string.rejected_rental_too_short
+    Rejection.NO_DRIVER -> R.string.rejected_no_driver
+    Rejection.NO_AIR -> R.string.rejected_no_air
     Rejection.GAME_OVER -> R.string.rejected_game_over
 }
 

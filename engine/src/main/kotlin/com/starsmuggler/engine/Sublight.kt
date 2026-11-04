@@ -119,7 +119,7 @@ internal class Sublight(private val content: GameContent) {
  * sits in an area he must be in that same area to take off.
  */
 val GameState.dukeAboard: Boolean
-    get() = !ship.destroyed && when (val position = ship.position) {
+    get() = !ship.destroyed && trek == null && when (val position = ship.position) {
         is ShipPosition.InArea -> position.location == location
         else -> true
     }

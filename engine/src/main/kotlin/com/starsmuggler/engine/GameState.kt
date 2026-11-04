@@ -28,6 +28,10 @@ data class GameState(
     val cash: Int,
     val loan: Loan = Loan(),
     val location: Location = Location.START,
+    /** A walk along a single line that takes several days, while it lasts (r203a). */
+    val trek: Trek? = null,
+    /** The commercial vehicle rented today, if any (r215b). */
+    val rental: Rental? = null,
     val standing: Standing = Standing(),
     /** Gear used today, checked for breakdowns when the day ends (r203d). */
     val usedToday: List<GearRef> = emptyList(),
@@ -209,6 +213,27 @@ sealed interface LogEntry {
         val roll: Int,
         val detected: Boolean,
     ) : LogEntry
+
+    /** Duke travelled by [mode] from [from] towards [to]; with [stepsLeft] above 0 he is still walking (r203a). */
+    @Serializable
+    @SerialName("travelled")
+    data class Travelled(
+        override val step: Int,
+        val mode: TravelMode,
+        val from: Location,
+        val to: Location,
+        val stepsLeft: Int = 0,
+    ) : LogEntry
+
+    /** A commercial vehicle of [capacity] UC rented for [hours] hours, paid [sees] in advance (r215b, e074). */
+    @Serializable
+    @SerialName("vehicle_rented")
+    data class VehicleRented(override val step: Int, val capacity: Int, val hours: Int, val sees: Int) : LogEntry
+
+    /** [gear] broke down at once in an area of bad air, as a skimmer's air-breathing engine does (r204f). */
+    @Serializable
+    @SerialName("bad_air_breakdown")
+    data class BadAirBreakdown(override val step: Int, val gear: GearRef) : LogEntry
 
     /** The result of a modified roll [total] on [table], in its row [key]; null when no entry covers the roll. */
     @Serializable

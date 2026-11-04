@@ -1,5 +1,6 @@
 package com.starsmuggler.engine
 
+import com.starsmuggler.engine.content.Air
 import com.starsmuggler.engine.content.AreaType
 import com.starsmuggler.engine.content.Dice
 import com.starsmuggler.engine.content.EventRef
@@ -19,6 +20,10 @@ import com.starsmuggler.engine.dice.RollSource
 class Engine(private val content: GameContent) {
     private val sublight = Sublight(content)
     private val hyperspace = Hyperspace(content)
+    private val land = LandTravel(content)
+
+    /** The travel lines out of Duke's area (r204g). */
+    fun landRoutes(state: GameState): List<LandRoute> = land.routes(state)
 
     /** Every system the starship can jump to from its own, with the cost and risk of each jump (r212b-c). */
     fun jumpOptions(state: GameState): List<JumpOption> = hyperspace.options(state)
@@ -97,6 +102,18 @@ class Engine(private val content: GameContent) {
             null -> Rejection.UNREACHABLE
             else -> if (state.ship.hypercharges < option.hypercharges) Rejection.NO_HYPERCHARGES else null
         }
+        is Action.Travel -> land.problem(state, action.mode, action.to)
+        Action.ContinueTrek -> when {
+            state.trek == null -> Rejection.UNREACHABLE
+            !state.clock.isFresh -> Rejection.NOT_ENOUGH_HOURS
+            else -> null
+        }
+        is Action.RentVehicle -> when {
+            action.capacity !in LandTravel.VEHICLE_SIZES || action.hours < 1 -> Rejection.INVALID_VALUE
+            !state.clock.fits(action.hours * Clock.HOUR) -> Rejection.NOT_ENOUGH_HOURS
+            rentalCost(action) > state.cash -> Rejection.NOT_ENOUGH_CASH
+            else -> null
+        }
         is Action.Sublight -> sublight.problem(state) ?: if (action.to in sublight.destinations(state)) null else Rejection.UNREACHABLE
     }
 
@@ -135,6 +152,14 @@ class Engine(private val content: GameContent) {
                 turn.log(LogEntry.CashAdjusted(turn.step, action.sees, turn.cash))
             }
             is Action.Sublight -> moveShip(turn, action.to)
+            is Action.Travel -> travel(turn, action.mode, land.route(state, action.to))
+            Action.ContinueTrek -> walk(turn, checkNotNull(state.trek))
+            is Action.RentVehicle -> {
+                val sees = rentalCost(action)
+                turn.cash -= sees
+                turn.rental = Rental(action.capacity, turn.clock.day, turn.clock.used + action.hours * Clock.HOUR)
+                turn.log(LogEntry.VehicleRented(turn.step, action.capacity, action.hours, sees))
+            }
             is Action.Jump -> jump(turn, hyperspace.options(state).first { it.system == action.to })
         }
         return ActionResult.Done(turn.finish(), turn.entries)
@@ -210,6 +235,49 @@ class Engine(private val content: GameContent) {
         turn.log(LogEntry.ShipMoved(turn.step, from, to))
         // Landing or docking enters an area; the orbit and outward space never do (r212g).
         if (to is ShipPosition.InArea) entryCheck(turn, to.location, STARSHIP_ENTRY)
+    }
+
+    private fun rentalCost(action: Action.RentVehicle): Int = action.capacity / LandTravel.UC_PER_SEE * action.hours
+
+    /** Travel along one line by [mode]: an hour, an hour per step by vehicle, or a day per step on foot (r203a, r215). */
+    private suspend fun travel(turn: Turn, mode: TravelMode, route: LandRoute) {
+        val from = turn.location
+        if (mode == TravelMode.ON_FOOT && route.walkingDays > 0) {
+            return walk(turn, Trek(from, route.to, route.walkingDays))
+        }
+        turn.spend(if (mode == TravelMode.ON_FOOT) Clock.HOUR else route.vehicleTenths)
+        if (mode == TravelMode.SKIMMER) use(turn, GearRef.DukeItem(checkNotNull(land.skimmer(turn.state()))))
+        turn.log(LogEntry.Travelled(turn.step, mode, from, route.to))
+        arrive(turn, mode, route.to)
+    }
+
+    /** A day of walking one land step; the last one arrives (r203a). */
+    private suspend fun walk(turn: Turn, trek: Trek) {
+        turn.spend(turn.clock.left)
+        val left = trek.stepsLeft - 1
+        turn.trek = if (left > 0) trek.copy(stepsLeft = left) else null
+        turn.log(LogEntry.Travelled(turn.step, TravelMode.ON_FOOT, trek.from, trek.to, left))
+        if (left == 0) arrive(turn, TravelMode.ON_FOOT, trek.to)
+    }
+
+    /**
+     * Duke enters [place]: his suit gives him life support where the air is bad or missing
+     * (r213), a skimmer breaks down at once in bad air (r204f), and the entry is checked for
+     * detection (r225).
+     */
+    private suspend fun arrive(turn: Turn, mode: TravelMode, place: Location) {
+        turn.location = place
+        if (land.needsLifeSupport(place)) land.suit(turn.state())?.let { use(turn, GearRef.DukeItem(it)) }
+        if (mode == TravelMode.SKIMMER && land.airAt(place) == Air.BAD && !land.area(place).ownAir) {
+            val skimmer = GearRef.DukeItem(checkNotNull(land.skimmer(turn.state())))
+            turn.broken += skimmer
+            turn.log(LogEntry.BadAirBreakdown(turn.step, skimmer))
+        }
+        entryCheck(turn, place, mode.key)
+    }
+
+    private fun use(turn: Turn, gear: GearRef) {
+        if (gear !in turn.usedToday) turn.usedToday += gear
     }
 
     /** Arriving from hyperspace: 1d6 on the system's entry table (r226, r207), whatever comes next. */
@@ -342,6 +410,11 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
     var ship = before.ship
     var duke = before.duke
     var location = before.location
+    var trek = before.trek
+    var rental = before.rental
+
+    /** The state as this turn has left it so far. */
+    fun state(): GameState = before.copy(duke = duke, location = location, usedToday = usedToday)
 
     /** Gear that broke down during this action. */
     val broken = mutableListOf<GearRef>()
@@ -385,6 +458,8 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
             ship = ship,
             duke = duke,
             location = location,
+            trek = trek,
+            rental = rental,
             log = before.log + entries,
         )
         return broken.fold(state) { acc, ref -> acc.withBroken(ref, true) }

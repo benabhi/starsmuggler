@@ -629,6 +629,7 @@ private const val MAX_DEBUG_TECH = 12
 private fun skillName(skill: Skill): Int = when (skill) {
     Skill.PILOT_NAVIGATOR -> R.string.engine_skill_pilot
     Skill.STARSHIP_GUNNER -> R.string.engine_skill_gunner
+    Skill.DRIVER -> R.string.engine_skill_driver
 }
 
 private const val STASIS_UNIT = "stasis_unit" // not-ui
