@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class Skill { PILOT_NAVIGATOR, STARSHIP_GUNNER }
 
-/** An item of the equipment table (r236) owned at tech level [tech] (r210). */
+/** An item of the equipment table (r236) owned at tech level [tech] (r210); [broken] until repaired (r218). */
 @Serializable
-data class Item(val id: String, val tech: Int)
+data class Item(val id: String, val tech: Int, val broken: Boolean = false)
 
 /** Duke Springer, the player's character (r201b). */
 @Serializable
@@ -43,6 +43,9 @@ data class Ship(
     /** Capacity units of the stasis unit in the pilot's cabin (r212e). */
     val stasis: Int = 2,
     val boat: Boat? = Boat(),
+    /** Broken down until repaired (r218). */
+    val broken: Boolean = false,
+    val gunsBroken: Boolean = false,
 )
 
 /** The Hopper-class ship's boat (r214). */
@@ -51,6 +54,7 @@ data class Boat(
     val tech: Int = 1,
     /** Fuel units, FUEL (r211). */
     val fuel: Int = 15,
+    val broken: Boolean = false,
 )
 
 /** Where the player is: an area of a tile of a planet of a system (r204). */

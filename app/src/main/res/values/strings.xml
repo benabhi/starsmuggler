@@ -281,4 +281,25 @@
     <string name="engine_slot_use">Usar esta ranura</string>
     <string name="engine_slot_delete">Borrar</string>
     <string name="engine_confirm_replace">La ranura %1$s tiene una partida: tocá «Nueva partida» otra vez para reemplazarla.</string>
+    <string name="engine_gear">Equipo y averías</string>
+    <string name="engine_gear_hint">«Usar» marca la pieza como usada hoy; al terminar el día se tira 2d6 y se avería si sale menor o igual que su nivel tecnológico (r218). Todo empieza en tec 1 y no se avería: «tec +1» es solo para probar.</string>
+    <string name="engine_gear_line">%1$s · tec %2$s · %3$s</string>
+    <string name="engine_gear_ok">sana</string>
+    <string name="engine_gear_used">usada hoy</string>
+    <string name="engine_gear_broken">averiada</string>
+    <string name="engine_gear_missing">(no está)</string>
+    <string name="engine_gear_use">Usar</string>
+    <string name="engine_gear_tech_up">Tec +1</string>
+    <string name="engine_maintenance_bonus">Bono de mantenimiento hoy: %1$s</string>
+    <string name="engine_maintenance_engineer">Mantenimiento: ingeniero</string>
+    <string name="engine_maintenance_robot">Mantenimiento: robot MG</string>
+    <string name="engine_maintainer_engineer">ingeniero</string>
+    <string name="engine_maintainer_robot">robot MG</string>
+    <string name="engine_rejected_gear_missing">No tenés esa pieza de equipo.</string>
+    <string name="engine_rejected_gear_broken">Está averiada: no se puede usar hasta repararla.</string>
+    <string name="engine_rejected_maintained">Ya se hizo mantenimiento preventivo hoy.</string>
+    <string name="engine_log_gear_used">Paso %1$s · Usa: %2$s</string>
+    <string name="engine_log_breakdown">Paso %1$s · Control de avería de %2$s (tec %3$s): %4$s, ¡se avería!</string>
+    <string name="engine_log_no_breakdown">Paso %1$s · Control de avería de %2$s (tec %3$s): %4$s, aguanta</string>
+    <string name="engine_log_maintenance">Paso %1$s · Mantenimiento preventivo (%2$s)</string>
 </resources>

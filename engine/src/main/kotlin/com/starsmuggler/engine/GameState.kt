@@ -28,6 +28,10 @@ data class GameState(
     val loan: Loan = Loan(),
     val location: Location = Location.START,
     val standing: Standing = Standing(),
+    /** Gear used today, checked for breakdowns when the day ends (r203d). */
+    val usedToday: List<GearRef> = emptyList(),
+    /** The last preventive maintenance (r218b). */
+    val maintenance: Maintenance? = null,
     /** The game's history, oldest first (PRD section 7, log). */
     val log: List<LogEntry>,
 )
@@ -105,6 +109,21 @@ sealed interface LogEntry {
     @Serializable
     @SerialName("cash_adjusted")
     data class CashAdjusted(override val step: Int, val sees: Int, val cash: Int) : LogEntry
+
+    /** [gear] was used today, so it is checked for breakdowns tonight (r203d). */
+    @Serializable
+    @SerialName("gear_used")
+    data class GearUsed(override val step: Int, val gear: GearRef) : LogEntry
+
+    /** End-of-day check of [gear] of tech [tech]: 2d6 plus maintenance gave [total]; at most [tech] it [broke] (r218a). */
+    @Serializable
+    @SerialName("breakdown_check")
+    data class BreakdownChecked(override val step: Int, val gear: GearRef, val tech: Int, val total: Int, val broke: Boolean) : LogEntry
+
+    /** Preventive maintenance by [by] (r218b). */
+    @Serializable
+    @SerialName("maintenance")
+    data class MaintenanceDone(override val step: Int, val by: Maintainer) : LogEntry
 
     /** The result of a modified roll [total] on [table], in its row [key]; null when no entry covers the roll. */
     @Serializable
