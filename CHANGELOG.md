@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.4.8] - 2026-11-04
+
+### Changed
+
+- Retouch the map tile scans and double them for high-density screens (SMUG-40)
+
 ## [0.4.7] - 2026-11-04
 
 ### Added
