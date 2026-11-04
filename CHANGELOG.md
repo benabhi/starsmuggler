@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.4.5] - 2026-11-04
+
+### Added
+
+- Add the system map with touchable sublight moves (SMUG-39)
+
 ## [0.4.4] - 2026-11-04
 
 ### Added
