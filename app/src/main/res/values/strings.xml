@@ -458,4 +458,9 @@
     <string name="log_dissipated_stasis">Paso %1$s · La unidad de estasis se activa sola: Duke queda dentro</string>
     <string name="log_dissipated_dead">Paso %1$s · Sin unidad de estasis, Duke muere en la disipación</string>
     <string name="log_stasis_recovered">Paso %1$s · Duke despierta en %2$s, sistema %3$s, sin nave ni equipo; le quedan %4$s</string>
+
+    <!-- Detection and entry encounters (SMUG-37, r225, r226, r238) -->
+    <string name="log_system_entry">Paso %1$s · Entrada al sistema %2$s: evento %3$s; resolvelo con «Resolver un evento a mano»</string>
+    <string name="log_detected">Paso %1$s · Detección al entrar en %2$s: 1d6 sacó %3$s contra %4$s, te detectan y hay encuentro de entrada</string>
+    <string name="log_undetected">Paso %1$s · Detección al entrar en %2$s: 1d6 sacó %3$s contra %4$s, entrás sin que te detecten</string>
 </resources>

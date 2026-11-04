@@ -1,5 +1,6 @@
 package com.starsmuggler.engine
 
+import com.starsmuggler.engine.content.EventRef
 import com.starsmuggler.engine.content.Outcome
 import com.starsmuggler.engine.dice.DiceRoll
 import com.starsmuggler.engine.dice.Rng
@@ -188,6 +189,26 @@ sealed interface LogEntry {
     @Serializable
     @SerialName("stasis_recovered")
     data class StasisRecovered(override val step: Int, val place: Location, val cash: Int) : LogEntry
+
+    /** Arriving from hyperspace in [system], its entry table gave [event] for the player to resolve (r226, r207). */
+    @Serializable
+    @SerialName("system_entry")
+    data class SystemEntry(override val step: Int, val system: String, val event: EventRef) : LogEntry
+
+    /**
+     * Entering [place] by [mode] (a row of r238): a 1d6 [roll] not higher than the detection
+     * [factor] means Duke was [detected], and an entry encounter follows on r233 (r225).
+     */
+    @Serializable
+    @SerialName("detection")
+    data class DetectionChecked(
+        override val step: Int,
+        val place: Location,
+        val mode: String,
+        val factor: Int,
+        val roll: Int,
+        val detected: Boolean,
+    ) : LogEntry
 
     /** The result of a modified roll [total] on [table], in its row [key]; null when no entry covers the roll. */
     @Serializable
