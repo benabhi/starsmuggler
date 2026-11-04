@@ -42,6 +42,19 @@ function Fail([string]$why) {
     exit 1
 }
 
+# Runs git so that a warning on stderr (such as a line-ending notice) is shown but does not stop
+# the script, as it would under 'Stop' in Windows PowerShell; a failing exit code still does.
+function Invoke-Git {
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        & git @args 2>&1 | ForEach-Object { Write-Host "$_" }
+    } finally {
+        $ErrorActionPreference = $previous
+    }
+    if ($LASTEXITCODE -ne 0) { Fail "git $args failed" }
+}
+
 $branch = git rev-parse --abbrev-ref HEAD
 $build = [System.IO.File]::ReadAllText($gradle)
 if ($build -notmatch 'versionName = "(\d+)\.(\d+)\.(\d+)"') { Fail 'No versionName in app\build.gradle.kts' }
@@ -51,7 +64,7 @@ if ($Tag) {
     if ($branch -ne 'main') { Fail "Tag the merge on main, not on $branch" }
     if (@(git rev-list --parents -n 1 HEAD).Split(' ').Count -lt 3) { Fail 'HEAD is not a merge: merge the task first' }
     if (git tag -l "v$current") { Fail "v$current already exists" }
-    git tag -a "v$current" -m $Message
+    Invoke-Git tag -a "v$current" -m $Message
     Write-Host "==> Tagged v$current on $(git rev-parse --short HEAD). Push it with: git push origin v$current"
     exit 0
 }
@@ -78,6 +91,6 @@ $build = $build -replace 'versionName = "[^"]*"', "versionName = `"$next`"" -rep
 [System.IO.File]::WriteAllText($gradle, $build, $utf8)
 
 & (Join-Path $PSScriptRoot 'changelog.ps1') -Next $next
-git add app/build.gradle.kts CHANGELOG.md
-git commit -q -m "Release v$next ($issue)"
+Invoke-Git add app/build.gradle.kts CHANGELOG.md
+Invoke-Git commit -q -m "Release v$next ($issue)"
 Write-Host "==> v$next (versionCode $code) committed on $branch. After the merge into main: .\scripts\release.ps1 -Tag -Message `"${issue}: <title>`""
