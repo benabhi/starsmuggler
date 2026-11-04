@@ -5,6 +5,7 @@ import androidx.compose.ui.res.stringResource
 import com.starsmuggler.R
 import com.starsmuggler.content.LoadedContent
 import com.starsmuggler.engine.Clock
+import com.starsmuggler.engine.Ending
 import com.starsmuggler.engine.GameState
 import com.starsmuggler.engine.GearRef
 import com.starsmuggler.engine.LogEntry
@@ -89,6 +90,7 @@ fun logText(entry: LogEntry, game: GameState, content: LoadedContent): String {
             step,
             stringResource(if (entry.by == Maintainer.ENGINEER) R.string.engine_maintainer_engineer else R.string.engine_maintainer_robot),
         )
+        is LogEntry.GameEnded -> stringResource(R.string.log_game_ended, step, stringResource(endingText(entry.ending, entry.won)))
         is LogEntry.SheetEdited -> stringResource(R.string.log_sheet_edited, step, sheetEditText(entry.edit, game, content))
         is LogEntry.CashAdjusted -> stringResource(R.string.engine_log_cash_adjusted, step, formatSignedSees(entry.sees), formatSees(entry.cash))
         is LogEntry.AstuciaRolled -> stringResource(
@@ -154,6 +156,7 @@ fun rejectionText(reason: Rejection): Int = when (reason) {
     Rejection.ALREADY_MAINTAINED -> R.string.engine_rejected_maintained
     Rejection.INVALID_VALUE -> R.string.rejected_invalid_value
     Rejection.UNKNOWN_ID -> R.string.rejected_unknown_id
+    Rejection.GAME_OVER -> R.string.rejected_game_over
 }
 
 /** A change of money with its sign, such as "+1.000 S". */
@@ -175,6 +178,13 @@ fun sheetEditText(edit: SheetEdit, game: GameState, content: LoadedContent): Str
         is SheetEdit.SetPapers -> stringResource(if (edit.inOrder) R.string.edit_papers_in_order else R.string.edit_papers_missing)
         is SheetEdit.SetWanted -> stringResource(if (edit.wanted) R.string.edit_wanted else R.string.edit_not_wanted, content.names.system(edit.system))
     }
+}
+
+/** How a game ended, in words: a win, a retirement with the loan unpaid, or Duke's death (r203f). */
+fun endingText(ending: Ending, won: Boolean): Int = when {
+    ending == Ending.DIED -> R.string.ending_died
+    won -> R.string.ending_won
+    else -> R.string.ending_retired
 }
 
 fun statName(stat: Stat): Int = when (stat) {

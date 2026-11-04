@@ -54,6 +54,10 @@ import com.starsmuggler.content.ContentLoader
 import com.starsmuggler.content.LoadedContent
 import com.starsmuggler.content.TextLanguage
 import com.starsmuggler.engine.Action
+import com.starsmuggler.engine.Astucia
+import com.starsmuggler.engine.AstuciaSetup
+import com.starsmuggler.engine.Ending
+import com.starsmuggler.engine.won
 import com.starsmuggler.engine.Clock
 import com.starsmuggler.engine.GameState
 import com.starsmuggler.engine.Loan
@@ -61,6 +65,7 @@ import com.starsmuggler.engine.content.Air
 import com.starsmuggler.ui.Formats
 import com.starsmuggler.ui.currentLocale
 import com.starsmuggler.ui.game.GameSession
+import com.starsmuggler.ui.game.endingText
 import com.starsmuggler.ui.game.hoursText
 import com.starsmuggler.ui.game.logText
 import com.starsmuggler.ui.game.rejectionText
@@ -102,6 +107,7 @@ fun MainScreen() {
     var showGallery by rememberSaveable { mutableStateOf(false) }
     var showContent by rememberSaveable { mutableStateOf(false) }
     var showEngine by rememberSaveable { mutableStateOf(false) }
+    var showRecords by rememberSaveable { mutableStateOf(false) }
 
     if (showGallery) {
         BackHandler { showGallery = false }
@@ -134,6 +140,12 @@ fun MainScreen() {
     LaunchedEffect(session) { session?.start() }
     val game = session?.game
 
+    if (showRecords && session != null) {
+        BackHandler { showRecords = false }
+        RecordsScreen(session.games)
+        return
+    }
+
     PaperBackground(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             val top = Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
@@ -152,11 +164,12 @@ fun MainScreen() {
             LocationLine(game, session.content)
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 when (tab) {
-                    MainTab.Bridge -> BridgePane(session, game)
+                    MainTab.Bridge -> BridgePane(session, game, onRecords = { showRecords = true })
                     MainTab.Map -> MockPane(R.string.mock_map_title, R.string.mock_map_body)
                     MainTab.Sheet -> RecordSheet(session, game)
                     MainTab.Log -> LogPane(game, session.content)
                     MainTab.Rules -> MockPane(R.string.mock_rules_title, R.string.mock_rules_body) {
+                        StampButton(stringResource(R.string.open_records), onClick = { showRecords = true })
                         if (BuildConfig.DEBUG) {
                             StampButton(stringResource(R.string.open_gallery), onClick = { showGallery = true })
                             StampButton(stringResource(R.string.open_content), onClick = { showContent = true })
@@ -255,8 +268,10 @@ private fun LocationLine(game: GameState, content: LoadedContent) {
 
 /** The day's dashboard (PRD section 7.2): what can be done now, its cost in hours, and why not when it cannot. */
 @Composable
-private fun BridgePane(session: GameSession, game: GameState) {
+private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> Unit) {
     var eventDialog by remember { mutableStateOf(false) }
+    var endDialog by remember { mutableStateOf(false) }
+    var newGameDialog by remember { mutableStateOf(false) }
     var payDialog by remember { mutableStateOf(false) }
     val enabled = !session.busy
     Column(
@@ -273,6 +288,10 @@ private fun BridgePane(session: GameSession, game: GameState) {
                     Text(logText(entry, game, session.content), style = TeletypeStyles.small, color = Ink, modifier = Modifier.padding(vertical = 3.dp))
                 }
             }
+        }
+        if (game.ending != null) {
+            EndedCard(game, onNewGame = { newGameDialog = true }, onRecords = onRecords)
+            return@Column
         }
         Text(stringResource(R.string.bridge_actions).uppercase(), style = MaterialTheme.typography.labelMedium, color = RocketRed)
         ActionCard(
@@ -309,6 +328,14 @@ private fun BridgePane(session: GameSession, game: GameState) {
                 onClick = {},
             )
         }
+        ActionCard(
+            title = stringResource(R.string.bridge_end_game),
+            description = stringResource(R.string.bridge_end_game_desc),
+            cost = stringResource(R.string.cost_none),
+            ruleRef = "r203f",
+            disabledReason = null,
+            onClick = { if (enabled) endDialog = true },
+        )
         Spacer(Modifier.height(4.dp))
         StampButton(
             stringResource(R.string.end_day),
@@ -321,6 +348,101 @@ private fun BridgePane(session: GameSession, game: GameState) {
     }
     if (eventDialog) EventDialog(session, game, onClose = { eventDialog = false })
     if (payDialog) PayDialog(session, game, onClose = { payDialog = false })
+    if (endDialog) EndGameDialog(session, onClose = { endDialog = false })
+    if (newGameDialog) NewGameDialog(session, onClose = { newGameDialog = false })
+}
+
+/** What the game came to, and the way to the next one (r203f, P10). */
+@Composable
+private fun EndedCard(game: GameState, onNewGame: () -> Unit, onRecords: () -> Unit) {
+    val ending = checkNotNull(game.ending)
+    val locale = currentLocale()
+    RecordCard(stringResource(R.string.ended_title)) {
+        Text(
+            stringResource(endingText(ending, game.won)),
+            style = MaterialTheme.typography.titleMedium,
+            color = if (game.won) Ink else RocketRed,
+            modifier = Modifier.padding(vertical = 6.dp),
+        )
+        RecordLine(stringResource(R.string.record_days), Formats.integer(game.clock.day, locale))
+        RecordLine(stringResource(R.string.engine_cash), formatSees(game.cash))
+        RecordLine(stringResource(R.string.record_debt), formatSees(game.loan.principal))
+        RecordLine(stringResource(R.string.engine_astucia), Formats.integer(game.duke.astucia, locale))
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(vertical = 10.dp)) {
+            StampButton(stringResource(R.string.ended_new_game), style = StampStyle.Solid, onClick = onNewGame)
+            StampButton(stringResource(R.string.open_records), onClick = onRecords)
+        }
+    }
+}
+
+/** Retire, or record that Duke died (r203f). Either way the game ends for good. */
+@Composable
+private fun EndGameDialog(session: GameSession, onClose: () -> Unit) {
+    Dialog(onDismissRequest = onClose) {
+        RecordCard(stringResource(R.string.bridge_end_game)) {
+            Text(stringResource(R.string.end_game_hint), style = MaterialTheme.typography.bodySmall, color = InkFaded, modifier = Modifier.padding(vertical = 6.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.padding(vertical = 8.dp),
+            ) {
+                StampButton(stringResource(R.string.end_game_retire), onClick = {
+                    session.endGame(Ending.RETIRED)
+                    onClose()
+                })
+                StampButton(stringResource(R.string.end_game_died), onClick = {
+                    session.endGame(Ending.DIED)
+                    onClose()
+                })
+                StampButton(stringResource(R.string.engine_cancel), onClick = onClose)
+            }
+        }
+    }
+}
+
+/** The next game's Astucia (r202): the change the rules suggest, accepted, inverted or left out. */
+@Composable
+private fun NewGameDialog(session: GameSession, onClose: () -> Unit) {
+    val suggestion = session.suggestion
+    val locale = currentLocale()
+    Dialog(onDismissRequest = onClose) {
+        RecordCard(stringResource(R.string.ended_new_game)) {
+            if (suggestion == null) {
+                Text(stringResource(R.string.new_game_roll), style = MaterialTheme.typography.bodySmall, color = InkFaded, modifier = Modifier.padding(vertical = 6.dp))
+                StampButton(stringResource(R.string.new_game_start), style = StampStyle.Solid, onClick = {
+                    session.newGame(AstuciaSetup.Roll)
+                    onClose()
+                })
+            } else {
+                Text(
+                    stringResource(
+                        if (suggestion.lastWon) R.string.new_game_suggest_won else R.string.new_game_suggest_lost,
+                        Formats.integer(suggestion.previous, locale),
+                        Formats.signed(suggestion.adjustment, locale),
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = InkFaded,
+                    modifier = Modifier.padding(vertical = 6.dp),
+                )
+                for ((label, setup) in listOf(
+                    R.string.new_game_accept to suggestion.accept,
+                    R.string.new_game_invert to suggestion.invert,
+                    R.string.new_game_keep to suggestion.keep,
+                )) {
+                    val adjust = setup as AstuciaSetup.Adjust
+                    StampButton(
+                        stringResource(label, Formats.integer(Astucia.adjusted(adjust.previous, adjust.adjustment), locale)),
+                        onClick = {
+                            session.newGame(setup)
+                            onClose()
+                        },
+                        modifier = Modifier.padding(vertical = 4.dp),
+                    )
+                }
+            }
+            StampButton(stringResource(R.string.engine_cancel), onClick = onClose, modifier = Modifier.padding(vertical = 8.dp))
+        }
+    }
 }
 
 /** Time taken by an event resolved by hand (PRD P2): an event runs into overtime rather than the next day (r203). */

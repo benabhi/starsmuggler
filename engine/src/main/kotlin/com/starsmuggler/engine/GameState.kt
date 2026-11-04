@@ -32,9 +32,24 @@ data class GameState(
     val usedToday: List<GearRef> = emptyList(),
     /** The last preventive maintenance (r218b). */
     val maintenance: Maintenance? = null,
+    /** How the game ended, or null while it goes on. */
+    val ending: Ending? = null,
     /** The game's history, oldest first (PRD section 7, log). */
     val log: List<LogEntry>,
 )
+
+/** How a game ends (r203f). */
+@Serializable
+enum class Ending {
+    /** The player stops playing: alive and free, with whatever money is left. */
+    RETIRED,
+
+    /** Duke died: the only true defeat. */
+    DIED,
+}
+
+/** A game is won by ending it alive with the whole loan paid off (r203f); the money kept says by how much. */
+val GameState.won: Boolean get() = ending == Ending.RETIRED && loan.isPaidOff
 
 /** One line of the game's history, written by the action of number [step]. The interface turns it into text. */
 @Serializable
@@ -129,6 +144,18 @@ sealed interface LogEntry {
     @Serializable
     @SerialName("sheet_edited")
     data class SheetEdited(override val step: Int, val edit: SheetEdit) : LogEntry
+
+    /** The game ended: [won] or not, on [day], with [cash] in hand and [debt] of principal still owed. */
+    @Serializable
+    @SerialName("game_ended")
+    data class GameEnded(
+        override val step: Int,
+        val ending: Ending,
+        val won: Boolean,
+        val day: Int,
+        val cash: Int,
+        val debt: Int,
+    ) : LogEntry
 
     /** The result of a modified roll [total] on [table], in its row [key]; null when no entry covers the roll. */
     @Serializable

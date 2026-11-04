@@ -4,9 +4,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.starsmuggler.content.LoadedContent
+import com.starsmuggler.data.AstuciaSuggestion
+import com.starsmuggler.data.GameHistory
+import com.starsmuggler.data.GameRecord
 import com.starsmuggler.data.SaveSlots
 import com.starsmuggler.engine.Action
 import com.starsmuggler.engine.ActionResult
+import com.starsmuggler.engine.Astucia
+import com.starsmuggler.engine.AstuciaSetup
+import com.starsmuggler.engine.Ending
 import com.starsmuggler.engine.Engine
 import com.starsmuggler.engine.GameState
 import com.starsmuggler.engine.LogEntry
@@ -27,6 +33,15 @@ import kotlin.random.Random
 class GameSession(val content: LoadedContent, filesDir: File, private val scope: CoroutineScope) {
     private val engine = Engine(content.game)
     private val slots = SaveSlots(File(filesDir, SAVES_DIR))
+    private val history = GameHistory(filesDir)
+
+    /** Every finished game, oldest first (PRD P10). */
+    var games: List<GameRecord> by mutableStateOf(emptyList())
+        private set
+
+    /** How the next game may set Astucia, from the last finished one (r202); null before the first game ends. */
+    val suggestion: AstuciaSuggestion?
+        get() = games.lastOrNull()?.let { AstuciaSuggestion(it.astucia, Astucia.suggestion(it.won), it.won) }
 
     var game: GameState? by mutableStateOf(null)
         private set
@@ -51,16 +66,40 @@ class GameSession(val content: LoadedContent, filesDir: File, private val scope:
     fun start() {
         if (game != null) return
         run {
+            games = withContext(Dispatchers.IO) { history.games() }
             val latest = withContext(Dispatchers.IO) { slots.latest() }
             if (latest != null) {
                 slot = latest
                 game = withContext(Dispatchers.IO) { slots.load(latest) }
             } else {
-                val state = engine.newGame(Random.nextLong())
-                game = state
-                lastEntries = state.log
-                save(state)
+                startGame(suggestion?.accept ?: AstuciaSetup.Roll)
             }
+        }
+    }
+
+    /** A new game in the same slot, replacing the one there (r202 sets its Astucia). */
+    fun newGame(astucia: AstuciaSetup) = run { startGame(astucia) }
+
+    private suspend fun startGame(astucia: AstuciaSetup) {
+        val state = engine.newGame(Random.nextLong(), astucia, DiceHand.APP)
+        game = state
+        lastEntries = state.log
+        save(state)
+    }
+
+    /** Ends the game (r203f) and adds it to the history. */
+    fun endGame(ending: Ending) = run {
+        val result = engine.perform(checkNotNull(game), Action.EndGame(ending), DiceHand.APP)
+        if (result !is ActionResult.Done) {
+            rejection = (result as ActionResult.Rejected).reason
+            return@run
+        }
+        game = result.state
+        lastEntries = result.entries
+        save(result.state)
+        games = withContext(Dispatchers.IO) {
+            history.add(result.state)
+            history.games()
         }
     }
 

@@ -43,7 +43,9 @@ class Engine(private val content: GameContent) {
     }
 
     /** Why [action] cannot be performed in [state], or null if it can. Rolls no dice. */
-    fun check(state: GameState, action: Action): Rejection? = when (action) {
+    fun check(state: GameState, action: Action): Rejection? = if (state.ending != null) Rejection.GAME_OVER else checkPlaying(state, action)
+
+    private fun checkPlaying(state: GameState, action: Action): Rejection? = when (action) {
         is Action.RollOnTable -> {
             val table = content.tables[action.table]
             when {
@@ -60,6 +62,7 @@ class Engine(private val content: GameContent) {
         }
         Action.PassRestOfDay -> if (state.clock.left == 0) Rejection.NO_TIME else null
         Action.EndDay -> null
+        is Action.EndGame -> null
         is Action.AstuciaRoll -> null
         is Action.PayPrincipal -> when {
             state.loan.isPaidOff -> Rejection.LOAN_PAID_OFF
@@ -95,6 +98,11 @@ class Engine(private val content: GameContent) {
             is Action.PassTime -> turn.spend(action.tenths)
             Action.PassRestOfDay -> turn.spend(turn.clock.left)
             Action.EndDay -> endDay(turn)
+            is Action.EndGame -> {
+                turn.ending = action.ending
+                val ended = state.copy(ending = action.ending)
+                turn.log(LogEntry.GameEnded(turn.step, action.ending, ended.won, turn.clock.day, turn.cash, turn.loan.principal))
+            }
             is Action.AstuciaRoll -> astuciaRoll(turn, state.duke.astucia, action.modifier)
             is Action.PayPrincipal -> payPrincipal(turn, action.sees)
             is Action.UseGear -> {
@@ -205,6 +213,7 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
     var loan = before.loan
     var usedToday = before.usedToday
     var maintenance = before.maintenance
+    var ending = before.ending
 
     /** Gear that broke down during this action. */
     val broken = mutableListOf<GearRef>()
@@ -244,6 +253,7 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
             loan = loan,
             usedToday = usedToday,
             maintenance = maintenance,
+            ending = ending,
             log = before.log + entries,
         )
         return broken.fold(state) { acc, ref -> acc.withBroken(ref, true) }
