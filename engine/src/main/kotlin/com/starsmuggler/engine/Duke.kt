@@ -4,7 +4,13 @@ import kotlinx.serialization.Serializable
 
 /** A skill a character may have (r201). */
 @Serializable
-enum class Skill { PILOT_NAVIGATOR, STARSHIP_GUNNER }
+enum class Skill {
+    PILOT_NAVIGATOR,
+    STARSHIP_GUNNER,
+
+    /** Drives a skimmer (r215c); Duke lacks it and needs a driver. */
+    DRIVER,
+}
 
 /** An item of the equipment table (r236) owned at tech level [tech] (r210); [broken] until repaired (r218). */
 @Serializable

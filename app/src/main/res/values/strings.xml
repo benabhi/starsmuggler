@@ -229,6 +229,7 @@
     <string name="engine_skill">Habilidad</string>
     <string name="engine_skill_pilot">Piloto/navegante</string>
     <string name="engine_skill_gunner">Artillero de nave estelar</string>
+    <string name="engine_skill_driver">Conductor de deslizador</string>
     <string name="engine_cash">Efectivo</string>
     <string name="engine_item">Equipo</string>
     <string name="engine_with_tech">%1$s · tec %2$s</string>
@@ -500,4 +501,50 @@
     <string name="map_moves_title">Mover la nave aquí · 1 h cada movimiento</string>
     <string name="map_moves_none">La nave no llega aquí en un movimiento subluz desde donde está.</string>
     <string name="map_duke_at">Duke está en %1$s.</string>
+
+    <!-- Land travel (SMUG-33, r203a, r204f-g, r213, r215) -->
+    <string name="travel_on_foot">A pie</string>
+    <string name="travel_commercial">Vehículo comercial</string>
+    <string name="travel_skimmer">Deslizador</string>
+    <string name="travel_hint">Duke está en %1$s. Elegí un área vecina y cómo ir. Cada área nueva tiene comprobación de detección (r225).</string>
+    <string name="travel_no_rental">Sin vehículo comercial alquilado.</string>
+    <string name="travel_rental">Vehículo comercial de %1$s UC alquilado: le quedan %2$s.</string>
+    <string name="travel_rent">Alquilar vehículo comercial</string>
+    <string name="travel_no_routes">Desde acá no salen líneas de viaje terrestre.</string>
+    <string name="travel_triple">Conector triple: áreas en contacto</string>
+    <plurals name="travel_steps">
+        <item quantity="one">%1$s paso terrestre</item>
+        <item quantity="other">%1$s pasos terrestres</item>
+    </plurals>
+    <plurals name="travel_days">
+        <item quantity="one">%1$s día</item>
+        <item quantity="other">%1$s días</item>
+    </plurals>
+    <string name="travel_mode_time">%1$s · %2$s</string>
+    <string name="rent_hint">Resultado de un evento de transporte comercial (e074): cada 3 UC cuestan 1 S por hora, por adelantado. El vehículo se va al terminar el tiempo pagado.</string>
+    <string name="rent_capacity">%1$s UC</string>
+    <string name="rent_less">−1 h</string>
+    <string name="rent_more">+1 h</string>
+    <string name="rent_cost">Costo: %1$s</string>
+    <string name="rent_confirm">Alquilar</string>
+    <string name="bridge_continue_trek">Seguir caminando</string>
+    <string name="bridge_continue_trek_desc">Un paso terrestre más a pie: lleva el día entero.</string>
+    <plurals name="trek_status">
+        <item quantity="one">Caminando hacia %1$s: falta %2$s día.</item>
+        <item quantity="other">Caminando hacia %1$s: faltan %2$s días.</item>
+    </plurals>
+    <string name="log_travelled">Paso %1$s · %2$s de %3$s a %4$s</string>
+    <plurals name="log_walking">
+        <item quantity="one">Paso %1$s · Día de caminata hacia %2$s: falta %3$s día</item>
+        <item quantity="other">Paso %1$s · Día de caminata hacia %2$s: faltan %3$s días</item>
+    </plurals>
+    <string name="log_vehicle_rented">Paso %1$s · Alquila un vehículo comercial de %2$s UC por %3$s: %4$s</string>
+    <string name="log_bad_air_breakdown">Paso %1$s · Aire malo: %2$s se avería al instante</string>
+    <string name="rejected_on_trek">Duke está en plena caminata: solo puede seguir.</string>
+    <string name="rejected_restricted_area">Ese medio no puede entrar en esa área por su color.</string>
+    <string name="rejected_no_life_support">Ahí hace falta soporte vital y no hay un traje utilitario que funcione.</string>
+    <string name="rejected_no_vehicle">No hay un vehículo comercial alquilado ahora.</string>
+    <string name="rejected_rental_too_short">El tiempo alquilado termina antes del viaje.</string>
+    <string name="rejected_no_driver">El deslizador necesita un conductor calificado.</string>
+    <string name="rejected_no_air">El deslizador no funciona sin aire.</string>
 </resources>

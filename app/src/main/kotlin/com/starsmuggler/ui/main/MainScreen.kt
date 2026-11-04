@@ -296,6 +296,8 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
     var payDialog by remember { mutableStateOf(false) }
     var pilotDialog by remember { mutableStateOf(false) }
     var jumpDialog by remember { mutableStateOf(false) }
+    var travelDialog by remember { mutableStateOf(false) }
+    var rentDialog by remember { mutableStateOf(false) }
     val enabled = !session.busy
     Column(
         Modifier
@@ -342,6 +344,26 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
             disabledReason = session.check(Action.PayPrincipal(1))?.let { stringResource(rejectionText(it)) },
             onClick = { if (enabled) payDialog = true },
         )
+        TrekLine(game, session)
+        if (game.trek != null) {
+            ActionCard(
+                title = stringResource(R.string.bridge_continue_trek),
+                description = stringResource(R.string.bridge_continue_trek_desc),
+                cost = stringResource(R.string.cost_whole_day),
+                ruleRef = "r203a",
+                disabledReason = session.check(Action.ContinueTrek)?.let { stringResource(rejectionText(it)) },
+                onClick = { session.perform(Action.ContinueTrek) },
+            )
+        } else {
+            ActionCard(
+                title = stringResource(R.string.bridge_travel),
+                description = stringResource(R.string.bridge_travel_desc),
+                cost = stringResource(R.string.cost_by_route),
+                ruleRef = "r203a",
+                disabledReason = null,
+                onClick = { if (enabled) travelDialog = true },
+            )
+        }
         val destinations = session.sublightDestinations()
         ActionCard(
             title = stringResource(R.string.bridge_pilot),
@@ -392,6 +414,8 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
     }
     if (eventDialog) EventDialog(session, game, onClose = { eventDialog = false })
     if (payDialog) PayDialog(session, game, onClose = { payDialog = false })
+    if (travelDialog) TravelDialog(session, game, onRent = { rentDialog = true }, onClose = { travelDialog = false })
+    if (rentDialog) RentDialog(session, game, onClose = { rentDialog = false })
     if (jumpDialog) JumpDialog(session, game, session.jumpOptions(), onClose = { jumpDialog = false })
     if (pilotDialog) PilotDialog(session, game, session.sublightDestinations(), onClose = { pilotDialog = false })
     if (endDialog) EndGameDialog(session, onClose = { endDialog = false })
@@ -655,7 +679,6 @@ private class ComingAction(
 )
 
 private val comingActions = listOf(
-    ComingAction(R.string.bridge_travel, R.string.bridge_travel_desc, R.string.cost_by_route, "r203a", R.string.coming_plan_5),
     ComingAction(R.string.bridge_contact, R.string.bridge_contact_desc, R.string.cost_by_event, "r227", R.string.coming_plan_6),
     ComingAction(R.string.bridge_trade, R.string.bridge_trade_desc, R.string.cost_by_event, "r229", R.string.coming_plan_7),
     ComingAction(R.string.bridge_rrr, R.string.bridge_rrr_desc, R.string.cost_whole_day, "r203c", R.string.coming_plan_6),

@@ -323,6 +323,7 @@ private fun SmallControl(text: String, enabled: Boolean = true, onClick: () -> U
 private fun skillName(skill: Skill): Int = when (skill) {
     Skill.PILOT_NAVIGATOR -> R.string.engine_skill_pilot
     Skill.STARSHIP_GUNNER -> R.string.engine_skill_gunner
+    Skill.DRIVER -> R.string.engine_skill_driver
 }
 
 private val CASH_STEPS = listOf(-1000, -100, -10, 10, 100, 1000)

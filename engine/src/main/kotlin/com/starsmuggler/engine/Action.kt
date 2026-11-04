@@ -42,6 +42,15 @@ sealed interface Action {
     /** Jump through hyperspace to the system [to], up to three systems along the routes (r212a-d). */
     data class Jump(val to: String) : Action
 
+    /** Travel by [mode] to [to], a land area joined to Duke's by a travel line (r203a). */
+    data class Travel(val mode: TravelMode, val to: Location) : Action
+
+    /** Walk one more land step of a trek: the whole day (r203a). */
+    data object ContinueTrek : Action
+
+    /** Rent a commercial vehicle of [capacity] UC for [hours] hours, from a commercial transport event (e074, r215b). */
+    data class RentVehicle(val capacity: Int, val hours: Int) : Action
+
     /** Close the day: end-of-day checks, end of the week every ten days, and the next morning (r203). */
     data object EndDay : Action
 }
@@ -92,6 +101,27 @@ enum class Rejection {
 
     /** The starship cannot get there in one sublight move (r212g). */
     UNREACHABLE,
+
+    /** Duke is walking a long line and can only go on (r203a). */
+    ON_TREK,
+
+    /** That way of travel may not enter the area: its symbol color forbids it (r204g). */
+    RESTRICTED_AREA,
+
+    /** Bad or no air there, and no working utility suit (r213). */
+    NO_LIFE_SUPPORT,
+
+    /** No commercial vehicle rented for now (r215b). */
+    NO_VEHICLE,
+
+    /** The rented time ends before the trip would (r215b). */
+    RENTAL_TOO_SHORT,
+
+    /** A skimmer needs a qualified driver (r215c). */
+    NO_DRIVER,
+
+    /** A skimmer's engine breathes air: it cannot go where there is none (r204f). */
+    NO_AIR,
 
     /** The game has ended: nothing more can be done in it. */
     GAME_OVER,
