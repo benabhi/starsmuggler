@@ -33,6 +33,9 @@ sealed interface Action {
     /** A change written on the record sheet by hand (PRD P2). */
     data class EditSheet(val edit: SheetEdit) : Action
 
+    /** End the game (r203f): retire, or record Duke's death. */
+    data class EndGame(val ending: Ending) : Action
+
     /** Close the day: end-of-day checks, end of the week every ten days, and the next morning (r203). */
     data object EndDay : Action
 }
@@ -74,6 +77,9 @@ enum class Rejection {
 
     /** An equipment or system id the game does not have. */
     UNKNOWN_ID,
+
+    /** The game has ended: nothing more can be done in it. */
+    GAME_OVER,
 }
 
 /** What performing an action gave. */

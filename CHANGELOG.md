@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.3.0] - 2026-11-03
+
+### Added
+
+- Record finished games, suggest the next Astucia and show the records (SMUG-24)
+
 ## [0.2.9] - 2026-11-03
 
 ### Added
