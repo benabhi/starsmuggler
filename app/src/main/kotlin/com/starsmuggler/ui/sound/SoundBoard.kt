@@ -18,6 +18,9 @@ enum class SoundEffect(val clip: Int) {
     /** The loan payment is two days away or less, at the start of a day (r203e). */
     LOAN_WARNING(R.raw.loan_warning),
 
+    /** The cash went up, by any action (benabhi, 04/11/2026). */
+    MONEY(R.raw.money_gained),
+
     /** A hyperspace jump (r212d); plays once travel arrives (plan 5). */
     JUMP(R.raw.hyperspace_jump),
 

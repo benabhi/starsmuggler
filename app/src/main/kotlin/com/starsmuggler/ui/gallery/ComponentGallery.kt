@@ -131,6 +131,7 @@ fun ComponentGallery() {
                 Section(R.string.gallery_section_sounds)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     StampButton(stringResource(R.string.gallery_sound_loan), onClick = { sounds.play(SoundEffect.LOAN_WARNING) })
+                    StampButton(stringResource(R.string.gallery_sound_money), onClick = { sounds.play(SoundEffect.MONEY) })
                     StampButton(stringResource(R.string.gallery_sound_jump), onClick = { sounds.play(SoundEffect.JUMP) })
                     StampButton(stringResource(R.string.gallery_sound_shot), onClick = { sounds.play(SoundEffect.SHOT) })
                 }

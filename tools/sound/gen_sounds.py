@@ -106,6 +106,15 @@ def laser_shot() -> list[float]:
     return fade(out, release_ms=15)
 
 
+def money_gained() -> list[float]:
+    """A coin chime: two quick rising square notes, the second one ringing out."""
+    out: list[float] = []
+    for freq, length in ((988, 0.07), (1319, 0.32)):
+        n = int(RATE * length)
+        out += fade([square(freq * i / RATE) * math.exp(-i / RATE * (6 if length > 0.1 else 2)) for i in range(n)], release_ms=6)
+    return out
+
+
 def dice_roll() -> list[float]:
     """Two plastic dice thrown on a table: a thud, then clicks that come closer and fainter as they settle."""
     rng = random.Random(6)
@@ -136,6 +145,7 @@ def main() -> None:
     write("loan_warning", loan_warning(), 0.55)
     write("hyperspace_jump", hyperspace_jump(), 0.7)
     write("laser_shot", laser_shot(), 0.6)
+    write("money_gained", money_gained(), 0.5)
 
 
 if __name__ == "__main__":

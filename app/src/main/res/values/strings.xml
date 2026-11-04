@@ -13,6 +13,7 @@
     <string name="gallery_section_palette">Paleta</string>
     <string name="gallery_section_sounds">Sonidos</string>
     <string name="gallery_sound_loan">Aviso de pago</string>
+    <string name="gallery_sound_money">Dinero</string>
     <string name="gallery_sound_jump">Salto</string>
     <string name="gallery_sound_shot">Disparo</string>
     <string name="gallery_sample_headline">Sector Pavonis</string>
@@ -182,7 +183,7 @@
     <!-- Sound options (SMUG-31, PRD P11). -->
     <string name="sound_options_title">Sonido</string>
     <string name="sound_effects">Efectos de sonido</string>
-    <string name="sound_effects_hint">Dados, botones, saltos, combate y aviso de pago. Siguen el volumen multimedia.</string>
+    <string name="sound_effects_hint">Dados, botones, dinero, saltos, combate y aviso de pago. Siguen el volumen multimedia.</string>
     <string name="engine_log_table">Paso %1$s · %2$s, %3$s, con %4$s → %5$s</string>
     <string name="engine_no_outcome">ninguna entrada</string>
     <string name="engine_source_app">dados de la app</string>

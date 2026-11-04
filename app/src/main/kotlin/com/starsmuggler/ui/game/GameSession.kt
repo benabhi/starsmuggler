@@ -131,6 +131,7 @@ class GameSession(
                 game = result.state
                 lastEntries = result.entries
                 save(result.state)
+                if (result.state.cash > state.cash) sounds?.play(SoundEffect.MONEY)
                 if (result.state.clock.day > state.clock.day) warnOfLoan(result.state)
             }
             is ActionResult.Rejected -> rejection = result.reason
