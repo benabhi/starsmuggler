@@ -37,14 +37,14 @@ private const val START = 135f
  */
 @Composable
 fun HourDial(
-    hoursUsed: Int,
+    hoursUsed: Float,
     description: String,
     modifier: Modifier = Modifier,
     size: Dp = 160.dp,
     showNumbers: Boolean = true,
 ) {
     val measurer = rememberTextMeasurer()
-    val used = hoursUsed.coerceIn(0, HOURS_PER_DAY)
+    val used = hoursUsed.coerceIn(0f, HOURS_PER_DAY.toFloat())
     Canvas(modifier.size(size).semantics { contentDescription = description }) {
         val ring = this.size.minDimension * 0.08f
         val radius = this.size.minDimension / 2 - ring

@@ -70,6 +70,8 @@ import com.starsmuggler.ui.components.GameText
 import com.starsmuggler.ui.components.RecordCard
 import com.starsmuggler.ui.components.RecordLine
 import com.starsmuggler.ui.currentLocale
+import com.starsmuggler.ui.game.outcomeText
+import com.starsmuggler.ui.game.rowLabel
 import com.starsmuggler.ui.theme.Ink
 import com.starsmuggler.ui.theme.InkFaded
 import com.starsmuggler.ui.theme.Paper
@@ -231,35 +233,6 @@ private fun rollOn(table: DiceTable): Triple<String?, Int, Outcome>? {
     }
     val outcome = table.lookup(value, row.key) ?: return null
     return Triple(row.key, value, outcome)
-}
-
-@Composable
-internal fun rowLabel(tableId: String, key: String?, content: LoadedContent): String = when {
-    key == null -> stringResource(R.string.content_single_row)
-    tableId == "r241" -> stringResource(R.string.content_row_wealth, key)
-    tableId == "r235" -> stringResource(R.string.content_row_tech, key)
-    tableId == "r238" -> content.names.travelMode(key)
-    key in content.names.areaTypes -> content.names.areaType(key)
-    key in content.names.systems -> content.names.system(key)
-    else -> key
-}
-
-@Composable
-internal fun outcomeText(outcome: Outcome, content: LoadedContent): String {
-    val locale = currentLocale()
-    return when (outcome) {
-        is Outcome.Event -> outcome.ref.id
-        is Outcome.Rule -> outcome.ref.id
-        Outcome.SystemTable -> stringResource(R.string.content_result_system)
-        Outcome.NoMoreRolls -> stringResource(R.string.content_result_stop)
-        is Outcome.Key -> content.names.results[outcome.key] ?: content.names.goods(outcome.key)
-        is Outcome.Multiplier -> stringResource(R.string.content_result_multiplier, Formats.decimal(outcome.value, locale))
-        is Outcome.Value -> if (outcome.marked) {
-            stringResource(R.string.content_result_marked, Formats.integer(outcome.value, locale))
-        } else {
-            Formats.integer(outcome.value, locale)
-        }
-    }
 }
 
 /**

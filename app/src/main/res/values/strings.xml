@@ -46,7 +46,6 @@
     <string name="money_sees">%1$s S</string>
     <string name="location_line">Sistema %1$s · %2$s</string>
     <string name="bridge_actions">Acciones disponibles</string>
-    <string name="reason_no_time">No quedan horas hoy</string>
     <string name="end_day">Terminar el día</string>
     <string name="open_gallery">Ver muestrario</string>
     <string name="open_content">Ver contenido</string>
@@ -117,32 +116,12 @@
     <string name="restriction_purple">púrpura</string>
 
     <!-- Fake data of the mock-up, removed when the engine arrives. -->
-    <string name="mock_location_system">Regari</string>
-    <string name="mock_location_area">Puerto espacial</string>
-    <string name="mock_location_air">AIRE BUENO</string>
-    <string name="mock_action_walk">Ir a pie a la Ciudad</string>
-    <string name="mock_action_walk_desc">Dos pasos terrestres desde el puerto espacial.</string>
-    <string name="mock_action_contact">Intentar contacto</string>
-    <string name="mock_action_contact_desc">Tirada en la tabla de entrada y contacto del área.</string>
-    <string name="mock_action_trade">Comerciar</string>
-    <string name="mock_action_trade_desc">Comprar o vender carga en el puerto.</string>
-    <string name="mock_action_rrr">RRR</string>
-    <string name="mock_action_rrr_desc">Reposo, Recuperación y Reparación: el resto del día.</string>
-    <string name="mock_action_hopper">Viajar en la nave auxiliar</string>
-    <string name="mock_action_hopper_disabled">No hay COMB</string>
     <string name="mock_map_title">Mapa del sector</string>
     <string name="mock_map_body">Los diez sistemas del Sector Pavonis, con las rutas de salto y el riesgo de cada una.</string>
     <string name="mock_rules_title">Reglas y glosario</string>
     <string name="mock_rules_body">Consulta del reglamento y de los eventos ya vistos, con búsqueda.</string>
     <string name="mock_sheet_tabs">Duke · Nave y carga · Dinero y préstamo · Documentos</string>
-    <string name="mock_log_title">Bitácora de la partida</string>
     <string name="mock_pending">Maqueta: esta pantalla se arma en un plan posterior.</string>
-    <string-array name="mock_log_lines">
-        <item>S1 D1 H0 · Salida de Regari con la Antelope.</item>
-        <item>S1 D2 H3 · Contacto en el puerto espacial: rumor de carga.</item>
-        <item>S1 D3 H1 · Venta de 4 UC de maquinaria por 1200 S.</item>
-        <item>S1 D3 H4 · Llegada al puerto espacial de Regari.</item>
-    </string-array>
 
     <string name="cost_whole_day">Día</string>
     <plurals name="cost_hours">
@@ -302,4 +281,37 @@
     <string name="engine_log_breakdown">Paso %1$s · Control de avería de %2$s (tec %3$s): %4$s, ¡se avería!</string>
     <string name="engine_log_no_breakdown">Paso %1$s · Control de avería de %2$s (tec %3$s): %4$s, aguanta</string>
     <string name="engine_log_maintenance">Paso %1$s · Mantenimiento preventivo (%2$s)</string>
+    <string name="clock_hours_left">Quedan %1$s del día</string>
+    <string name="clock_overtime">Horas extra: %1$s</string>
+    <string name="loan_defaulted">EN MORA: %1$s ANTES DE TERMINAR EL DÍA %2$s</string>
+    <string name="loan_repossession">EMBARGO EN CURSO</string>
+    <string name="loan_paid_off">PRÉSTAMO PAGADO</string>
+    <string name="air_own">aire propio</string>
+    <string name="bridge_last_result">Último resultado</string>
+    <string name="bridge_event">Resolver un evento a mano</string>
+    <string name="bridge_event_desc">Leíste un evento y lo aplicaste en la hoja: marcá cuánto tiempo tomó.</string>
+    <string name="bridge_event_hint">Un evento que se pasa de las 10 horas da horas extra ese mismo día; no pasa al día siguiente (r203).</string>
+    <string name="bridge_rest_of_day">El resto del día</string>
+    <string name="bridge_astucia">Tirada de Astucia</string>
+    <string name="bridge_astucia_desc">Cuando un evento la pide: 1d6 menor o igual que tu Astucia (%1$s).</string>
+    <string name="bridge_pay">Pagar el préstamo</string>
+    <string name="bridge_pay_desc">Pagar capital desde el efectivo; se deben %1$s.</string>
+    <string name="bridge_pay_hint">Efectivo: %1$s · Capital que se debe: %2$s. El interés sigue en 300 S por semana mientras quede capital.</string>
+    <string name="bridge_pay_amount">Monto en Sees</string>
+    <string name="bridge_pay_confirm">Pagar</string>
+    <string name="bridge_pay_all">Pagar %1$s</string>
+    <string name="bridge_travel">Viajar</string>
+    <string name="bridge_travel_desc">A pie, en vehículo, en la nave auxiliar o en la nave estelar.</string>
+    <string name="bridge_contact">Intentar contacto</string>
+    <string name="bridge_contact_desc">Tirada en la tabla de entrada y contacto del área (r233).</string>
+    <string name="bridge_trade">Comerciar</string>
+    <string name="bridge_trade_desc">Comprar o vender carga.</string>
+    <string name="bridge_rrr">RRR</string>
+    <string name="bridge_rrr_desc">Reposo, Recuperación y Reparación: el día entero.</string>
+    <string name="cost_by_event">Según el evento</string>
+    <string name="cost_by_route">Según el trayecto</string>
+    <string name="coming_plan_5">Llega con el viaje (plan 5)</string>
+    <string name="coming_plan_6">Llega con los contactos (plan 6)</string>
+    <string name="coming_plan_7">Llega con el comercio (plan 7)</string>
+    <string name="log_title">Bitácora de la partida</string>
 </resources>

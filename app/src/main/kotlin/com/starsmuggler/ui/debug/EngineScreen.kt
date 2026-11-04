@@ -67,6 +67,14 @@ import com.starsmuggler.ui.components.StampButton
 import com.starsmuggler.ui.components.StampStyle
 import com.starsmuggler.ui.currentLocale
 import com.starsmuggler.ui.formatSees
+import com.starsmuggler.ui.game.SAVES_DIR
+import com.starsmuggler.ui.game.STARSHIP_GUNS
+import com.starsmuggler.ui.game.formatSignedSees
+import com.starsmuggler.ui.game.gearName
+import com.starsmuggler.ui.game.hoursText
+import com.starsmuggler.ui.game.logText
+import com.starsmuggler.ui.game.rejectionText
+import com.starsmuggler.ui.game.rowLabel
 import com.starsmuggler.ui.theme.Ink
 import com.starsmuggler.ui.theme.InkFaded
 import com.starsmuggler.ui.theme.PaperBackground
@@ -607,14 +615,6 @@ private fun GearCard(game: GameState, content: LoadedContent, enabled: Boolean, 
     }
 }
 
-@Composable
-private fun gearName(ref: GearRef, game: GameState, content: LoadedContent): String = when (ref) {
-    GearRef.Starship -> stringResource(R.string.engine_ship)
-    GearRef.StarshipGuns -> content.names.equipment(STARSHIP_GUNS)
-    GearRef.Boat -> stringResource(R.string.engine_boat)
-    is GearRef.DukeItem -> game.duke.items.getOrNull(ref.index)?.let { content.names.equipment(it.id) } ?: stringResource(R.string.engine_gear_missing)
-}
-
 /** Debug only: the gear one tech level up, since the starting gear is all tech 1 and never breaks. */
 private fun raiseTech(game: GameState, ref: GearRef): GameState = when (ref) {
     GearRef.Starship -> game.copy(ship = game.ship.copy(tech = game.ship.tech + 1))
@@ -632,7 +632,6 @@ private fun skillName(skill: Skill): Int = when (skill) {
     Skill.STARSHIP_GUNNER -> R.string.engine_skill_gunner
 }
 
-private const val STARSHIP_GUNS = "starship_guns" // not-ui
 private const val STASIS_UNIT = "stasis_unit" // not-ui
 
 /** The day clock (SMUG-19) and actions that make it run. */
@@ -660,10 +659,6 @@ private fun ClockCard(game: GameState, enabled: Boolean, perform: (Action) -> Un
         }
     }
 }
-
-/** Tenths of an hour as hours with one decimal, such as "6,5 h". */
-@Composable
-private fun hoursText(tenths: Int): String = stringResource(R.string.engine_hours, Formats.decimal(tenths / Clock.HOUR.toDouble(), currentLocale()))
 
 /** A quick picker for the faces of the player's own dice: one row of 1 to 6 per die. */
 @Composable
@@ -700,121 +695,4 @@ private fun OwnDiceEntry(roll: PendingRoll, onCancel: () -> Unit) {
     }
 }
 
-@Composable
-private fun logText(entry: LogEntry, game: GameState, content: LoadedContent): String {
-    val locale = currentLocale()
-    val step = Formats.integer(entry.step, locale)
-    return when (entry) {
-        is LogEntry.GameStarted -> stringResource(R.string.engine_log_started, step, entry.seed.toString())
-        is LogEntry.Rolled -> rolledText(step, entry.roll)
-        is LogEntry.AstuciaSet -> {
-            val previous = entry.previous
-            if (previous == null) {
-                stringResource(R.string.engine_log_astucia_rolled, step, Formats.integer(entry.astucia, locale))
-            } else {
-                stringResource(
-                    R.string.engine_log_astucia_adjusted,
-                    step,
-                    Formats.integer(entry.astucia, locale),
-                    Formats.integer(previous, locale),
-                    Formats.signed(entry.adjustment, locale),
-                )
-            }
-        }
-        is LogEntry.StartingCash -> stringResource(R.string.engine_log_starting_cash, step, formatSees(entry.sees))
-        is LogEntry.InterestPaid -> stringResource(R.string.engine_log_interest_paid, step, formatSees(entry.sees), Formats.integer(entry.week, locale))
-        is LogEntry.LoanDefaulted -> stringResource(
-            R.string.engine_log_loan_defaulted,
-            step,
-            Formats.integer(entry.week, locale),
-            formatSees(entry.principal),
-            Formats.integer(entry.deadline, locale),
-        )
-        is LogEntry.RepossessionStarted -> stringResource(R.string.engine_log_repossession, step, Formats.integer(entry.day, locale))
-        is LogEntry.PrincipalPaid -> stringResource(R.string.engine_log_principal_paid, step, formatSees(entry.sees), formatSees(entry.principal))
-        is LogEntry.LoanPaidOff -> stringResource(R.string.engine_log_loan_paid_off, step)
-        is LogEntry.GearUsed -> stringResource(R.string.engine_log_gear_used, step, gearName(entry.gear, game, content))
-        is LogEntry.BreakdownChecked -> stringResource(
-            if (entry.broke) R.string.engine_log_breakdown else R.string.engine_log_no_breakdown,
-            step,
-            gearName(entry.gear, game, content),
-            Formats.integer(entry.tech, locale),
-            Formats.integer(entry.total, locale),
-        )
-        is LogEntry.MaintenanceDone -> stringResource(
-            R.string.engine_log_maintenance,
-            step,
-            stringResource(if (entry.by == Maintainer.ENGINEER) R.string.engine_maintainer_engineer else R.string.engine_maintainer_robot),
-        )
-        is LogEntry.CashAdjusted -> stringResource(R.string.engine_log_cash_adjusted, step, formatSignedSees(entry.sees), formatSees(entry.cash))
-        is LogEntry.AstuciaRolled -> stringResource(
-            if (entry.success) R.string.engine_log_astucia_success else R.string.engine_log_astucia_failure,
-            step,
-            Formats.integer(entry.total, locale),
-            Formats.integer(entry.astucia, locale),
-        )
-        is LogEntry.TimePassed -> if (entry.overtime == 0) {
-            stringResource(R.string.engine_log_time, step, hoursText(entry.tenths))
-        } else {
-            stringResource(R.string.engine_log_time_overtime, step, hoursText(entry.tenths), hoursText(entry.overtime))
-        }
-        is LogEntry.DayEnded -> if (entry.overtime == 0) {
-            stringResource(R.string.engine_log_day_ended, step, Formats.integer(entry.day, locale))
-        } else {
-            stringResource(R.string.engine_log_day_ended_overtime, step, Formats.integer(entry.day, locale), hoursText(entry.overtime))
-        }
-        is LogEntry.WeekEnded -> stringResource(R.string.engine_log_week_ended, step, Formats.integer(entry.week, locale))
-        is LogEntry.TableResult -> stringResource(
-            R.string.engine_log_table,
-            step,
-            entry.table,
-            rowLabel(entry.table, entry.key, content),
-            Formats.integer(entry.total, locale),
-            entry.outcome?.let { outcomeText(it, content) } ?: stringResource(R.string.engine_no_outcome),
-        )
-    }
-}
-
-@Composable
-private fun rolledText(step: String, roll: DiceRoll): String {
-    val locale = currentLocale()
-    val faces = roll.values.joinToString(DICE_SEPARATOR) { Formats.integer(it, locale) }
-    val source = stringResource(if (roll.source == RollSource.PHYSICAL) R.string.engine_source_own else R.string.engine_source_app)
-    val modifier = roll.request.modifier
-    return if (modifier == 0) {
-        stringResource(R.string.engine_log_rolled, step, roll.request.dice.toString(), faces, Formats.integer(roll.total, locale), source)
-    } else {
-        stringResource(
-            R.string.engine_log_rolled_modified,
-            step,
-            roll.request.dice.toString(),
-            faces,
-            Formats.integer(modifier, locale),
-            Formats.integer(roll.total, locale),
-            source,
-        )
-    }
-}
-
-private fun rejectionText(reason: Rejection): Int = when (reason) {
-    Rejection.UNKNOWN_TABLE -> R.string.engine_rejected_table
-    Rejection.TABLE_WITHOUT_DICE -> R.string.engine_rejected_no_dice
-    Rejection.UNKNOWN_ROW -> R.string.engine_rejected_row
-    Rejection.NOT_ENOUGH_HOURS -> R.string.engine_rejected_hours
-    Rejection.NO_TIME -> R.string.engine_rejected_no_time
-    Rejection.NOT_ENOUGH_CASH -> R.string.engine_rejected_cash
-    Rejection.INVALID_AMOUNT -> R.string.engine_rejected_amount
-    Rejection.LOAN_PAID_OFF -> R.string.engine_rejected_paid_off
-    Rejection.GEAR_MISSING -> R.string.engine_rejected_gear_missing
-    Rejection.GEAR_BROKEN -> R.string.engine_rejected_gear_broken
-    Rejection.ALREADY_MAINTAINED -> R.string.engine_rejected_maintained
-}
-
-/** A change of money with its sign, such as "+1.000 S". */
-@Composable
-private fun formatSignedSees(sees: Int): String = stringResource(R.string.money_sees, Formats.signed(sees, currentLocale()))
-
-private const val SAVES_DIR = "saves" // not-ui
-
 private const val DEFAULT_SEED = 1982L
-private const val DICE_SEPARATOR = " + "

@@ -112,7 +112,7 @@ fun ComponentGallery() {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 val left = HOURS_PER_DAY - hoursUsed
                 val leftText = pluralStringResource(R.plurals.dial_hours_left, left, left)
-                HourDial(hoursUsed = hoursUsed, description = leftText)
+                HourDial(hoursUsed = hoursUsed.toFloat(), description = leftText)
                 Text(leftText, style = MaterialTheme.typography.titleMedium, color = Ink)
             }
 
