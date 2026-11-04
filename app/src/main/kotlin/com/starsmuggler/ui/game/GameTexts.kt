@@ -10,6 +10,8 @@ import com.starsmuggler.engine.GearRef
 import com.starsmuggler.engine.LogEntry
 import com.starsmuggler.engine.Maintainer
 import com.starsmuggler.engine.Rejection
+import com.starsmuggler.engine.SheetEdit
+import com.starsmuggler.engine.Stat
 import com.starsmuggler.engine.content.Outcome
 import com.starsmuggler.engine.dice.DiceRoll
 import com.starsmuggler.engine.dice.RollSource
@@ -87,6 +89,7 @@ fun logText(entry: LogEntry, game: GameState, content: LoadedContent): String {
             step,
             stringResource(if (entry.by == Maintainer.ENGINEER) R.string.engine_maintainer_engineer else R.string.engine_maintainer_robot),
         )
+        is LogEntry.SheetEdited -> stringResource(R.string.log_sheet_edited, step, sheetEditText(entry.edit, game, content))
         is LogEntry.CashAdjusted -> stringResource(R.string.engine_log_cash_adjusted, step, formatSignedSees(entry.sees), formatSees(entry.cash))
         is LogEntry.AstuciaRolled -> stringResource(
             if (entry.success) R.string.engine_log_astucia_success else R.string.engine_log_astucia_failure,
@@ -149,9 +152,38 @@ fun rejectionText(reason: Rejection): Int = when (reason) {
     Rejection.GEAR_MISSING -> R.string.engine_rejected_gear_missing
     Rejection.GEAR_BROKEN -> R.string.engine_rejected_gear_broken
     Rejection.ALREADY_MAINTAINED -> R.string.engine_rejected_maintained
+    Rejection.INVALID_VALUE -> R.string.rejected_invalid_value
+    Rejection.UNKNOWN_ID -> R.string.rejected_unknown_id
 }
 
 /** A change of money with its sign, such as "+1.000 S". */
+/** What a hand edit of the record sheet changed, such as "Resistencia: 7". */
+@Composable
+fun sheetEditText(edit: SheetEdit, game: GameState, content: LoadedContent): String {
+    val locale = currentLocale()
+    return when (edit) {
+        is SheetEdit.SetStat -> stringResource(R.string.edit_value, stringResource(statName(edit.stat)), Formats.integer(edit.value, locale))
+        is SheetEdit.SetTech -> stringResource(R.string.edit_tech, gearName(edit.gear, game, content), Formats.integer(edit.tech, locale))
+        is SheetEdit.SetBroken -> stringResource(
+            if (edit.broken) R.string.edit_broken else R.string.edit_repaired,
+            gearName(edit.gear, game, content),
+        )
+        is SheetEdit.AddItem -> stringResource(R.string.edit_item_added, content.names.equipment(edit.id), Formats.integer(edit.tech, locale))
+        is SheetEdit.RemoveItem -> stringResource(R.string.edit_item_removed)
+        is SheetEdit.SetHypercharges -> stringResource(R.string.edit_value, stringResource(R.string.engine_hypercharges), Formats.integer(edit.value, locale))
+        is SheetEdit.SetBoatFuel -> stringResource(R.string.edit_value, stringResource(R.string.engine_boat_fuel), Formats.integer(edit.value, locale))
+        is SheetEdit.SetPapers -> stringResource(if (edit.inOrder) R.string.edit_papers_in_order else R.string.edit_papers_missing)
+        is SheetEdit.SetWanted -> stringResource(if (edit.wanted) R.string.edit_wanted else R.string.edit_not_wanted, content.names.system(edit.system))
+    }
+}
+
+fun statName(stat: Stat): Int = when (stat) {
+    Stat.MARKSMANSHIP -> R.string.engine_marksmanship
+    Stat.MELEE -> R.string.engine_melee
+    Stat.ENDURANCE -> R.string.engine_endurance
+    Stat.ASTUCIA -> R.string.engine_astucia
+}
+
 @Composable
 fun formatSignedSees(sees: Int): String = stringResource(R.string.money_sees, Formats.signed(sees, currentLocale()))
 

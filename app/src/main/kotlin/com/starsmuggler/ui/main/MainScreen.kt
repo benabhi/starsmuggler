@@ -154,7 +154,7 @@ fun MainScreen() {
                 when (tab) {
                     MainTab.Bridge -> BridgePane(session, game)
                     MainTab.Map -> MockPane(R.string.mock_map_title, R.string.mock_map_body)
-                    MainTab.Sheet -> SheetPane()
+                    MainTab.Sheet -> RecordSheet(session, game)
                     MainTab.Log -> LogPane(game, session.content)
                     MainTab.Rules -> MockPane(R.string.mock_rules_title, R.string.mock_rules_body) {
                         if (BuildConfig.DEBUG) {
@@ -205,7 +205,7 @@ private fun ClockStrip(game: GameState, modifier: Modifier = Modifier) {
 
 /** What is coming with the loan (r203e): the next interest, the deadline of a default, or the end of it. */
 @Composable
-private fun LoanLine(game: GameState) {
+internal fun LoanLine(game: GameState) {
     val loan = game.loan
     val locale = currentLocale()
     val due = loan.interestDueIn(game.clock)
@@ -352,7 +352,7 @@ private fun EventDialog(session: GameSession, game: GameState, onClose: () -> Un
 
 /** Paying part or all of the loan's principal from cash (r203e). */
 @Composable
-private fun PayDialog(session: GameSession, game: GameState, onClose: () -> Unit) {
+internal fun PayDialog(session: GameSession, game: GameState, onClose: () -> Unit) {
     var amount by remember { mutableStateOf("") }
     val all = minOf(game.cash, game.loan.principal)
     Dialog(onDismissRequest = onClose) {
@@ -425,26 +425,6 @@ private fun LogPane(game: GameState, content: LoadedContent) {
         items(game.log.asReversed()) { entry ->
             Text(logText(entry, game, content), style = TeletypeStyles.medium, color = Ink)
         }
-    }
-}
-
-@Composable
-private fun SheetPane() {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text(stringResource(R.string.mock_sheet_tabs).uppercase(), style = MaterialTheme.typography.labelMedium, color = InkFaded)
-        RecordCard(stringResource(R.string.gallery_card_title)) {
-            RecordLine(stringResource(R.string.stat_marksmanship), "4")
-            RecordLine(stringResource(R.string.stat_hand_to_hand), "3")
-            RecordLine(stringResource(R.string.stat_endurance), "5")
-            RecordLine(stringResource(R.string.stat_cunning), "2")
-        }
-        Text(stringResource(R.string.mock_pending), style = MaterialTheme.typography.bodySmall, color = InkFaded)
     }
 }
 

@@ -125,6 +125,11 @@ sealed interface LogEntry {
     @SerialName("maintenance")
     data class MaintenanceDone(override val step: Int, val by: Maintainer) : LogEntry
 
+    /** A change written on the record sheet by hand (PRD P2). */
+    @Serializable
+    @SerialName("sheet_edited")
+    data class SheetEdited(override val step: Int, val edit: SheetEdit) : LogEntry
+
     /** The result of a modified roll [total] on [table], in its row [key]; null when no entry covers the roll. */
     @Serializable
     @SerialName("table")

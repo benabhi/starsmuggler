@@ -30,6 +30,9 @@ sealed interface Action {
     /** A day of preventive maintenance by [by] (r218b). */
     data class PreventiveMaintenance(val by: Maintainer) : Action
 
+    /** A change written on the record sheet by hand (PRD P2). */
+    data class EditSheet(val edit: SheetEdit) : Action
+
     /** Close the day: end-of-day checks, end of the week every ten days, and the next morning (r203). */
     data object EndDay : Action
 }
@@ -65,6 +68,12 @@ enum class Rejection {
 
     /** Preventive maintenance was already done today. */
     ALREADY_MAINTAINED,
+
+    /** A value outside what the rules allow, such as Astucia 7. */
+    INVALID_VALUE,
+
+    /** An equipment or system id the game does not have. */
+    UNKNOWN_ID,
 }
 
 /** What performing an action gave. */

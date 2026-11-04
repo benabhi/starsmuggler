@@ -72,6 +72,7 @@ class Engine(private val content: GameContent) {
             true -> Rejection.GEAR_BROKEN
             false -> null
         }
+        is Action.EditSheet -> action.edit.problem(state, isItem = { it in content.equipment }, isSystem = { it in content.systems })
         is Action.PreventiveMaintenance -> if (state.maintenance?.day == state.clock.day) Rejection.ALREADY_MAINTAINED else null
         is Action.AdjustCash -> when {
             action.sees == 0 -> Rejection.INVALID_AMOUNT
@@ -87,7 +88,8 @@ class Engine(private val content: GameContent) {
     suspend fun perform(state: GameState, action: Action, hand: DiceHand = DiceHand.APP): ActionResult {
         require(state.rulesVersion == RULES_VERSION) { "Game played with rules version ${state.rulesVersion}, engine is $RULES_VERSION" }
         check(state, action)?.let { return ActionResult.Rejected(it) }
-        val turn = Turn(state, hand)
+        // A hand edit changes the sheet before the turn starts, so its fields carry it into the new state.
+        val turn = Turn(if (action is Action.EditSheet) state.edited(action.edit) else state, hand)
         when (action) {
             is Action.RollOnTable -> rollOnTable(turn, action)
             is Action.PassTime -> turn.spend(action.tenths)
@@ -99,6 +101,7 @@ class Engine(private val content: GameContent) {
                 if (action.gear !in turn.usedToday) turn.usedToday += action.gear
                 turn.log(LogEntry.GearUsed(turn.step, action.gear))
             }
+            is Action.EditSheet -> turn.log(LogEntry.SheetEdited(turn.step, action.edit))
             is Action.PreventiveMaintenance -> {
                 turn.maintenance = Maintenance(turn.clock.day, action.by)
                 turn.log(LogEntry.MaintenanceDone(turn.step, action.by))
