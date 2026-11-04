@@ -6,6 +6,12 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.2.8] - 2026-11-03
+
+### Added
+
+- Play the game on the bridge with the engine, autosave and a real log (SMUG-25)
+
 ## [0.2.7] - 2026-11-03
 
 ### Added
