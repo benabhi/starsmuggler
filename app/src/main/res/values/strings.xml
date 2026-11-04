@@ -463,4 +463,29 @@
     <string name="log_system_entry">Paso %1$s · Entrada al sistema %2$s: evento %3$s; resolvelo con «Resolver un evento a mano»</string>
     <string name="log_detected">Paso %1$s · Detección al entrar en %2$s: 1d6 sacó %3$s contra %4$s, te detectan y hay encuentro de entrada</string>
     <string name="log_undetected">Paso %1$s · Detección al entrar en %2$s: 1d6 sacó %3$s contra %4$s, entrás sin que te detecten</string>
+
+    <!-- Sector map (SMUG-38, r234, P12) -->
+    <string name="map_sector_title">Sector Pavonis</string>
+    <string name="map_sector_legend">Rojo: el sistema de la nave. Turquesa: alcanzable con un salto. Tocá un sistema para ver sus datos y saltar.</string>
+    <string name="map_wanted_label">%1$s · BUSCADO</string>
+    <string name="map_codes">Riqueza / tec</string>
+    <string name="map_codes_value">%1$s / %2$s</string>
+    <string name="map_bodies">Cuerpos</string>
+    <plurals name="map_planets">
+        <item quantity="one">%1$s planeta</item>
+        <item quantity="other">%1$s planetas</item>
+    </plurals>
+    <plurals name="map_planets_asteroids">
+        <item quantity="one">%1$s planeta y asteroides</item>
+        <item quantity="other">%1$s planetas y asteroides</item>
+    </plurals>
+    <string name="map_here">La nave está en este sistema.</string>
+    <string name="map_out_of_reach">Fuera del alcance de un salto triple desde acá.</string>
+    <string name="map_jump">Salto</string>
+    <string name="jump_option_cost">%1$s · %2$s</string>
+    <string name="map_risk">Riesgo</string>
+    <string name="map_risk_none">0 · no falla</string>
+    <string name="map_risk_value">%1$s · %2$s %%</string>
+    <string name="map_risk_hint">El salto falla si 1d6 sale igual o menor que el riesgo: la nave se disipa (r212c-d).</string>
+    <string name="map_jump_to">Saltar a %1$s</string>
 </resources>
