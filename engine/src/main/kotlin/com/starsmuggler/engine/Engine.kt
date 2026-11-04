@@ -67,6 +67,12 @@ class Engine(private val content: GameContent) {
             action.sees > state.cash -> Rejection.NOT_ENOUGH_CASH
             else -> null
         }
+        is Action.UseGear -> when (state.gear(action.gear)?.broken) {
+            null -> Rejection.GEAR_MISSING
+            true -> Rejection.GEAR_BROKEN
+            false -> null
+        }
+        is Action.PreventiveMaintenance -> if (state.maintenance?.day == state.clock.day) Rejection.ALREADY_MAINTAINED else null
         is Action.AdjustCash -> when {
             action.sees == 0 -> Rejection.INVALID_AMOUNT
             state.cash + action.sees < 0 -> Rejection.NOT_ENOUGH_CASH
@@ -89,6 +95,14 @@ class Engine(private val content: GameContent) {
             Action.EndDay -> endDay(turn)
             is Action.AstuciaRoll -> astuciaRoll(turn, state.duke.astucia, action.modifier)
             is Action.PayPrincipal -> payPrincipal(turn, action.sees)
+            is Action.UseGear -> {
+                if (action.gear !in turn.usedToday) turn.usedToday += action.gear
+                turn.log(LogEntry.GearUsed(turn.step, action.gear))
+            }
+            is Action.PreventiveMaintenance -> {
+                turn.maintenance = Maintenance(turn.clock.day, action.by)
+                turn.log(LogEntry.MaintenanceDone(turn.step, action.by))
+            }
             is Action.AdjustCash -> {
                 turn.cash += action.sees
                 turn.log(LogEntry.CashAdjusted(turn.step, action.sees, turn.cash))
@@ -108,19 +122,38 @@ class Engine(private val content: GameContent) {
         turn.log(LogEntry.AstuciaRolled(turn.step, astucia, total, success = total <= astucia))
     }
 
-    /** Closes the day and opens the next one. The end-of-day breakdowns (r203d) hook in here. */
-    private fun endDay(turn: Turn) {
+    /** Closes the day: breakdown checks (r203d), the weekly interest (r203e), and the next morning. */
+    private suspend fun endDay(turn: Turn) {
         val clock = turn.clock
+        breakdownChecks(turn)
         turn.log(LogEntry.DayEnded(turn.step, clock.day, clock.overtime))
         if (clock.endsWeek) {
             turn.log(LogEntry.WeekEnded(turn.step, clock.week))
             weeklyInterest(turn)
         }
         turn.clock = clock.nextDay()
+        turn.usedToday = emptyList()
         val deadline = turn.loan.deadline
         if (turn.loan.isDefaulted && !turn.loan.repossession && deadline != null && turn.clock.day > deadline) {
             turn.loan = turn.loan.copy(repossession = true)
             turn.log(LogEntry.RepossessionStarted(turn.step, turn.clock.day))
+        }
+    }
+
+    /**
+     * Each piece of gear used today rolls 2d6 plus the maintenance bonus and breaks down when the
+     * roll is not higher than its tech level (r218a). Gear that cannot break, such as anything of
+     * tech 1, is not rolled.
+     */
+    private suspend fun breakdownChecks(turn: Turn) {
+        val bonus = turn.maintenance?.bonus(turn.clock.day) ?: 0
+        for (ref in turn.usedToday) {
+            val gear = turn.gear(ref) ?: continue
+            if (gear.broken || gear.tech < BREAKDOWN_DICE.min + bonus) continue
+            val total = turn.roll(RollRequest(BREAKDOWN_DICE, BREAKDOWN_RULE, modifier = bonus)).total
+            val broke = total <= gear.tech
+            if (broke) turn.broken += ref
+            turn.log(LogEntry.BreakdownChecked(turn.step, ref, gear.tech, total, broke))
         }
     }
 
@@ -151,6 +184,8 @@ class Engine(private val content: GameContent) {
         const val RULES_VERSION = 1
 
         private val D6 = Dice(1)
+        private val BREAKDOWN_DICE = Dice(2)
+        private val BREAKDOWN_RULE = RuleRef("r218a")
         private val ASTUCIA_RULE = RuleRef("r202")
         private val MONEY_RULE = RuleRef("r232a")
         private val START_EVENT = EventRef("e001")
@@ -165,6 +200,13 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
     var clock = before.clock
     var cash = before.cash
     var loan = before.loan
+    var usedToday = before.usedToday
+    var maintenance = before.maintenance
+
+    /** Gear that broke down during this action. */
+    val broken = mutableListOf<GearRef>()
+
+    fun gear(ref: GearRef): GearStatus? = before.gear(ref)?.let { if (ref in broken) it.copy(broken = true) else it }
     val entries = mutableListOf<LogEntry>()
 
     suspend fun roll(request: RollRequest): DiceRoll {
@@ -190,5 +232,17 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
         entries += entry
     }
 
-    fun finish(): GameState = before.copy(rng = rng, step = step, clock = clock, cash = cash, loan = loan, log = before.log + entries)
+    fun finish(): GameState {
+        val state = before.copy(
+            rng = rng,
+            step = step,
+            clock = clock,
+            cash = cash,
+            loan = loan,
+            usedToday = usedToday,
+            maintenance = maintenance,
+            log = before.log + entries,
+        )
+        return broken.fold(state) { acc, ref -> acc.withBroken(ref, true) }
+    }
 }

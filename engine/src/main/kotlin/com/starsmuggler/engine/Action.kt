@@ -24,6 +24,12 @@ sealed interface Action {
     /** Add (or, if negative, take) [sees] of cash, for an event resolved by hand (PRD P2). */
     data class AdjustCash(val sees: Int) : Action
 
+    /** Mark [gear] as used today, so it is checked for breakdowns at the end of the day (r203d). */
+    data class UseGear(val gear: GearRef) : Action
+
+    /** A day of preventive maintenance by [by] (r218b). */
+    data class PreventiveMaintenance(val by: Maintainer) : Action
+
     /** Close the day: end-of-day checks, end of the week every ten days, and the next morning (r203). */
     data object EndDay : Action
 }
@@ -50,6 +56,15 @@ enum class Rejection {
 
     /** The loan is already paid off. */
     LOAN_PAID_OFF,
+
+    /** The game has no such gear, such as a boat after losing it. */
+    GEAR_MISSING,
+
+    /** Broken down: it cannot be used until repaired (r218). */
+    GEAR_BROKEN,
+
+    /** Preventive maintenance was already done today. */
+    ALREADY_MAINTAINED,
 }
 
 /** What performing an action gave. */

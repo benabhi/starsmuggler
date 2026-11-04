@@ -47,6 +47,10 @@ import com.starsmuggler.engine.Clock
 import com.starsmuggler.engine.ActionResult
 import com.starsmuggler.engine.Engine
 import com.starsmuggler.engine.GameState
+import com.starsmuggler.engine.GearRef
+import com.starsmuggler.engine.Maintainer
+import com.starsmuggler.engine.allGear
+import com.starsmuggler.engine.gear
 import com.starsmuggler.engine.LogEntry
 import com.starsmuggler.engine.Loan
 import com.starsmuggler.engine.Rejection
@@ -294,6 +298,20 @@ private fun EngineBench(content: LoadedContent) {
 
     LoanCard(game, enabled = !busy, perform = ::perform)
 
+    GearCard(
+        game,
+        content,
+        enabled = !busy,
+        perform = ::perform,
+        onRaiseTech = { ref ->
+            run {
+                val raised = raiseTech(game, ref)
+                gameState = raised
+                autosave(raised)
+            }
+        },
+    )
+
     ClockCard(game, enabled = !busy, perform = ::perform)
 
     RecordCard(stringResource(R.string.engine_dice)) {
@@ -348,7 +366,7 @@ private fun EngineBench(content: LoadedContent) {
 
     RecordCard(stringResource(R.string.engine_log)) {
         for (entry in game.log.asReversed()) {
-            Text(logText(entry, content), style = TeletypeStyles.small, color = Ink, modifier = Modifier.padding(vertical = 3.dp))
+            Text(logText(entry, game, content), style = TeletypeStyles.small, color = Ink, modifier = Modifier.padding(vertical = 3.dp))
         }
     }
 }
@@ -549,6 +567,66 @@ private fun LoanCard(game: GameState, enabled: Boolean, perform: (Action) -> Uni
 
 private const val CASH_STEP = 1000
 
+/** Gear, what was used today, breakdowns and preventive maintenance (SMUG-22). */
+@Composable
+private fun GearCard(game: GameState, content: LoadedContent, enabled: Boolean, perform: (Action) -> Unit, onRaiseTech: (GearRef) -> Unit) {
+    val locale = currentLocale()
+    RecordCard(stringResource(R.string.engine_gear)) {
+        Text(stringResource(R.string.engine_gear_hint), style = MaterialTheme.typography.bodySmall, color = InkFaded, modifier = Modifier.padding(vertical = 4.dp))
+        for (ref in game.allGear()) {
+            val status = game.gear(ref) ?: continue
+            val state = when {
+                status.broken -> stringResource(R.string.engine_gear_broken)
+                ref in game.usedToday -> stringResource(R.string.engine_gear_used)
+                else -> stringResource(R.string.engine_gear_ok)
+            }
+            Column(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+                Text(
+                    stringResource(R.string.engine_gear_line, gearName(ref, game, content), Formats.integer(status.tech, locale), state),
+                    style = TeletypeStyles.medium,
+                    color = if (status.broken) RocketRed else Ink,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 4.dp)) {
+                    StampButton(stringResource(R.string.engine_gear_use), enabled = enabled && !status.broken, onClick = { perform(Action.UseGear(ref)) })
+                    StampButton(stringResource(R.string.engine_gear_tech_up), enabled = enabled && status.tech < MAX_DEBUG_TECH, onClick = { onRaiseTech(ref) })
+                }
+            }
+        }
+        val maintenance = game.maintenance
+        val bonus = maintenance?.bonus(game.clock.day) ?: 0
+        Text(
+            stringResource(R.string.engine_maintenance_bonus, Formats.signed(bonus, locale)),
+            style = TeletypeStyles.small,
+            color = Ink,
+            modifier = Modifier.padding(vertical = 6.dp),
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            StampButton(stringResource(R.string.engine_maintenance_engineer), enabled = enabled, onClick = { perform(Action.PreventiveMaintenance(Maintainer.ENGINEER)) })
+            StampButton(stringResource(R.string.engine_maintenance_robot), enabled = enabled, onClick = { perform(Action.PreventiveMaintenance(Maintainer.ROBOT_MG)) })
+        }
+    }
+}
+
+@Composable
+private fun gearName(ref: GearRef, game: GameState, content: LoadedContent): String = when (ref) {
+    GearRef.Starship -> stringResource(R.string.engine_ship)
+    GearRef.StarshipGuns -> content.names.equipment(STARSHIP_GUNS)
+    GearRef.Boat -> stringResource(R.string.engine_boat)
+    is GearRef.DukeItem -> game.duke.items.getOrNull(ref.index)?.let { content.names.equipment(it.id) } ?: stringResource(R.string.engine_gear_missing)
+}
+
+/** Debug only: the gear one tech level up, since the starting gear is all tech 1 and never breaks. */
+private fun raiseTech(game: GameState, ref: GearRef): GameState = when (ref) {
+    GearRef.Starship -> game.copy(ship = game.ship.copy(tech = game.ship.tech + 1))
+    GearRef.StarshipGuns -> game.copy(ship = game.ship.copy(guns = (game.ship.guns ?: 0) + 1))
+    GearRef.Boat -> game.ship.boat?.let { game.copy(ship = game.ship.copy(boat = it.copy(tech = it.tech + 1))) } ?: game
+    is GearRef.DukeItem -> game.copy(
+        duke = game.duke.copy(items = game.duke.items.mapIndexed { i, item -> if (i == ref.index) item.copy(tech = item.tech + 1) else item }),
+    )
+}
+
+private const val MAX_DEBUG_TECH = 12
+
 private fun skillName(skill: Skill): Int = when (skill) {
     Skill.PILOT_NAVIGATOR -> R.string.engine_skill_pilot
     Skill.STARSHIP_GUNNER -> R.string.engine_skill_gunner
@@ -623,7 +701,7 @@ private fun OwnDiceEntry(roll: PendingRoll, onCancel: () -> Unit) {
 }
 
 @Composable
-private fun logText(entry: LogEntry, content: LoadedContent): String {
+private fun logText(entry: LogEntry, game: GameState, content: LoadedContent): String {
     val locale = currentLocale()
     val step = Formats.integer(entry.step, locale)
     return when (entry) {
@@ -655,6 +733,19 @@ private fun logText(entry: LogEntry, content: LoadedContent): String {
         is LogEntry.RepossessionStarted -> stringResource(R.string.engine_log_repossession, step, Formats.integer(entry.day, locale))
         is LogEntry.PrincipalPaid -> stringResource(R.string.engine_log_principal_paid, step, formatSees(entry.sees), formatSees(entry.principal))
         is LogEntry.LoanPaidOff -> stringResource(R.string.engine_log_loan_paid_off, step)
+        is LogEntry.GearUsed -> stringResource(R.string.engine_log_gear_used, step, gearName(entry.gear, game, content))
+        is LogEntry.BreakdownChecked -> stringResource(
+            if (entry.broke) R.string.engine_log_breakdown else R.string.engine_log_no_breakdown,
+            step,
+            gearName(entry.gear, game, content),
+            Formats.integer(entry.tech, locale),
+            Formats.integer(entry.total, locale),
+        )
+        is LogEntry.MaintenanceDone -> stringResource(
+            R.string.engine_log_maintenance,
+            step,
+            stringResource(if (entry.by == Maintainer.ENGINEER) R.string.engine_maintainer_engineer else R.string.engine_maintainer_robot),
+        )
         is LogEntry.CashAdjusted -> stringResource(R.string.engine_log_cash_adjusted, step, formatSignedSees(entry.sees), formatSees(entry.cash))
         is LogEntry.AstuciaRolled -> stringResource(
             if (entry.success) R.string.engine_log_astucia_success else R.string.engine_log_astucia_failure,
@@ -714,6 +805,9 @@ private fun rejectionText(reason: Rejection): Int = when (reason) {
     Rejection.NOT_ENOUGH_CASH -> R.string.engine_rejected_cash
     Rejection.INVALID_AMOUNT -> R.string.engine_rejected_amount
     Rejection.LOAN_PAID_OFF -> R.string.engine_rejected_paid_off
+    Rejection.GEAR_MISSING -> R.string.engine_rejected_gear_missing
+    Rejection.GEAR_BROKEN -> R.string.engine_rejected_gear_broken
+    Rejection.ALREADY_MAINTAINED -> R.string.engine_rejected_maintained
 }
 
 /** A change of money with its sign, such as "+1.000 S". */
