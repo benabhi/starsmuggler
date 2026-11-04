@@ -160,6 +160,14 @@
     <string name="dice_caption_single">%1$s · %2$s: %3$s</string>
     <string name="dice_caption">%1$s · %2$s: %3$s = %4$s</string>
     <string name="dice_caption_modified">%1$s · %2$s: %3$s, mod. %4$s = %5$s</string>
+    <!-- Dice options (SMUG-29, PRD P7). -->
+    <string name="dice_options_title">Dados</string>
+    <string name="dice_mode_all">Dados 3D en todas las tiradas</string>
+    <string name="dice_mode_all_hint">También las de rutina, como las averías.</string>
+    <string name="dice_mode_important">Solo en las importantes</string>
+    <string name="dice_mode_important_hint">Combate, saltos, contactos y eventos. Las demás suenan y se anotan.</string>
+    <string name="dice_mode_none">Sin animación</string>
+    <string name="dice_mode_none_hint">Ninguna tirada muestra dados: suenan y se anotan.</string>
     <string name="engine_log_table">Paso %1$s · %2$s, %3$s, con %4$s → %5$s</string>
     <string name="engine_no_outcome">ninguna entrada</string>
     <string name="engine_source_app">dados de la app</string>

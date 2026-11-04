@@ -64,6 +64,7 @@ import com.starsmuggler.engine.Loan
 import com.starsmuggler.engine.content.Air
 import com.starsmuggler.ui.Formats
 import com.starsmuggler.ui.currentLocale
+import com.starsmuggler.ui.dice.DiceOptions
 import com.starsmuggler.ui.dice.LocalDice
 import com.starsmuggler.ui.game.GameSession
 import com.starsmuggler.ui.game.endingText
@@ -171,6 +172,7 @@ fun MainScreen() {
                     MainTab.Sheet -> RecordSheet(session, game)
                     MainTab.Log -> LogPane(game, session.content)
                     MainTab.Rules -> MockPane(R.string.mock_rules_title, R.string.mock_rules_body) {
+                        DiceOptions(dice, Modifier.padding(vertical = 8.dp))
                         StampButton(stringResource(R.string.open_records), onClick = { showRecords = true })
                         if (BuildConfig.DEBUG) {
                             StampButton(stringResource(R.string.open_gallery), onClick = { showGallery = true })
