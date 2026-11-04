@@ -2,6 +2,7 @@ package com.starsmuggler.engine
 
 import com.starsmuggler.engine.EngineTest.Companion.content
 import com.starsmuggler.engine.EngineTest.Companion.runSync
+import com.starsmuggler.engine.EngineTest.Companion.start
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -15,7 +16,7 @@ class ClockTest {
 
     @Test
     fun `a game starts on week 1, day 1, with ten hours`() {
-        val clock = engine.newGame(1).clock
+        val clock = engine.start(1).clock
         assertEquals(1, clock.week)
         assertEquals(1, clock.dayOfWeek)
         assertEquals(100, clock.left)
@@ -46,7 +47,7 @@ class ClockTest {
 
     @Test
     fun `an event past the ten hours takes overtime the same day`() {
-        val start = play(engine.newGame(1), Action.PassTime(80, event = false))
+        val start = play(engine.start(1), Action.PassTime(80, event = false))
         val done = done(start, Action.PassTime(35))
         assertEquals(1, done.state.clock.day)
         assertEquals(15, done.state.clock.overtime)
@@ -56,7 +57,7 @@ class ClockTest {
 
     @Test
     fun `a player action must fit in the hours left`() {
-        val late = play(engine.newGame(1), Action.PassTime(95))
+        val late = play(engine.start(1), Action.PassTime(95))
         assertEquals(Rejection.NOT_ENOUGH_HOURS, engine.check(late, Action.PassTime(10, event = false)))
         assertEquals(ActionResult.Rejected(Rejection.NOT_ENOUGH_HOURS), perform(late, Action.PassTime(10, event = false)))
         assertEquals(null, engine.check(late, Action.PassTime(5, event = false)))
@@ -65,7 +66,7 @@ class ClockTest {
 
     @Test
     fun `the rest of the day uses up the hours left`() {
-        val start = play(engine.newGame(1), Action.PassTime(32))
+        val start = play(engine.start(1), Action.PassTime(32))
         val done = done(start, Action.PassRestOfDay)
         assertEquals(0, done.state.clock.left)
         assertEquals(0, done.state.clock.overtime)
@@ -75,7 +76,7 @@ class ClockTest {
 
     @Test
     fun `ending the day opens the next morning`() {
-        val start = play(engine.newGame(1), Action.PassTime(120))
+        val start = play(engine.start(1), Action.PassTime(120))
         val done = done(start, Action.EndDay)
         assertEquals(Clock(2), done.state.clock)
         assertEquals(listOf<LogEntry>(LogEntry.DayEnded(2, day = 1, overtime = 20)), done.entries)
@@ -83,7 +84,7 @@ class ClockTest {
 
     @Test
     fun `the tenth day closes the week`() {
-        var game = engine.newGame(1)
+        var game = engine.start(1)
         repeat(9) { game = play(game, Action.EndDay) }
         assertEquals(10, game.clock.day)
         val done = done(game, Action.EndDay)
@@ -97,7 +98,7 @@ class ClockTest {
 
     @Test
     fun `the clock is saved with the game`() {
-        val game = play(play(engine.newGame(4), Action.EndDay), Action.PassTime(47))
+        val game = play(play(engine.start(4), Action.EndDay), Action.PassTime(47))
         val json = Json.encodeToString(game)
         assertEquals(game, Json.decodeFromString<GameState>(json))
         assertEquals(Clock(2, 47), game.clock)

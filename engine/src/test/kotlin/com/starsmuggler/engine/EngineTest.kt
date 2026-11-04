@@ -31,23 +31,24 @@ class EngineTest {
 
     @Test
     fun `a new game starts at step 0 with its seed in the log`() {
-        val game = engine.newGame(42)
+        val game = engine.start(42)
         assertEquals(0, game.step)
         assertEquals(42, game.seed)
-        assertEquals(listOf<LogEntry>(LogEntry.GameStarted(0, 42, Engine.RULES_VERSION)), game.log)
+        assertEquals(LogEntry.GameStarted(0, 42, Engine.RULES_VERSION), game.log.first())
+        assertTrue(game.log.all { it.step == 0 })
     }
 
     @Test
     fun `the same seed and actions roll the same dice`() {
-        val a = play(engine.newGame(7), 20)
-        val b = play(engine.newGame(7), 20)
+        val a = play(engine.start(7), 20)
+        val b = play(engine.start(7), 20)
         assertEquals(a, b)
-        assertNotEquals(a.log, play(engine.newGame(8), 20).log)
+        assertNotEquals(a.log, play(engine.start(8), 20).log)
     }
 
     @Test
     fun `a saved game goes on with the same dice`() {
-        val start = play(engine.newGame(99), 5)
+        val start = play(engine.start(99), 5)
         val loaded = Json.decodeFromString<GameState>(Json.encodeToString(start))
         assertEquals(start, loaded)
         assertEquals(play(start, 10), play(loaded, 10))
@@ -55,7 +56,7 @@ class EngineTest {
 
     @Test
     fun `an action builds a new state and logs its roll and result`() {
-        val start = engine.newGame(3)
+        val start = engine.start(3)
         val done = assertIs<ActionResult.Done>(perform(start, Action.RollOnTable("r233", key = "city", modifier = 1)))
         assertEquals(1, done.state.step)
         assertEquals(start.log + done.entries, done.state.log)
@@ -83,7 +84,7 @@ class EngineTest {
 
     @Test
     fun `physical dice come from outside and leave the generator alone`() {
-        val start = engine.newGame(5)
+        val start = engine.start(5)
         val asked = mutableListOf<RollRequest>()
         val hand = DiceHand.physical { request -> asked += request; listOf(6) }
         val done = assertIs<ActionResult.Done>(perform(start, Action.RollOnTable("r233", key = "city"), hand))
@@ -97,7 +98,7 @@ class EngineTest {
 
     @Test
     fun `physical dice must match the roll`() {
-        val start = engine.newGame(5)
+        val start = engine.start(5)
         assertFailsWith<IllegalArgumentException> { perform(start, Action.RollOnTable("r233", "city"), DiceHand.physical { listOf(7) }) }
         assertFailsWith<IllegalArgumentException> { perform(start, Action.RollOnTable("r233", "city"), DiceHand.physical { listOf(2, 3) }) }
     }
@@ -110,13 +111,13 @@ class EngineTest {
                 shown += roll
             }
         }
-        val done = assertIs<ActionResult.Done>(perform(engine.newGame(1), Action.RollOnTable("r233", "city"), hand))
+        val done = assertIs<ActionResult.Done>(perform(engine.start(1), Action.RollOnTable("r233", "city"), hand))
         assertEquals(listOf(assertIs<LogEntry.Rolled>(done.entries[0]).roll), shown)
     }
 
     @Test
     fun `impossible actions are rejected without rolling`() {
-        val start = engine.newGame(1)
+        val start = engine.start(1)
         val never = DiceHand.physical { error("No dice should be asked for") }
         for ((action, reason) in listOf(
             Action.RollOnTable("r999") to Rejection.UNKNOWN_TABLE,
@@ -131,19 +132,19 @@ class EngineTest {
 
     @Test
     fun `a game from other rules is refused`() {
-        val old = engine.newGame(1).copy(rulesVersion = 0)
+        val old = engine.start(1).copy(rulesVersion = 0)
         assertFailsWith<IllegalArgumentException> { perform(old, Action.RollOnTable("r233", "city")) }
     }
 
     @Test
     fun `a roll outside the table logs no outcome`() {
-        val done = assertIs<ActionResult.Done>(perform(engine.newGame(1), Action.RollOnTable("r233", "city", modifier = -20)))
+        val done = assertIs<ActionResult.Done>(perform(engine.start(1), Action.RollOnTable("r233", "city", modifier = -20)))
         assertEquals(null, assertIs<LogEntry.TableResult>(done.entries[1]).outcome)
     }
 
     @Test
     fun `log entries keep ids and values only`() {
-        val state = play(engine.newGame(11), 2)
+        val state = play(engine.start(11), 2)
         val json = Json.encodeToString(state)
         assertTrue("\"type\":\"rolled\"" in json && "\"outcome\":\"" in json, json)
     }
@@ -175,6 +176,8 @@ class EngineTest {
             goods = emptyList(),
             events = emptyList(),
         )
+
+        fun Engine.start(seed: Long): GameState = runSync { newGame(seed) }
 
         /** Runs a suspending call that never really suspends, as the engine does with these hands. */
         fun <T> runSync(block: suspend () -> T): T {

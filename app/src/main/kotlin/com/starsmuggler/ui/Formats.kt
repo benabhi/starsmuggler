@@ -5,6 +5,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.starsmuggler.R
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -15,6 +16,10 @@ import java.util.Locale
 object Formats {
     /** A whole number with the locale's grouping: 12.000 in Spanish, 12,000 in English. */
     fun integer(value: Int, locale: Locale): String = NumberFormat.getIntegerInstance(locale).format(value)
+
+    /** A whole number with its sign, such as +1 or -1 for an adjustment; zero has none. */
+    fun signed(value: Int, locale: Locale): String =
+        if (value > 0) (NumberFormat.getIntegerInstance(locale) as DecimalFormat).apply { positivePrefix = "+" }.format(value) else integer(value, locale)
 
     /** A number with up to one decimal, such as 1,5 in Spanish (price multipliers, r241). */
     fun decimal(value: Double, locale: Locale): String =

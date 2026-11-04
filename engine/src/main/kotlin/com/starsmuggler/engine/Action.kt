@@ -15,6 +15,9 @@ sealed interface Action {
     /** An event takes the rest of the day (r203). */
     data object PassRestOfDay : Action
 
+    /** An Astucia roll asked for by an event: 1d6 plus [modifier], a success when not higher than Astucia (r202). */
+    data class AstuciaRoll(val modifier: Int = 0) : Action
+
     /** Close the day: end-of-day checks, end of the week every ten days, and the next morning (r203). */
     data object EndDay : Action
 }

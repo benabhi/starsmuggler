@@ -1,5 +1,7 @@
 package com.starsmuggler.content
 
+import com.starsmuggler.engine.Duke
+import com.starsmuggler.engine.Location
 import com.starsmuggler.engine.content.Air
 import com.starsmuggler.engine.content.AreaType
 import com.starsmuggler.engine.content.ConnectorKind
@@ -34,6 +36,17 @@ class ContentLoaderTest {
         assertEquals(Air.GOOD, regari.planets.single().air)
         assertEquals(listOf("palatek"), content.game.pattern().neighbors("regari"))
         assertEquals("Regari", content.names.system("regari"))
+    }
+
+    @Test
+    fun `the game starts in a place and with gear that exist in the data`() {
+        val game = ContentLoader(files).load().game
+        val start = Location.START
+        val planet = game.system(start.system).planets.single { it.number == start.planet }
+        assertTrue(start.tile in planet.tiles)
+        val area = game.tile(start.tile).areas.single { it.id == start.area }
+        assertEquals(AreaType.SPACEPORT, area.type)
+        for (item in Duke(astucia = 3).items) assertTrue(item.id in game.equipment, "Unknown equipment ${item.id}")
     }
 
     @Test
