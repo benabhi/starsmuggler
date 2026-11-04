@@ -28,10 +28,16 @@ sealed interface GearRef {
 data class GearStatus(val tech: Int, val broken: Boolean)
 
 fun GameState.gear(ref: GearRef): GearStatus? = when (ref) {
+    // The guns and the boat go with a destroyed ship.
+    GearRef.Starship, GearRef.StarshipGuns, GearRef.Boat -> if (ship.destroyed) null else shipGear(ref)
+    is GearRef.DukeItem -> duke.items.getOrNull(ref.index)?.let { GearStatus(it.tech, it.broken) }
+}
+
+private fun GameState.shipGear(ref: GearRef): GearStatus? = when (ref) {
     GearRef.Starship -> GearStatus(ship.tech, ship.broken)
     GearRef.StarshipGuns -> ship.guns?.let { GearStatus(it, ship.gunsBroken) }
     GearRef.Boat -> ship.boat?.let { GearStatus(it.tech, it.broken) }
-    is GearRef.DukeItem -> duke.items.getOrNull(ref.index)?.let { GearStatus(it.tech, it.broken) }
+    is GearRef.DukeItem -> null
 }
 
 /** Every piece of gear the game has, in a stable order. */

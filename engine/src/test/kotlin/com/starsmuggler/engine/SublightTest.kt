@@ -4,6 +4,8 @@ import com.starsmuggler.engine.EngineTest.Companion.runSync
 import com.starsmuggler.engine.EngineTest.Companion.start
 import com.starsmuggler.engine.content.Air
 import com.starsmuggler.engine.content.Area
+import com.starsmuggler.engine.content.ConnectionPattern
+import com.starsmuggler.engine.content.DiceTable
 import com.starsmuggler.engine.content.AreaType
 import com.starsmuggler.engine.content.EventRef
 import com.starsmuggler.engine.content.GameContent
@@ -136,15 +138,20 @@ class SublightTest {
     private fun done(state: GameState, action: Action): ActionResult.Done = assertIs(runSync { engine.perform(state, action) })
 
     companion object {
-        private const val REGARI = "regari"
+        const val REGARI = "regari"
 
         private fun area(id: String, type: AreaType, restriction: Restriction) = Area(id, type, restriction, position = MapPoint(0.5f, 0.5f))
 
-        fun content() = GameContent(
+        /** Regari with two planets and the asteroids, and any [others] that a jump [pattern] needs. */
+        fun content(
+            others: List<StarSystem> = emptyList(),
+            pattern: ConnectionPattern? = null,
+            tables: List<DiceTable> = emptyList(),
+        ) = GameContent(
             sector = Sector(
                 "test",
                 RuleRef("r207"),
-                systems = listOf(
+                systems = others + listOf(
                     StarSystem(
                         REGARI,
                         RuleRef("r207a"),
@@ -155,7 +162,7 @@ class SublightTest {
                         asteroids = true,
                     ),
                 ),
-                patterns = emptyList(),
+                patterns = listOfNotNull(pattern),
             ),
             tiles = listOf(
                 Tile(
@@ -184,7 +191,7 @@ class SublightTest {
                     connectors = emptyList(),
                 ),
             ),
-            tables = emptyList(),
+            tables = tables,
             factors = emptyList(),
             paragraphs = emptyList(),
             equipment = emptyList(),

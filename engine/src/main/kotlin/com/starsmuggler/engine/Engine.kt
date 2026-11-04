@@ -3,6 +3,7 @@ package com.starsmuggler.engine
 import com.starsmuggler.engine.content.Dice
 import com.starsmuggler.engine.content.EventRef
 import com.starsmuggler.engine.content.GameContent
+import com.starsmuggler.engine.content.Outcome
 import com.starsmuggler.engine.content.RuleRef
 import com.starsmuggler.engine.dice.DiceHand
 import com.starsmuggler.engine.dice.DiceRoll
@@ -16,6 +17,10 @@ import com.starsmuggler.engine.dice.RollSource
  */
 class Engine(private val content: GameContent) {
     private val sublight = Sublight(content)
+    private val hyperspace = Hyperspace(content)
+
+    /** Every system the starship can jump to from its own, with the cost and risk of each jump (r212b-c). */
+    fun jumpOptions(state: GameState): List<JumpOption> = hyperspace.options(state)
 
     /** Every place the starship can reach with one sublight move from where it is (r212g), whether or not it can move now. */
     fun sublightDestinations(state: GameState): List<ShipPosition> = sublight.destinations(state)
@@ -87,6 +92,10 @@ class Engine(private val content: GameContent) {
             state.cash + action.sees < 0 -> Rejection.NOT_ENOUGH_CASH
             else -> null
         }
+        is Action.Jump -> hyperspace.problem(state) ?: when (val option = hyperspace.options(state).firstOrNull { it.system == action.to }) {
+            null -> Rejection.UNREACHABLE
+            else -> if (state.ship.hypercharges < option.hypercharges) Rejection.NO_HYPERCHARGES else null
+        }
         is Action.Sublight -> sublight.problem(state) ?: if (action.to in sublight.destinations(state)) null else Rejection.UNREACHABLE
     }
 
@@ -125,6 +134,7 @@ class Engine(private val content: GameContent) {
                 turn.log(LogEntry.CashAdjusted(turn.step, action.sees, turn.cash))
             }
             is Action.Sublight -> moveShip(turn, action.to)
+            is Action.Jump -> jump(turn, hyperspace.options(state).first { it.system == action.to })
         }
         return ActionResult.Done(turn.finish(), turn.entries)
     }
@@ -199,6 +209,51 @@ class Engine(private val content: GameContent) {
         turn.log(LogEntry.ShipMoved(turn.step, from, to))
     }
 
+    /** A hyperspace jump: the hypercharges go, and the risk roll brings the ship out at 4 moves outward or dissipates it (r212b-d). */
+    private suspend fun jump(turn: Turn, option: JumpOption) {
+        val from = turn.ship.position.system
+        turn.ship = turn.ship.copy(hypercharges = turn.ship.hypercharges - option.hypercharges)
+        if (GearRef.Starship !in turn.usedToday) turn.usedToday += GearRef.Starship
+        val roll = if (option.risk > 0) turn.roll(RollRequest(D6, JUMP_RISK_RULE)).total else null
+        val succeeded = roll == null || roll > option.risk
+        turn.log(LogEntry.Jumped(turn.step, from, option.system, option.hops, option.hypercharges, option.risk, roll, succeeded))
+        if (succeeded) {
+            turn.ship = turn.ship.copy(position = ShipPosition.Outward(option.system, ShipPosition.MAX_OUTWARD))
+        } else {
+            dissipate(turn, option.system)
+        }
+    }
+
+    /**
+     * The ship and everything aboard are lost (r212d). The pilot's cabin stasis unit triggers on
+     * its own, so with one aboard Duke's fate is rolled on r240; without it he dies (r212e).
+     */
+    private suspend fun dissipate(turn: Turn, system: String) {
+        val inStasis = turn.ship.stasis >= STASIS_FOR_DUKE
+        turn.log(LogEntry.Dissipated(turn.step, system, inStasis))
+        if (!inStasis) return die(turn)
+        val table = content.table(STASIS_TABLE)
+        val total = turn.roll(RollRequest(table.dice!!, table.rule, table.id)).total
+        val outcome = table.lookup(total)
+        turn.log(LogEntry.TableResult(turn.step, table.id, null, total, outcome))
+        when ((outcome as? Outcome.Key)?.key) {
+            "stasis_lost", "stasis_culture_shock" -> return die(turn)
+            "stasis_1200_years", "stasis_230_years" -> turn.cash = 0
+            "stasis_3_years" -> turn.cash /= 2
+        }
+        val place = hyperspace.recoveryPlace(system)
+        turn.ship = turn.ship.copy(destroyed = true, position = ShipPosition.InArea(place))
+        turn.location = place
+        turn.duke = turn.duke.copy(items = emptyList())
+        turn.log(LogEntry.StasisRecovered(turn.step, place, turn.cash))
+    }
+
+    /** Duke died in the middle of an action: the game ends lost (r203f). */
+    private fun die(turn: Turn) {
+        turn.ending = Ending.DIED
+        turn.log(LogEntry.GameEnded(turn.step, Ending.DIED, won = false, turn.clock.day, turn.cash, turn.loan.principal))
+    }
+
     private fun payPrincipal(turn: Turn, sees: Int) {
         turn.cash -= sees
         val principal = turn.loan.principal - sees
@@ -217,6 +272,11 @@ class Engine(private val content: GameContent) {
         private val ASTUCIA_RULE = RuleRef("r202")
         private val MONEY_RULE = RuleRef("r232a")
         private val START_EVENT = EventRef("e001")
+        private val JUMP_RISK_RULE = RuleRef("r212c")
+        private const val STASIS_TABLE = "r240"
+
+        /** Capacity units Duke takes inside a stasis unit (r211a). */
+        private const val STASIS_FOR_DUKE = 1
         private const val STARTING_CASH_PER_PIP = 100
         private const val STARTING_CASH_BASE = 150
     }
@@ -232,6 +292,7 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
     var maintenance = before.maintenance
     var ending = before.ending
     var ship = before.ship
+    var duke = before.duke
     var location = before.location
 
     /** Gear that broke down during this action. */
@@ -274,6 +335,7 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
             maintenance = maintenance,
             ending = ending,
             ship = ship,
+            duke = duke,
             location = location,
             log = before.log + entries,
         )

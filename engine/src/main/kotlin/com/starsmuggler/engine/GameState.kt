@@ -162,6 +162,33 @@ sealed interface LogEntry {
     @SerialName("ship_moved")
     data class ShipMoved(override val step: Int, val from: ShipPosition, val to: ShipPosition) : LogEntry
 
+    /**
+     * A hyperspace jump [from] one system [to] another over [hops] routes, using [hypercharges]: with
+     * [risk] above 0 the 1d6 [roll] had to beat it (r212c). It [succeeded], or the ship dissipated (r212d).
+     */
+    @Serializable
+    @SerialName("jumped")
+    data class Jumped(
+        override val step: Int,
+        val from: String,
+        val to: String,
+        val hops: Int,
+        val hypercharges: Int,
+        val risk: Int,
+        val roll: Int? = null,
+        val succeeded: Boolean,
+    ) : LogEntry
+
+    /** The ship dissipated in a jump to [system]; Duke was [inStasis] or died with it (r212d-e). */
+    @Serializable
+    @SerialName("dissipated")
+    data class Dissipated(override val step: Int, val system: String, val inStasis: Boolean) : LogEntry
+
+    /** Duke's stasis unit was opened and he wakes up at [place] with [cash] left, his ship and gear gone (r240). */
+    @Serializable
+    @SerialName("stasis_recovered")
+    data class StasisRecovered(override val step: Int, val place: Location, val cash: Int) : LogEntry
+
     /** The result of a modified roll [total] on [table], in its row [key]; null when no entry covers the roll. */
     @Serializable
     @SerialName("table")

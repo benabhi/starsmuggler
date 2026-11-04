@@ -439,4 +439,23 @@
     <string name="rejected_no_hypercharges">Sin hipercargas a bordo: el motor subluz necesita al menos una.</string>
     <string name="rejected_not_aboard">Duke no está donde está la nave.</string>
     <string name="rejected_unreachable">La nave no llega ahí en un movimiento subluz.</string>
+
+    <!-- Hyperspace jumps (SMUG-36, r212a-e, r240) -->
+    <string name="bridge_jump">Saltar al hiperespacio</string>
+    <string name="bridge_jump_desc">Salto simple, doble o triple a otro sistema por las rutas del sector. Es instantáneo, gasta hipercargas y puede fallar.</string>
+    <string name="jump_hint">Hipercargas a bordo: %1$s. Factor de riesgo desde acá: %2$s; el salto falla si 1d6 sale menor o igual.</string>
+    <string name="jump_hint_safe">Hipercargas a bordo: %1$s. Desde 4 horas «hacia fuera» el salto no puede fallar.</string>
+    <string name="jump_option">%1$s · %2$s · %3$s</string>
+    <string name="jump_single">salto simple</string>
+    <string name="jump_double">salto doble</string>
+    <string name="jump_triple">salto triple</string>
+    <plurals name="jump_hypercharges">
+        <item quantity="one">%1$s hipercarga</item>
+        <item quantity="other">%1$s hipercargas</item>
+    </plurals>
+    <string name="log_jump_ok">Paso %1$s · Salto de %2$s a %3$s con %4$s: llega a 4 horas «hacia fuera»</string>
+    <string name="log_jump_failed">Paso %1$s · Salto de %2$s a %3$s con %4$s: la nave se disipa</string>
+    <string name="log_dissipated_stasis">Paso %1$s · La unidad de estasis se activa sola: Duke queda dentro</string>
+    <string name="log_dissipated_dead">Paso %1$s · Sin unidad de estasis, Duke muere en la disipación</string>
+    <string name="log_stasis_recovered">Paso %1$s · Duke despierta en %2$s, sistema %3$s, sin nave ni equipo; le quedan %4$s</string>
 </resources>
