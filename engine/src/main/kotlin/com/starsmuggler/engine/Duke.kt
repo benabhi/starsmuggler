@@ -46,6 +46,8 @@ data class Ship(
     /** Broken down until repaired (r218). */
     val broken: Boolean = false,
     val gunsBroken: Boolean = false,
+    /** Where it is in its system (r212g): landed at Regari's spaceport to start (e001). */
+    val position: ShipPosition = ShipPosition.InArea(Location.START),
 )
 
 /** The Hopper-class ship's boat (r214). */
@@ -57,10 +59,14 @@ data class Boat(
     val broken: Boolean = false,
 )
 
-/** Where the player is: an area of a tile of a planet of a system (r204). */
+/** Where the player is: an area of a tile of a planet, or of the asteroid belt, of a system (r204, r206). */
 @Serializable
 data class Location(val system: String, val planet: Int, val tile: String, val area: String) {
     companion object {
+        /** The [planet] number of the asteroid belt, whose areas are on [ASTEROID_TILE] (r206). */
+        const val ASTEROID_BELT = 0
+        const val ASTEROID_TILE = "asteroids"
+
         /** The spaceport of Regari's only planet (e001). */
         val START = Location(system = "regari", planet = 1, tile = "K", area = "spaceport")
     }

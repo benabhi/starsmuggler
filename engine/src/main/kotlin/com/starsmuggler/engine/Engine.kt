@@ -15,6 +15,11 @@ import com.starsmuggler.engine.dice.RollSource
  * same state, action and dice it always gives the same result.
  */
 class Engine(private val content: GameContent) {
+    private val sublight = Sublight(content)
+
+    /** Every place the starship can reach with one sublight move from where it is (r212g), whether or not it can move now. */
+    fun sublightDestinations(state: GameState): List<ShipPosition> = sublight.destinations(state)
+
     /**
      * A new game whose dice come from [seed] (e001): Duke with his [astucia] (r202), his ship and
      * gear, and 1d6 x 100 + 150 Sees in his pocket, at Regari's spaceport on day 1. Its rolls go
@@ -82,6 +87,7 @@ class Engine(private val content: GameContent) {
             state.cash + action.sees < 0 -> Rejection.NOT_ENOUGH_CASH
             else -> null
         }
+        is Action.Sublight -> sublight.problem(state) ?: if (action.to in sublight.destinations(state)) null else Rejection.UNREACHABLE
     }
 
     /**
@@ -118,6 +124,7 @@ class Engine(private val content: GameContent) {
                 turn.cash += action.sees
                 turn.log(LogEntry.CashAdjusted(turn.step, action.sees, turn.cash))
             }
+            is Action.Sublight -> moveShip(turn, action.to)
         }
         return ActionResult.Done(turn.finish(), turn.entries)
     }
@@ -182,6 +189,16 @@ class Engine(private val content: GameContent) {
         }
     }
 
+    /** One hour of sublight flight; Duke flies with the ship, and the ship was used today (r203d, r212g). */
+    private fun moveShip(turn: Turn, to: ShipPosition) {
+        val from = turn.ship.position
+        turn.spend(Sublight.MOVE)
+        turn.ship = turn.ship.copy(position = to)
+        if (to is ShipPosition.InArea) turn.location = to.location
+        if (GearRef.Starship !in turn.usedToday) turn.usedToday += GearRef.Starship
+        turn.log(LogEntry.ShipMoved(turn.step, from, to))
+    }
+
     private fun payPrincipal(turn: Turn, sees: Int) {
         turn.cash -= sees
         val principal = turn.loan.principal - sees
@@ -214,6 +231,8 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
     var usedToday = before.usedToday
     var maintenance = before.maintenance
     var ending = before.ending
+    var ship = before.ship
+    var location = before.location
 
     /** Gear that broke down during this action. */
     val broken = mutableListOf<GearRef>()
@@ -254,6 +273,8 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
             usedToday = usedToday,
             maintenance = maintenance,
             ending = ending,
+            ship = ship,
+            location = location,
             log = before.log + entries,
         )
         return broken.fold(state) { acc, ref -> acc.withBroken(ref, true) }

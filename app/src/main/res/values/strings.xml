@@ -420,4 +420,23 @@
         <item quantity="one">%1$s día</item>
         <item quantity="other">%1$s días</item>
     </plurals>
+    <!-- Sublight movement within a system (SMUG-35, r206, r212g) -->
+    <string name="place_planet">planeta %1$s</string>
+    <string name="place_asteroids">cinturón de asteroides</string>
+    <string name="place_asteroid">Asteroide %1$s</string>
+    <string name="place_area">%1$s · %2$s</string>
+    <string name="place_orbit_planet">Órbita del planeta %1$s</string>
+    <string name="place_orbit_asteroids">Órbita del cinturón de asteroides</string>
+    <plurals name="place_outward">
+        <item quantity="one">%1$s hora «hacia fuera»</item>
+        <item quantity="other">%1$s horas «hacia fuera»</item>
+    </plurals>
+    <string name="air_aboard">a bordo</string>
+    <string name="bridge_pilot">Pilotar la nave</string>
+    <string name="bridge_pilot_desc">Motor subluz dentro del sistema: órbita, estaciones, superficie y «hacia fuera». Cada movimiento lleva una hora.</string>
+    <string name="pilot_hint">La nave está en: %1$s. Elegí adónde moverla.</string>
+    <string name="log_ship_moved">Paso %1$s · La nave pasa de %2$s a %3$s</string>
+    <string name="rejected_no_hypercharges">Sin hipercargas a bordo: el motor subluz necesita al menos una.</string>
+    <string name="rejected_not_aboard">Duke no está donde está la nave.</string>
+    <string name="rejected_unreachable">La nave no llega ahí en un movimiento subluz.</string>
 </resources>
