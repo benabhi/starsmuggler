@@ -38,6 +38,8 @@ import com.starsmuggler.content.AssetContentSource
 import com.starsmuggler.content.ContentLoader
 import com.starsmuggler.content.LoadedContent
 import com.starsmuggler.content.TextLanguage
+import com.starsmuggler.data.SaveSlots
+import com.starsmuggler.data.SlotInfo
 import com.starsmuggler.engine.Action
 import com.starsmuggler.engine.Astucia
 import com.starsmuggler.engine.AstuciaSetup
@@ -72,6 +74,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.io.File
 
 /**
  * A bench for the engine core (SMUG-18): start a game from a seed, roll on the game's tables with
@@ -126,7 +129,20 @@ private fun EngineBench(content: LoadedContent) {
     var busy by remember { mutableStateOf(false) }
     var notice by remember { mutableStateOf<Int?>(null) }
     var roundTrip by remember { mutableStateOf<Pair<Int, Boolean>?>(null) }
+    val context = LocalContext.current
+    val slots = remember { SaveSlots(File(context.filesDir, SAVES_DIR)) }
+    var activeSlot by remember { mutableStateOf(1) }
+    var slotList by remember { mutableStateOf<List<SlotInfo>>(emptyList()) }
+    var confirmReplace by remember { mutableStateOf(false) }
     val locale = currentLocale()
+
+    /** Saves after every action into the active slot (PRD P8): there is no undo. */
+    suspend fun autosave(state: GameState) {
+        slotList = withContext(Dispatchers.IO) {
+            slots.save(activeSlot, state)
+            slots.list()
+        }
+    }
 
     fun hand(): DiceHand = if (ownDice) {
         DiceHand.physical { request -> CompletableDeferred<List<Int>>().also { pending = PendingRoll(request, it) }.await() }
@@ -152,19 +168,58 @@ private fun EngineBench(content: LoadedContent) {
 
     fun perform(action: Action) = run {
         when (val done = engine.perform(checkNotNull(gameState), action, hand())) {
-            is ActionResult.Done -> gameState = done.state
+            is ActionResult.Done -> {
+                gameState = done.state
+                autosave(done.state)
+            }
             is ActionResult.Rejected -> notice = rejectionText(done.reason)
         }
     }
 
-    fun newGame() = run {
-        val astucia = if (laterGame) AstuciaSetup.Adjust(previousAstucia, adjustment) else AstuciaSetup.Roll
-        gameState = engine.newGame(seedText.toLongOrNull() ?: DEFAULT_SEED, astucia, hand())
-        roundTrip = null
+    fun newGame() {
+        if (slotList.getOrNull(activeSlot - 1) !is SlotInfo.Empty && !confirmReplace) {
+            confirmReplace = true
+            return
+        }
+        confirmReplace = false
+        run {
+            val astucia = if (laterGame) AstuciaSetup.Adjust(previousAstucia, adjustment) else AstuciaSetup.Roll
+            val state = engine.newGame(seedText.toLongOrNull() ?: DEFAULT_SEED, astucia, hand())
+            gameState = state
+            roundTrip = null
+            autosave(state)
+        }
     }
 
+    fun loadSlot(slot: Int) = run {
+        val state = withContext(Dispatchers.IO) { slots.load(slot) }
+        activeSlot = slot
+        gameState = state
+        confirmReplace = false
+        // Saved again at once, so "continue" picks the slot played last, not the one changed last.
+        autosave(state)
+    }
+
+    fun deleteSlot(slot: Int) = run {
+        slotList = withContext(Dispatchers.IO) {
+            slots.delete(slot)
+            slots.list()
+        }
+    }
+
+    // Opening the bench continues the game saved last, or starts one in slot 1.
     LaunchedEffect(engine) {
-        if (gameState == null) gameState = engine.newGame(DEFAULT_SEED)
+        if (gameState != null) return@LaunchedEffect
+        val latest = withContext(Dispatchers.IO) { slots.latest() }
+        if (latest != null) {
+            activeSlot = latest
+            gameState = withContext(Dispatchers.IO) { slots.load(latest) }
+            slotList = withContext(Dispatchers.IO) { slots.list() }
+        } else {
+            val state = engine.newGame(DEFAULT_SEED)
+            gameState = state
+            autosave(state)
+        }
     }
     pending?.let { roll ->
         Dialog(onDismissRequest = { roll.answer.cancel() }) {
@@ -174,6 +229,18 @@ private fun EngineBench(content: LoadedContent) {
         }
     }
     val game = gameState ?: return
+
+    SlotsCard(
+        slotList,
+        activeSlot = activeSlot,
+        enabled = !busy,
+        onSelect = { slot ->
+            activeSlot = slot
+            confirmReplace = false
+        },
+        onLoad = ::loadSlot,
+        onDelete = ::deleteSlot,
+    )
 
     RecordCard(stringResource(R.string.engine_game)) {
         OutlinedTextField(
@@ -193,13 +260,21 @@ private fun EngineBench(content: LoadedContent) {
             onAdjustment = { adjustment = it },
         )
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            StampButton(stringResource(R.string.engine_new_game), enabled = !busy, onClick = ::newGame)
+            StampButton(stringResource(R.string.engine_new_game), style = if (confirmReplace) StampStyle.Solid else StampStyle.Outline, enabled = !busy, onClick = ::newGame)
             StampButton(stringResource(R.string.engine_save_load), enabled = !busy, onClick = {
                 val json = Json.encodeToString(game)
                 val loaded = Json.decodeFromString<GameState>(json)
                 roundTrip = json.toByteArray().size to (loaded == game)
                 gameState = loaded
             })
+        }
+        if (confirmReplace) {
+            Text(
+                stringResource(R.string.engine_confirm_replace, Formats.integer(activeSlot, locale)),
+                style = TeletypeStyles.small,
+                color = RocketRed,
+                modifier = Modifier.padding(vertical = 4.dp),
+            )
         }
         RecordLine(stringResource(R.string.engine_step), Formats.integer(game.step, locale))
         RecordLine(stringResource(R.string.engine_seed), game.seed.toString())
@@ -274,6 +349,58 @@ private fun EngineBench(content: LoadedContent) {
     RecordCard(stringResource(R.string.engine_log)) {
         for (entry in game.log.asReversed()) {
             Text(logText(entry, content), style = TeletypeStyles.small, color = Ink, modifier = Modifier.padding(vertical = 3.dp))
+        }
+    }
+}
+
+/** The three save slots (SMUG-23): which one is played, what each holds, and loading or deleting them. */
+@Composable
+private fun SlotsCard(
+    slots: List<SlotInfo>,
+    activeSlot: Int,
+    enabled: Boolean,
+    onSelect: (Int) -> Unit,
+    onLoad: (Int) -> Unit,
+    onDelete: (Int) -> Unit,
+) {
+    val locale = currentLocale()
+    RecordCard(stringResource(R.string.engine_slots)) {
+        Text(stringResource(R.string.engine_slots_hint), style = MaterialTheme.typography.bodySmall, color = InkFaded, modifier = Modifier.padding(vertical = 4.dp))
+        for (info in slots) {
+            val active = info.slot == activeSlot
+            Column(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+                Text(
+                    stringResource(if (active) R.string.engine_slot_active else R.string.engine_slot, Formats.integer(info.slot, locale)),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (active) RocketRed else Ink,
+                )
+                Text(
+                    when (info) {
+                        is SlotInfo.Empty -> stringResource(R.string.engine_slot_empty)
+                        is SlotInfo.Damaged -> stringResource(R.string.engine_slot_damaged, info.reason)
+                        is SlotInfo.Saved -> stringResource(
+                            R.string.engine_slot_saved,
+                            stringResource(R.string.clock_week_day, info.state.clock.week, info.state.clock.dayOfWeek),
+                            formatSees(info.state.cash),
+                            Formats.integer(info.state.duke.astucia, locale),
+                            Formats.dateTime(info.savedAt, locale),
+                        )
+                    },
+                    style = TeletypeStyles.small,
+                    color = if (info is SlotInfo.Damaged) RocketRed else Ink,
+                )
+                if (!active) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 6.dp)) {
+                        when (info) {
+                            is SlotInfo.Saved -> StampButton(stringResource(R.string.engine_slot_load), enabled = enabled, onClick = { onLoad(info.slot) })
+                            else -> StampButton(stringResource(R.string.engine_slot_use), enabled = enabled, onClick = { onSelect(info.slot) })
+                        }
+                        if (info !is SlotInfo.Empty) {
+                            StampButton(stringResource(R.string.engine_slot_delete), enabled = enabled, onClick = { onDelete(info.slot) })
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -592,6 +719,8 @@ private fun rejectionText(reason: Rejection): Int = when (reason) {
 /** A change of money with its sign, such as "+1.000 S". */
 @Composable
 private fun formatSignedSees(sees: Int): String = stringResource(R.string.money_sees, Formats.signed(sees, currentLocale()))
+
+private const val SAVES_DIR = "saves" // not-ui
 
 private const val DEFAULT_SEED = 1982L
 private const val DICE_SEPARATOR = " + "
