@@ -51,6 +51,21 @@ sealed interface Action {
     /** Rent a commercial vehicle of [capacity] UC for [hours] hours, from a commercial transport event (e074, r215b). */
     data class RentVehicle(val capacity: Int, val hours: Int) : Action
 
+    /** Fly the starship low over the planet to [to], at 1/10 hour per land step (r203a, r212g). */
+    data class Fly(val to: Location) : Action
+
+    /** Take the boat out of the starship, where it is (r214a). */
+    data object LaunchBoat : Action
+
+    /** Put the boat back into the starship, where both are (r214a). */
+    data object StowBoat : Action
+
+    /** Fly the boat [to] a place, with its time and fuel (r214b). */
+    data class MoveBoat(val to: ShipPosition) : Action
+
+    /** Ride the orbital shuttle to another spaceport or station of the planet (r215a, e074). */
+    data class Shuttle(val to: Location) : Action
+
     /** Close the day: end-of-day checks, end of the week every ten days, and the next morning (r203). */
     data object EndDay : Action
 }
@@ -122,6 +137,15 @@ enum class Rejection {
 
     /** A skimmer's engine breathes air: it cannot go where there is none (r204f). */
     NO_AIR,
+
+    /** Duke is in space: land travel starts from an area. */
+    IN_SPACE,
+
+    /** Not enough fuel units in the boat (r214b). */
+    NO_FUEL,
+
+    /** Gravity 10 or more: the boat cannot climb to orbit (r204e, r214b). */
+    GRAVITY_TOO_HIGH,
 
     /** The game has ended: nothing more can be done in it. */
     GAME_OVER,

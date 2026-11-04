@@ -547,4 +547,24 @@
     <string name="rejected_rental_too_short">El tiempo alquilado termina antes del viaje.</string>
     <string name="rejected_no_driver">El deslizador necesita un conductor calificado.</string>
     <string name="rejected_no_air">El deslizador no funciona sin aire.</string>
+
+    <!-- Boat, orbital shuttle and flight over a planet (SMUG-34, r203a, r212g, r214, r215a) -->
+    <string name="pilot_flights">Volar bajo sobre el planeta, a 1/10 h por paso (no cruza áreas amarillas ni rojas):</string>
+    <string name="bridge_boat">Nave auxiliar</string>
+    <string name="bridge_boat_desc">La Hopper: sale de la nave estelar, vuela por el planeta y hasta la órbita. Le quedan %1$s COMB.</string>
+    <string name="boat_hint_stowed">La nave auxiliar está guardada en la nave estelar.</string>
+    <string name="boat_hint_out">La nave auxiliar está en: %1$s. COMB: %2$s.</string>
+    <string name="boat_launch">Sacar la nave auxiliar</string>
+    <string name="boat_stow">Guardarla en la nave estelar</string>
+    <string name="boat_move">%1$s · %2$s · %3$s COMB</string>
+    <string name="bridge_shuttle">Transbordador orbital</string>
+    <string name="bridge_shuttle_desc">Pasaje a otro puerto espacial o estación espacial del planeta: 1 S por 3 UC, una hora (resultado de e074).</string>
+    <string name="shuttle_hint">Elegí la parada. El transbordador da combustible y soporte vital.</string>
+    <string name="log_boat_launched">Paso %1$s · Sale la nave auxiliar</string>
+    <string name="log_boat_stowed">Paso %1$s · La nave auxiliar vuelve a la nave estelar</string>
+    <string name="log_boat_moved">Paso %1$s · La nave auxiliar pasa de %2$s a %3$s y gasta %4$s COMB</string>
+    <string name="log_shuttle">Paso %1$s · Transbordador orbital de %2$s a %3$s: %4$s</string>
+    <string name="rejected_in_space">Duke está en el espacio: el viaje terrestre sale de un área.</string>
+    <string name="rejected_no_fuel">No alcanza el combustible (COMB) de la nave auxiliar.</string>
+    <string name="rejected_gravity">Con gravedad 10 o más la nave auxiliar no puede subir a la órbita.</string>
 </resources>

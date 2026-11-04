@@ -152,6 +152,15 @@ fun logText(entry: LogEntry, game: GameState, content: LoadedContent): String {
             formatSees(entry.sees),
         )
         is LogEntry.BadAirBreakdown -> stringResource(R.string.log_bad_air_breakdown, step, gearName(entry.gear, game, content))
+        is LogEntry.BoatLaunched -> stringResource(if (entry.stowed) R.string.log_boat_stowed else R.string.log_boat_launched, step)
+        is LogEntry.BoatMoved -> stringResource(
+            R.string.log_boat_moved,
+            step,
+            shipPositionText(entry.from, content),
+            shipPositionText(entry.to, content),
+            Formats.integer(entry.fuel, locale),
+        )
+        is LogEntry.ShuttleTaken -> stringResource(R.string.log_shuttle, step, locationText(entry.from, content), locationText(entry.to, content), formatSees(entry.sees))
         is LogEntry.SystemEntry -> stringResource(R.string.log_system_entry, step, content.names.system(entry.system), entry.event.id)
         is LogEntry.DetectionChecked -> stringResource(
             if (entry.detected) R.string.log_detected else R.string.log_undetected,
@@ -223,6 +232,9 @@ fun rejectionText(reason: Rejection): Int = when (reason) {
     Rejection.RENTAL_TOO_SHORT -> R.string.rejected_rental_too_short
     Rejection.NO_DRIVER -> R.string.rejected_no_driver
     Rejection.NO_AIR -> R.string.rejected_no_air
+    Rejection.IN_SPACE -> R.string.rejected_in_space
+    Rejection.NO_FUEL -> R.string.rejected_no_fuel
+    Rejection.GRAVITY_TOO_HIGH -> R.string.rejected_gravity
     Rejection.GAME_OVER -> R.string.rejected_game_over
 }
 

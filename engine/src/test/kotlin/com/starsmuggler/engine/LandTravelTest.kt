@@ -131,7 +131,7 @@ class LandTravelTest {
     private fun done(state: GameState, action: Action): ActionResult.Done = assertIs(runSync { engine.perform(state, action) })
 
     companion object {
-        private const val SYSTEM = "palatek"
+        const val SYSTEM = "palatek"
 
         private fun area(id: String, type: AreaType, restriction: Restriction, ownAir: Boolean = false) =
             Area(id, type, restriction, ownAir = ownAir, position = MapPoint(0.5f, 0.5f))
@@ -141,19 +141,22 @@ class LandTravelTest {
                 """{"id":"r238","rule":"r238","rows":[
                    {"key":"on_foot","entries":[{"roll":"0+","result":"1"}]},
                    {"key":"commercial_vehicle","entries":[{"roll":"0+","result":"1"}]},
-                   {"key":"skimmer","entries":[{"roll":"0+","result":"1"}]}]}""",
+                   {"key":"skimmer","entries":[{"roll":"0+","result":"1"}]},
+                   {"key":"ships_boat","entries":[{"roll":"0+","result":"1"}]},
+                   {"key":"orbital_shuttle","entries":[{"roll":"0+","result":"1"}]},
+                   {"key":"starship","entries":[{"roll":"0+","result":"1"}]}]}""",
             ),
             Json.decodeFromString<DiceTable>(
                 """{"id":"r233","rule":"r233","dice":"1d6","rows":[{"key":"colony","entries":[{"roll":"0+","result":"e011"}]}]}""",
             ),
         )
 
-        fun content() = GameContent(
+        fun content(gravity: Int = 7) = GameContent(
             sector = Sector(
                 "test",
                 RuleRef("r207"),
                 systems = listOf(
-                    StarSystem(SYSTEM, RuleRef("r207b"), wealth = 30, tech = 50, entryEvents = List(6) { EventRef("e092") }, planets = listOf(Planet(1, listOf("L", "R"), 7, Air.BAD))),
+                    StarSystem(SYSTEM, RuleRef("r207b"), wealth = 30, tech = 50, entryEvents = List(6) { EventRef("e092") }, planets = listOf(Planet(1, listOf("L", "R"), gravity, Air.BAD))),
                 ),
                 patterns = listOf(ConnectionPattern(Sector.STANDARD_PATTERN, RuleRef("r234"), nodes = listOf(com.starsmuggler.engine.content.PatternNode(SYSTEM, MapPoint(0.5f, 0.5f))), routes = emptyList())),
             ),

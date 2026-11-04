@@ -36,8 +36,10 @@ data class Rental(val capacity: Int, val day: Int, val until: Int)
 /** Travel over a planet's land areas on foot, by commercial vehicle or by skimmer (r203a, r204f-g, r213, r215). */
 internal class LandTravel(private val content: GameContent) {
     /** Every travel line out of Duke's area, along the tile and across the planet's seam; none on the asteroids. */
-    fun routes(state: GameState): List<LandRoute> {
-        val here = state.location
+    fun routes(state: GameState): List<LandRoute> = routesFrom(state.location)
+
+    /** Every travel line out of [here]. */
+    fun routesFrom(here: Location): List<LandRoute> {
         if (here.planet == Location.ASTEROID_BELT) return emptyList()
         val planet = content.system(here.system).planets.first { it.number == here.planet }
         val inTile = content.tile(here.tile).connectors.mapNotNull { c ->
@@ -62,6 +64,7 @@ internal class LandTravel(private val content: GameContent) {
     /** Why Duke cannot travel by [mode] to [to] now, or null if he can. */
     fun problem(state: GameState, mode: TravelMode, to: Location): Rejection? {
         if (state.trek != null) return Rejection.ON_TREK
+        if (state.dukeInSpace) return Rejection.IN_SPACE
         val route = routes(state).firstOrNull { it.to == to } ?: return Rejection.UNREACHABLE
         val area = area(to)
         if (!mode.mayEnter(area.restriction)) return Rejection.RESTRICTED_AREA

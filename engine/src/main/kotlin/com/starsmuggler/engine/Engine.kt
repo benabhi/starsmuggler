@@ -21,6 +21,17 @@ class Engine(private val content: GameContent) {
     private val sublight = Sublight(content)
     private val hyperspace = Hyperspace(content)
     private val land = LandTravel(content)
+    private val flights = Flights(content, land)
+
+    /** The areas the starship can fly to over its planet (r203a). */
+    fun flights(state: GameState): List<Flight> =
+        (state.ship.position as? ShipPosition.InArea)?.let { flights.overland(it.location) } ?: emptyList()
+
+    /** Where the boat can fly from where it is (r214b). */
+    fun boatMoves(state: GameState): List<BoatMove> = flights.boatMoves(state)
+
+    /** The stops an orbital shuttle takes Duke to (r215a). */
+    fun shuttleStops(state: GameState): List<Location> = flights.shuttleStops(state)
 
     /** The travel lines out of Duke's area (r204g). */
     fun landRoutes(state: GameState): List<LandRoute> = land.routes(state)
@@ -103,6 +114,41 @@ class Engine(private val content: GameContent) {
             else -> if (state.ship.hypercharges < option.hypercharges) Rejection.NO_HYPERCHARGES else null
         }
         is Action.Travel -> land.problem(state, action.mode, action.to)
+        is Action.Fly -> {
+            val flight = flights(state).firstOrNull { it.to == action.to }
+            when {
+                state.ship.destroyed -> Rejection.GEAR_MISSING
+                state.ship.hypercharges < 1 -> Rejection.NO_HYPERCHARGES
+                state.ship.broken -> Rejection.GEAR_BROKEN
+                !state.dukeAboard -> Rejection.NOT_ABOARD
+                flight == null -> Rejection.UNREACHABLE
+                !state.clock.fits(flight.tenths) -> Rejection.NOT_ENOUGH_HOURS
+                else -> null
+            }
+        }
+        Action.LaunchBoat -> when {
+            state.ship.boat == null -> Rejection.GEAR_MISSING
+            state.ship.boat.position != null || state.ship.position is ShipPosition.Outward -> Rejection.UNREACHABLE
+            state.ship.boat.broken -> Rejection.GEAR_BROKEN
+            !state.dukeAboard -> Rejection.NOT_ABOARD
+            else -> null
+        }
+        Action.StowBoat -> when {
+            state.ship.boat?.position == null -> Rejection.GEAR_MISSING
+            !state.isWith(Craft.BOAT) -> Rejection.NOT_ABOARD
+            state.ship.destroyed || state.ship.boat.position != state.ship.position -> Rejection.UNREACHABLE
+            else -> null
+        }
+        is Action.MoveBoat -> when (val move = flights.boatMoves(state).firstOrNull { it.to == action.to }) {
+            null -> if (state.ship.boat?.position == null) Rejection.GEAR_MISSING else Rejection.UNREACHABLE
+            else -> flights.problem(state, move)
+        }
+        is Action.Shuttle -> when {
+            action.to !in flights.shuttleStops(state) -> Rejection.UNREACHABLE
+            !state.clock.fits(Clock.HOUR) -> Rejection.NOT_ENOUGH_HOURS
+            state.cash < SHUTTLE_FARE -> Rejection.NOT_ENOUGH_CASH
+            else -> null
+        }
         Action.ContinueTrek -> when {
             state.trek == null -> Rejection.UNREACHABLE
             !state.clock.isFresh -> Rejection.NOT_ENOUGH_HOURS
@@ -153,6 +199,34 @@ class Engine(private val content: GameContent) {
             }
             is Action.Sublight -> moveShip(turn, action.to)
             is Action.Travel -> travel(turn, action.mode, land.route(state, action.to))
+            is Action.Fly -> {
+                val from = turn.ship.position
+                turn.spend(flights(state).first { it.to == action.to }.tenths)
+                turn.ship = turn.ship.copy(position = ShipPosition.InArea(action.to))
+                turn.location = action.to
+                use(turn, GearRef.Starship)
+                turn.log(LogEntry.ShipMoved(turn.step, from, turn.ship.position))
+                entryCheck(turn, action.to, STARSHIP_ENTRY)
+            }
+            Action.LaunchBoat -> {
+                turn.ship = turn.ship.copy(boat = checkNotNull(turn.ship.boat).copy(position = turn.ship.position))
+                if (turn.ship.position !is ShipPosition.InArea) turn.riding = Craft.BOAT
+                turn.log(LogEntry.BoatLaunched(turn.step))
+            }
+            Action.StowBoat -> {
+                turn.ship = turn.ship.copy(boat = checkNotNull(turn.ship.boat).copy(position = null))
+                if (turn.ship.position !is ShipPosition.InArea) turn.riding = Craft.STARSHIP
+                turn.log(LogEntry.BoatLaunched(turn.step, stowed = true))
+            }
+            is Action.MoveBoat -> moveBoat(turn, flights.boatMoves(state).first { it.to == action.to })
+            is Action.Shuttle -> {
+                val from = turn.location
+                turn.spend(Clock.HOUR)
+                turn.cash -= SHUTTLE_FARE
+                turn.log(LogEntry.ShuttleTaken(turn.step, from, action.to, SHUTTLE_FARE))
+                turn.location = action.to
+                entryCheck(turn, action.to, SHUTTLE_ENTRY)
+            }
             Action.ContinueTrek -> walk(turn, checkNotNull(state.trek))
             is Action.RentVehicle -> {
                 val sees = rentalCost(action)
@@ -230,11 +304,27 @@ class Engine(private val content: GameContent) {
         val from = turn.ship.position
         turn.spend(Sublight.MOVE)
         turn.ship = turn.ship.copy(position = to)
+        turn.riding = Craft.STARSHIP
         if (to is ShipPosition.InArea) turn.location = to.location
         if (GearRef.Starship !in turn.usedToday) turn.usedToday += GearRef.Starship
         turn.log(LogEntry.ShipMoved(turn.step, from, to))
         // Landing or docking enters an area; the orbit and outward space never do (r212g).
         if (to is ShipPosition.InArea) entryCheck(turn, to.location, STARSHIP_ENTRY)
+    }
+
+    /** A boat flight: its time and fuel, and an entry check where it lands or docks (r214b, r225). */
+    private suspend fun moveBoat(turn: Turn, move: BoatMove) {
+        val boat = checkNotNull(turn.ship.boat)
+        val from = checkNotNull(boat.position)
+        turn.spend(move.tenths)
+        turn.ship = turn.ship.copy(boat = boat.copy(fuel = boat.fuel - move.fuel, position = move.to))
+        turn.riding = Craft.BOAT
+        use(turn, GearRef.Boat)
+        turn.log(LogEntry.BoatMoved(turn.step, from, move.to, move.fuel))
+        if (move.to is ShipPosition.InArea) {
+            turn.location = move.to.location
+            entryCheck(turn, move.to.location, BOAT_ENTRY)
+        }
     }
 
     private fun rentalCost(action: Action.RentVehicle): Int = action.capacity / LandTravel.UC_PER_SEE * action.hours
@@ -389,6 +479,11 @@ class Engine(private val content: GameContent) {
 
         /** The starship's row of the detection table (r238). */
         const val STARSHIP_ENTRY = "starship"
+        private const val BOAT_ENTRY = "ships_boat"
+        private const val SHUTTLE_ENTRY = "orbital_shuttle"
+
+        /** One person, 1 UC, rides in the smallest 3 UC share of the shuttle: 1 S (r215a, e074). */
+        const val SHUTTLE_FARE = 1
         private const val STASIS_TABLE = "r240"
 
         /** Capacity units Duke takes inside a stasis unit (r211a). */
@@ -411,10 +506,11 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
     var duke = before.duke
     var location = before.location
     var trek = before.trek
+    var riding = before.riding
     var rental = before.rental
 
     /** The state as this turn has left it so far. */
-    fun state(): GameState = before.copy(duke = duke, location = location, usedToday = usedToday)
+    fun state(): GameState = before.copy(duke = duke, location = location, usedToday = usedToday, ship = ship, riding = riding)
 
     /** Gear that broke down during this action. */
     val broken = mutableListOf<GearRef>()
@@ -459,6 +555,7 @@ private class Turn(private val before: GameState, private val hand: DiceHand, va
             duke = duke,
             location = location,
             trek = trek,
+            riding = riding,
             rental = rental,
             log = before.log + entries,
         )
