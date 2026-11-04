@@ -38,10 +38,19 @@ import kotlinx.coroutines.delay
 /**
  * The engine's dice shown on screen (SMUG-28): every roll the engine makes plays the irondroid roll
  * sound, throws the 3D dice so they land on the faces the engine chose, and then shows what was
- * rolled, with its modifier, while the dice stay on the table. Without a [table] (previews, or a
- * page that failed to load) the roll is only heard and written.
+ * rolled, with its modifier, while the dice stay on the table. The player's [mode] says which rolls
+ * get the 3D dice (SMUG-29); the rest are only heard and written, as without a [table] (previews,
+ * or a page that failed to load).
  */
-class AnimatedDice(private val table: DiceTable?, private val sound: DiceSound?) : DiceHand {
+class AnimatedDice(
+    private val table: DiceTable?,
+    private val sound: DiceSound?,
+    private val settings: DiceSettings? = null,
+) : DiceHand {
+    /** Which rolls the 3D dice show (PRD P7). */
+    var mode: DiceMode by mutableStateOf(settings?.mode ?: DiceMode.IMPORTANT)
+        private set
+
     /** The roll the dice show now, until it is read; null between rolls. */
     var shown: ShownRoll? by mutableStateOf(null)
         private set
@@ -52,13 +61,18 @@ class AnimatedDice(private val table: DiceTable?, private val sound: DiceSound?)
         // The player's own dice are already on their table.
         if (roll.source == RollSource.PHYSICAL) return
         sound?.play()
-        table?.roll(ThrownDie.of(roll.values))
+        if (mode.throws(roll.request)) table?.roll(ThrownDie.of(roll.values))
         shown = ShownRoll(roll, ++count)
     }
 
-    /** Loads the dice page ahead of the first roll. */
+    fun changeMode(mode: DiceMode) {
+        this.mode = mode
+        settings?.mode = mode
+    }
+
+    /** Loads the dice page ahead of the first roll, unless the 3D dice are off. */
     fun preload() {
-        table?.preload()
+        if (mode != DiceMode.NONE) table?.preload()
     }
 
     internal fun read(roll: ShownRoll) {

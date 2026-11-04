@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.ComposeView
 import com.starsmuggler.dice.DiceSound
 import com.starsmuggler.dice.DiceTable
 import com.starsmuggler.ui.dice.AnimatedDice
+import com.starsmuggler.ui.dice.DiceSettings
 import com.starsmuggler.ui.dice.LocalDice
 import com.starsmuggler.ui.dice.RollCaption
 import com.starsmuggler.ui.main.MainScreen
@@ -40,7 +41,7 @@ class MainActivity : ComponentActivity() {
         val root = FrameLayout(this)
         diceTable = DiceTable(root)
         diceSound = DiceSound(this)
-        val dice = AnimatedDice(diceTable, diceSound)
+        val dice = AnimatedDice(diceTable, diceSound, DiceSettings(this))
         val composeView = ComposeView(this).apply {
             setContent {
                 // The page loads while the game does, so the first roll does not wait for it.
