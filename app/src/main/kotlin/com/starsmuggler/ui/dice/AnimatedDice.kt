@@ -28,11 +28,13 @@ import com.starsmuggler.dice.DiceTable
 import com.starsmuggler.dice.ThrownDie
 import com.starsmuggler.engine.dice.DiceHand
 import com.starsmuggler.engine.dice.DiceRoll
+import com.starsmuggler.engine.dice.RollRequest
 import com.starsmuggler.engine.dice.RollSource
 import com.starsmuggler.ui.Formats
 import com.starsmuggler.ui.currentLocale
 import com.starsmuggler.ui.theme.Ink
 import com.starsmuggler.ui.theme.Paper
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 
 /**
@@ -40,7 +42,8 @@ import kotlinx.coroutines.delay
  * sound, throws the 3D dice so they land on the faces the engine chose, and then shows what was
  * rolled, with its modifier, while the dice stay on the table. The player's [mode] says which rolls
  * get the 3D dice (SMUG-29); the rest are only heard and written, as without a [table] (previews,
- * or a page that failed to load).
+ * or a page that failed to load). With [ownDice] the player rolls on their own table and types the
+ * faces in (SMUG-30).
  */
 class AnimatedDice(
     private val table: DiceTable?,
@@ -51,18 +54,44 @@ class AnimatedDice(
     var mode: DiceMode by mutableStateOf(settings?.mode ?: DiceMode.IMPORTANT)
         private set
 
+    /** The player rolls their own dice and enters the faces (PRD P7). */
+    var ownDice: Boolean by mutableStateOf(settings?.ownDice ?: false)
+        private set
+
+    /** A roll of the player's own dice waiting for its faces; null when none is. */
+    var pending: PendingOwnRoll? by mutableStateOf(null)
+        private set
+
     /** The roll the dice show now, until it is read; null between rolls. */
     var shown: ShownRoll? by mutableStateOf(null)
         private set
 
     private var count = 0
 
+    /** Waits for the faces of the player's dice; cancelling the entry cancels the action. */
+    override suspend fun physical(request: RollRequest): List<Int>? {
+        if (!ownDice) return null
+        val roll = PendingOwnRoll(request, CompletableDeferred())
+        pending = roll
+        try {
+            return roll.answer.await()
+        } finally {
+            if (pending == roll) pending = null
+        }
+    }
+
     override suspend fun show(roll: DiceRoll) {
-        // The player's own dice are already on their table.
-        if (roll.source == RollSource.PHYSICAL) return
-        sound?.play()
-        if (mode.throws(roll.request)) table?.roll(ThrownDie.of(roll.values))
+        // The player's own dice are already on their table: only what they entered is written.
+        if (roll.source == RollSource.APP) {
+            sound?.play()
+            if (mode.throws(roll.request)) table?.roll(ThrownDie.of(roll.values))
+        }
         shown = ShownRoll(roll, ++count)
+    }
+
+    fun changeOwnDice(ownDice: Boolean) {
+        this.ownDice = ownDice
+        settings?.ownDice = ownDice
     }
 
     fun changeMode(mode: DiceMode) {
@@ -79,6 +108,9 @@ class AnimatedDice(
         if (shown == roll) shown = null
     }
 }
+
+/** A roll of the player's own dice: the [answer] gets the faces, or is cancelled with the action. */
+class PendingOwnRoll(val request: RollRequest, val answer: CompletableDeferred<List<Int>>)
 
 /** One roll on screen; [id] tells apart two rolls with the same faces. */
 data class ShownRoll(val roll: DiceRoll, val id: Int)

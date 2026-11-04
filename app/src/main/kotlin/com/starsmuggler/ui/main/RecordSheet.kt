@@ -107,6 +107,7 @@ fun RecordSheet(session: GameSession, game: GameState) {
             )
             if (editing) Text(stringResource(R.string.sheet_edit_hint), style = MaterialTheme.typography.bodySmall, color = InkFaded)
             session.rejection?.let { Text(stringResource(rejectionText(it)), style = TeletypeStyles.small, color = RocketRed) }
+            if (session.rollCancelled) Text(stringResource(R.string.roll_cancelled), style = TeletypeStyles.small, color = RocketRed)
             when (tab) {
                 SheetTab.Duke -> DukeTab(session, game, editing, edit)
                 SheetTab.Ship -> ShipTab(session, game, editing, edit)

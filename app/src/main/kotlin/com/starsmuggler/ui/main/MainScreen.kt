@@ -286,6 +286,7 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         session.rejection?.let { Text(stringResource(rejectionText(it)), style = TeletypeStyles.small, color = RocketRed) }
+        if (session.rollCancelled) Text(stringResource(R.string.roll_cancelled), style = TeletypeStyles.small, color = RocketRed)
         if (session.lastEntries.isNotEmpty()) {
             RecordCard(stringResource(R.string.bridge_last_result)) {
                 for (entry in session.lastEntries) {
@@ -559,6 +560,7 @@ private fun MockPane(title: Int, body: Int, extra: @Composable () -> Unit = {}) 
     Column(
         Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
