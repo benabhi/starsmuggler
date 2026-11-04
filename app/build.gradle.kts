@@ -11,8 +11,8 @@ android {
         applicationId = "com.starsmuggler"
         minSdk = 26
         targetSdk = 36
-        versionCode = 17
-        versionName = "0.2.4"
+        versionCode = 18
+        versionName = "0.2.5"
     }
 
     buildTypes {

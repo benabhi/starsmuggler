@@ -270,4 +270,15 @@
     <string name="engine_log_principal_paid">Paso %1$s · Pagados %2$s de capital; se deben %3$s</string>
     <string name="engine_log_loan_paid_off">Paso %1$s · ¡Préstamo pagado por completo!</string>
     <string name="engine_log_cash_adjusted">Paso %1$s · Efectivo %2$s, queda %3$s</string>
+    <string name="engine_slots">Partidas guardadas</string>
+    <string name="engine_slots_hint">Se guarda sola después de cada acción en la ranura activa. No hay deshacer.</string>
+    <string name="engine_slot">Ranura %1$s</string>
+    <string name="engine_slot_active">Ranura %1$s · en juego</string>
+    <string name="engine_slot_empty">Vacía</string>
+    <string name="engine_slot_damaged">Dañada, no se puede leer: %1$s</string>
+    <string name="engine_slot_saved">%1$s · %2$s · Astucia %3$s · guardada %4$s</string>
+    <string name="engine_slot_load">Jugar esta</string>
+    <string name="engine_slot_use">Usar esta ranura</string>
+    <string name="engine_slot_delete">Borrar</string>
+    <string name="engine_confirm_replace">La ranura %1$s tiene una partida: tocá «Nueva partida» otra vez para reemplazarla.</string>
 </resources>
