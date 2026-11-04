@@ -110,6 +110,12 @@ fun logText(entry: LogEntry, game: GameState, content: LoadedContent): String {
             stringResource(R.string.engine_log_day_ended_overtime, step, Formats.integer(entry.day, locale), hoursText(entry.overtime))
         }
         is LogEntry.WeekEnded -> stringResource(R.string.engine_log_week_ended, step, Formats.integer(entry.week, locale))
+        is LogEntry.ShipMoved -> stringResource(
+            R.string.log_ship_moved,
+            step,
+            shipPositionText(entry.from, content),
+            shipPositionText(entry.to, content),
+        )
         is LogEntry.TableResult -> stringResource(
             R.string.engine_log_table,
             step,
@@ -156,6 +162,9 @@ fun rejectionText(reason: Rejection): Int = when (reason) {
     Rejection.ALREADY_MAINTAINED -> R.string.engine_rejected_maintained
     Rejection.INVALID_VALUE -> R.string.rejected_invalid_value
     Rejection.UNKNOWN_ID -> R.string.rejected_unknown_id
+    Rejection.NO_HYPERCHARGES -> R.string.rejected_no_hypercharges
+    Rejection.NOT_ABOARD -> R.string.rejected_not_aboard
+    Rejection.UNREACHABLE -> R.string.rejected_unreachable
     Rejection.GAME_OVER -> R.string.rejected_game_over
 }
 

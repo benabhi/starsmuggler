@@ -36,6 +36,9 @@ sealed interface Action {
     /** End the game (r203f): retire, or record Duke's death. */
     data class EndGame(val ending: Ending) : Action
 
+    /** Move the starship one hour with its sublight drive to [to] (r212g). */
+    data class Sublight(val to: ShipPosition) : Action
+
     /** Close the day: end-of-day checks, end of the week every ten days, and the next morning (r203). */
     data object EndDay : Action
 }
@@ -77,6 +80,15 @@ enum class Rejection {
 
     /** An equipment or system id the game does not have. */
     UNKNOWN_ID,
+
+    /** No hypercharge aboard: the sublight drive needs at least one (r212f). */
+    NO_HYPERCHARGES,
+
+    /** Duke is not where the starship is, so he cannot fly it. */
+    NOT_ABOARD,
+
+    /** The starship cannot get there in one sublight move (r212g). */
+    UNREACHABLE,
 
     /** The game has ended: nothing more can be done in it. */
     GAME_OVER,

@@ -17,6 +17,7 @@ import com.starsmuggler.engine.Engine
 import com.starsmuggler.engine.GameState
 import com.starsmuggler.engine.LogEntry
 import com.starsmuggler.engine.Rejection
+import com.starsmuggler.engine.ShipPosition
 import com.starsmuggler.engine.dice.DiceHand
 import com.starsmuggler.ui.sound.SoundBoard
 import com.starsmuggler.ui.sound.SoundEffect
@@ -123,6 +124,9 @@ class GameSession(
         val state = game ?: return Rejection.NO_TIME
         return engine.check(state, action)
     }
+
+    /** Every place the starship can reach with one sublight move (r212g). */
+    fun sublightDestinations(): List<ShipPosition> = game?.let { engine.sublightDestinations(it) } ?: emptyList()
 
     fun perform(action: Action) = run {
         val state = checkNotNull(game)

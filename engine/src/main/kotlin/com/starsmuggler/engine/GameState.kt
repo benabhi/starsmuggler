@@ -157,6 +157,11 @@ sealed interface LogEntry {
         val debt: Int,
     ) : LogEntry
 
+    /** The starship moved one hour with its sublight drive [from] one place [to] another (r212g). */
+    @Serializable
+    @SerialName("ship_moved")
+    data class ShipMoved(override val step: Int, val from: ShipPosition, val to: ShipPosition) : LogEntry
+
     /** The result of a modified roll [total] on [table], in its row [key]; null when no entry covers the roll. */
     @Serializable
     @SerialName("table")

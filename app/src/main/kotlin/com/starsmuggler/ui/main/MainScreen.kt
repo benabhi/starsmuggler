@@ -61,6 +61,7 @@ import com.starsmuggler.engine.won
 import com.starsmuggler.engine.Clock
 import com.starsmuggler.engine.GameState
 import com.starsmuggler.engine.Loan
+import com.starsmuggler.engine.ShipPosition
 import com.starsmuggler.engine.content.Air
 import com.starsmuggler.ui.Formats
 import com.starsmuggler.ui.currentLocale
@@ -72,7 +73,9 @@ import com.starsmuggler.ui.sound.SoundEffect
 import com.starsmuggler.ui.sound.SoundOptions
 import com.starsmuggler.ui.game.endingText
 import com.starsmuggler.ui.game.hoursText
+import com.starsmuggler.ui.game.locationText
 import com.starsmuggler.ui.game.logText
+import com.starsmuggler.ui.game.shipPositionText
 import com.starsmuggler.ui.game.rejectionText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -245,13 +248,16 @@ internal fun LoanLine(game: GameState) {
     Text(text, style = TeletypeStyles.small, color = if (urgent || due == 1) RocketRed else InkFaded)
 }
 
-/** Where Duke is: system, area and its air (r204f). */
+/** Where Duke is: system, area or the starship's place in space, and the air (r204f, r212g). */
 @Composable
 private fun LocationLine(game: GameState, content: LoadedContent) {
     val place = game.location
     val area = content.game.tiles[place.tile]?.areas?.firstOrNull { it.id == place.area }
     val planet = content.game.systems[place.system]?.planets?.firstOrNull { it.number == place.planet }
+    val inSpace = game.ship.position !is ShipPosition.InArea
     val air = when {
+        // The starship gives life support to whoever is aboard (r213).
+        inSpace -> R.string.air_aboard
         area?.ownAir == true -> R.string.air_own
         planet?.air == Air.BAD -> R.string.air_bad
         planet?.air == Air.NONE -> R.string.air_none
@@ -265,7 +271,11 @@ private fun LocationLine(game: GameState, content: LoadedContent) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            stringResource(R.string.location_line, content.names.system(place.system), area?.let { content.names.areaType(it.type.key) } ?: place.area).uppercase(),
+            stringResource(
+                R.string.location_line,
+                content.names.system(game.ship.position.system),
+                if (inSpace) shipPositionText(game.ship.position, content) else locationText(place, content),
+            ).uppercase(),
             style = MaterialTheme.typography.labelMedium,
             color = Ink,
             modifier = Modifier.weight(1f),
@@ -282,6 +292,7 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
     var endDialog by remember { mutableStateOf(false) }
     var newGameDialog by remember { mutableStateOf(false) }
     var payDialog by remember { mutableStateOf(false) }
+    var pilotDialog by remember { mutableStateOf(false) }
     val enabled = !session.busy
     Column(
         Modifier
@@ -328,6 +339,16 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
             disabledReason = session.check(Action.PayPrincipal(1))?.let { stringResource(rejectionText(it)) },
             onClick = { if (enabled) payDialog = true },
         )
+        val destinations = session.sublightDestinations()
+        ActionCard(
+            title = stringResource(R.string.bridge_pilot),
+            description = stringResource(R.string.bridge_pilot_desc),
+            cost = formatHours(1),
+            ruleRef = "r212g",
+            // Any destination tells whether the ship can move at all now.
+            disabledReason = destinations.firstOrNull()?.let { session.check(Action.Sublight(it)) }?.let { stringResource(rejectionText(it)) },
+            onClick = { if (enabled) pilotDialog = true },
+        )
         for (coming in comingActions) {
             ActionCard(
                 title = stringResource(coming.title),
@@ -358,6 +379,7 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
     }
     if (eventDialog) EventDialog(session, game, onClose = { eventDialog = false })
     if (payDialog) PayDialog(session, game, onClose = { payDialog = false })
+    if (pilotDialog) PilotDialog(session, game, session.sublightDestinations(), onClose = { pilotDialog = false })
     if (endDialog) EndGameDialog(session, onClose = { endDialog = false })
     if (newGameDialog) NewGameDialog(session, onClose = { newGameDialog = false })
 }
@@ -476,6 +498,39 @@ private fun EventDialog(session: GameSession, game: GameState, onClose: () -> Un
                         onClose()
                     },
                 )
+            }
+            StampButton(stringResource(R.string.engine_cancel), onClick = onClose, modifier = Modifier.padding(vertical = 10.dp))
+        }
+    }
+}
+
+/** One hour of sublight flight to a place the starship can reach from where it is (r212g). */
+@Composable
+private fun PilotDialog(session: GameSession, game: GameState, destinations: List<ShipPosition>, onClose: () -> Unit) {
+    Dialog(onDismissRequest = onClose) {
+        RecordCard(stringResource(R.string.bridge_pilot)) {
+            Text(
+                stringResource(R.string.pilot_hint, shipPositionText(game.ship.position, session.content)),
+                style = MaterialTheme.typography.bodySmall,
+                color = InkFaded,
+                modifier = Modifier.padding(vertical = 6.dp),
+            )
+            Column(
+                Modifier
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                for (destination in destinations) {
+                    StampButton(
+                        shipPositionText(destination, session.content),
+                        onClick = {
+                            session.perform(Action.Sublight(destination))
+                            onClose()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
             StampButton(stringResource(R.string.engine_cancel), onClick = onClose, modifier = Modifier.padding(vertical = 10.dp))
         }
