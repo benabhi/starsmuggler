@@ -567,4 +567,15 @@
     <string name="rejected_in_space">Duke está en el espacio: el viaje terrestre sale de un área.</string>
     <string name="rejected_no_fuel">No alcanza el combustible (COMB) de la nave auxiliar.</string>
     <string name="rejected_gravity">Con gravedad 10 o más la nave auxiliar no puede subir a la órbita.</string>
+
+    <!-- Planet map (SMUG-41, P4) -->
+    <string name="map_view_planet">Planeta</string>
+    <string name="map_planet_title">%1$s · %2$s</string>
+    <string name="map_planet_legend">Elegí cómo viajar: los aros turquesa son los destinos a tu alcance. Tocá un área para ver sus datos e ir. Deslizá para ver todo el planeta.</string>
+    <string name="map_mark_duke">DUKE</string>
+    <string name="map_mark_ship">NAVE</string>
+    <string name="map_mark_boat">AUX</string>
+    <string name="map_way_starship">Nave estelar</string>
+    <string name="map_area_unreachable">Con este medio no se llega a esta área desde donde estás.</string>
+    <string name="map_go">Ir · %1$s</string>
 </resources>
