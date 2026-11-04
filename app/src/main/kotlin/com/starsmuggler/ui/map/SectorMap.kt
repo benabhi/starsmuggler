@@ -58,24 +58,28 @@ import kotlin.math.roundToInt
  * is, which systems a jump reaches with its hypercharges and risk (r212b-c, PRD P12), and where
  * Duke is wanted (r228). Touching a system shows it, and jumps there when it can.
  */
+/** The three levels of map (PRD P4). */
+private enum class MapView(val label: Int) {
+    PLANET(R.string.map_view_planet),
+    SYSTEM(R.string.map_view_system),
+    SECTOR(R.string.map_view_sector),
+}
+
 @Composable
 fun MapPane(session: GameSession, game: GameState) {
-    var sector by rememberSaveable { mutableStateOf(false) }
+    var view by rememberSaveable { mutableStateOf(MapView.PLANET) }
     var place by rememberSaveable { mutableStateOf<Int?>(null) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            StampButton(
-                stringResource(R.string.map_view_system),
-                style = if (sector) StampStyle.Outline else StampStyle.Solid,
-                onClick = { sector = false },
-            )
-            StampButton(
-                stringResource(R.string.map_view_sector),
-                style = if (sector) StampStyle.Solid else StampStyle.Outline,
-                onClick = { sector = true },
-            )
+            for (v in MapView.entries) {
+                StampButton(stringResource(v.label), style = if (v == view) StampStyle.Solid else StampStyle.Outline, onClick = { view = v })
+            }
         }
-        if (sector) SectorMap(session, game) else SystemMap(session, game, place, onSelect = { place = it })
+        when (view) {
+            MapView.PLANET -> PlanetMap(session, game)
+            MapView.SYSTEM -> SystemMap(session, game, place, onSelect = { place = it })
+            MapView.SECTOR -> SectorMap(session, game)
+        }
     }
 }
 
