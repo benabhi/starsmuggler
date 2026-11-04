@@ -6,6 +6,13 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.2.6] - 2026-11-03
+
+### Changed
+
+- Add .gitattributes so line endings stay LF and git stops warning (SMUG-82)
+- Keep release.ps1 going when git writes warnings to stderr (SMUG-82)
+
 ## [0.2.5] - 2026-11-03
 
 ### Added
