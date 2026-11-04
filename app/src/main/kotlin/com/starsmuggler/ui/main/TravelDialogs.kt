@@ -37,6 +37,7 @@ import com.starsmuggler.ui.game.GameSession
 import com.starsmuggler.ui.game.hoursText
 import com.starsmuggler.ui.game.locationText
 import com.starsmuggler.ui.game.rejectionText
+import com.starsmuggler.ui.game.shipPositionText
 import com.starsmuggler.ui.game.travelModeText
 import com.starsmuggler.ui.theme.Ink
 import com.starsmuggler.ui.theme.InkFaded
@@ -167,4 +168,85 @@ internal fun TrekLine(game: GameState, session: GameSession) {
         style = TeletypeStyles.small,
         color = RocketRed,
     )
+}
+
+/** The ship's boat: out of the starship, flown with its time and fuel, and back in (r214). */
+@Composable
+internal fun BoatDialog(session: GameSession, game: GameState, onClose: () -> Unit) {
+    val locale = currentLocale()
+    val boat = game.ship.boat
+    Dialog(onDismissRequest = onClose) {
+        RecordCard(stringResource(R.string.bridge_boat)) {
+            val position = boat?.position
+            Text(
+                if (position == null) {
+                    stringResource(R.string.boat_hint_stowed)
+                } else {
+                    stringResource(R.string.boat_hint_out, shipPositionText(position, session.content), Formats.integer(boat.fuel, locale))
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = InkFaded,
+                modifier = Modifier.padding(vertical = 6.dp),
+            )
+            val toggle = if (position == null) Action.LaunchBoat else Action.StowBoat
+            val toggleWhy = session.check(toggle)
+            StampButton(
+                stringResource(if (position == null) R.string.boat_launch else R.string.boat_stow),
+                style = StampStyle.Solid,
+                enabled = toggleWhy == null && !session.busy,
+                onClick = { session.perform(toggle) },
+            )
+            if (position == null) toggleWhy?.let { Text(stringResource(rejectionText(it)), style = TeletypeStyles.small, color = RocketRed) }
+            Column(
+                Modifier
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState())
+                    .padding(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                val reasons = mutableListOf<Int>()
+                for (move in session.boatMoves()) {
+                    val action = Action.MoveBoat(move.to)
+                    val why = session.check(action)
+                    if (why != null) reasons += rejectionText(why)
+                    StampButton(
+                        stringResource(R.string.boat_move, shipPositionText(move.to, session.content), hoursText(move.tenths), Formats.integer(move.fuel, locale)),
+                        enabled = why == null && !session.busy,
+                        onClick = {
+                            session.perform(action)
+                            onClose()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                for (reason in reasons.distinct()) Text(stringResource(reason), style = TeletypeStyles.small, color = RocketRed)
+            }
+            StampButton(stringResource(R.string.engine_cancel), onClick = onClose, modifier = Modifier.padding(vertical = 10.dp))
+        }
+    }
+}
+
+/** A seat on the orbital shuttle to another spaceport or station of the planet (r215a). */
+@Composable
+internal fun ShuttleDialog(session: GameSession, onClose: () -> Unit) {
+    Dialog(onDismissRequest = onClose) {
+        RecordCard(stringResource(R.string.bridge_shuttle)) {
+            Text(stringResource(R.string.shuttle_hint), style = MaterialTheme.typography.bodySmall, color = InkFaded, modifier = Modifier.padding(vertical = 6.dp))
+            for (stop in session.shuttleStops()) {
+                val action = Action.Shuttle(stop)
+                val why = session.check(action)
+                StampButton(
+                    locationText(stop, session.content),
+                    enabled = why == null && !session.busy,
+                    onClick = {
+                        session.perform(action)
+                        onClose()
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                )
+                why?.let { Text(stringResource(rejectionText(it)), style = TeletypeStyles.small, color = RocketRed) }
+            }
+            StampButton(stringResource(R.string.engine_cancel), onClick = onClose, modifier = Modifier.padding(vertical = 10.dp))
+        }
+    }
 }

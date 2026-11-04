@@ -60,7 +60,9 @@ import com.starsmuggler.engine.Ending
 import com.starsmuggler.engine.won
 import com.starsmuggler.engine.Clock
 import com.starsmuggler.engine.GameState
+import com.starsmuggler.engine.Craft
 import com.starsmuggler.engine.JumpOption
+import com.starsmuggler.engine.dukeInSpace
 import com.starsmuggler.engine.Loan
 import com.starsmuggler.engine.ShipPosition
 import com.starsmuggler.engine.content.Air
@@ -256,7 +258,8 @@ private fun LocationLine(game: GameState, content: LoadedContent) {
     val place = game.location
     val area = content.game.tiles[place.tile]?.areas?.firstOrNull { it.id == place.area }
     val planet = content.game.systems[place.system]?.planets?.firstOrNull { it.number == place.planet }
-    val inSpace = game.ship.position !is ShipPosition.InArea
+    val inSpace = game.dukeInSpace
+    val craft = if (game.riding == Craft.BOAT) game.ship.boat?.position ?: game.ship.position else game.ship.position
     val air = when {
         // The starship gives life support to whoever is aboard (r213).
         inSpace -> R.string.air_aboard
@@ -275,8 +278,8 @@ private fun LocationLine(game: GameState, content: LoadedContent) {
         Text(
             stringResource(
                 R.string.location_line,
-                content.names.system(game.ship.position.system),
-                if (inSpace) shipPositionText(game.ship.position, content) else locationText(place, content),
+                content.names.system(if (inSpace) craft.system else place.system),
+                if (inSpace) shipPositionText(craft, content) else locationText(place, content),
             ).uppercase(),
             style = MaterialTheme.typography.labelMedium,
             color = Ink,
@@ -297,6 +300,8 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
     var pilotDialog by remember { mutableStateOf(false) }
     var jumpDialog by remember { mutableStateOf(false) }
     var travelDialog by remember { mutableStateOf(false) }
+    var boatDialog by remember { mutableStateOf(false) }
+    var shuttleDialog by remember { mutableStateOf(false) }
     var rentDialog by remember { mutableStateOf(false) }
     val enabled = !session.busy
     Column(
@@ -374,6 +379,24 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
             disabledReason = destinations.firstOrNull()?.let { session.check(Action.Sublight(it)) }?.let { stringResource(rejectionText(it)) },
             onClick = { if (enabled) pilotDialog = true },
         )
+        ActionCard(
+            title = stringResource(R.string.bridge_boat),
+            description = stringResource(R.string.bridge_boat_desc, Formats.integer(game.ship.boat?.fuel ?: 0, currentLocale())),
+            cost = stringResource(R.string.cost_by_route),
+            ruleRef = "r214",
+            disabledReason = if (game.ship.boat == null) stringResource(R.string.engine_rejected_gear_missing) else null,
+            onClick = { if (enabled) boatDialog = true },
+        )
+        if (session.shuttleStops().isNotEmpty()) {
+            ActionCard(
+                title = stringResource(R.string.bridge_shuttle),
+                description = stringResource(R.string.bridge_shuttle_desc),
+                cost = formatHours(1),
+                ruleRef = "r215a",
+                disabledReason = null,
+                onClick = { if (enabled) shuttleDialog = true },
+            )
+        }
         val jumps = session.jumpOptions()
         ActionCard(
             title = stringResource(R.string.bridge_jump),
@@ -414,6 +437,8 @@ private fun BridgePane(session: GameSession, game: GameState, onRecords: () -> U
     }
     if (eventDialog) EventDialog(session, game, onClose = { eventDialog = false })
     if (payDialog) PayDialog(session, game, onClose = { payDialog = false })
+    if (boatDialog) BoatDialog(session, game, onClose = { boatDialog = false })
+    if (shuttleDialog) ShuttleDialog(session, onClose = { shuttleDialog = false })
     if (travelDialog) TravelDialog(session, game, onRent = { rentDialog = true }, onClose = { travelDialog = false })
     if (rentDialog) RentDialog(session, game, onClose = { rentDialog = false })
     if (jumpDialog) JumpDialog(session, game, session.jumpOptions(), onClose = { jumpDialog = false })
@@ -564,6 +589,22 @@ private fun PilotDialog(session: GameSession, game: GameState, destinations: Lis
                         shipPositionText(destination, session.content),
                         onClick = {
                             session.perform(Action.Sublight(destination))
+                            onClose()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                val flights = session.flights()
+                if (flights.isNotEmpty()) {
+                    Text(stringResource(R.string.pilot_flights), style = MaterialTheme.typography.bodySmall, color = InkFaded, modifier = Modifier.padding(top = 6.dp))
+                }
+                for (flight in flights) {
+                    val fly = Action.Fly(flight.to)
+                    StampButton(
+                        stringResource(R.string.travel_mode_time, locationText(flight.to, session.content), hoursText(flight.tenths)),
+                        enabled = session.check(fly) == null,
+                        onClick = {
+                            session.perform(fly)
                             onClose()
                         },
                         modifier = Modifier.fillMaxWidth(),

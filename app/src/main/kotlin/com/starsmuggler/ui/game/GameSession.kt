@@ -15,7 +15,10 @@ import com.starsmuggler.engine.AstuciaSetup
 import com.starsmuggler.engine.Ending
 import com.starsmuggler.engine.Engine
 import com.starsmuggler.engine.GameState
+import com.starsmuggler.engine.BoatMove
+import com.starsmuggler.engine.Flight
 import com.starsmuggler.engine.JumpOption
+import com.starsmuggler.engine.Location
 import com.starsmuggler.engine.LandRoute
 import com.starsmuggler.engine.LogEntry
 import com.starsmuggler.engine.Rejection
@@ -129,6 +132,15 @@ class GameSession(
 
     /** Every place the starship can reach with one sublight move (r212g). */
     fun sublightDestinations(): List<ShipPosition> = game?.let { engine.sublightDestinations(it) } ?: emptyList()
+
+    /** The areas the starship can fly to over its planet (r203a). */
+    fun flights(): List<Flight> = game?.let { engine.flights(it) } ?: emptyList()
+
+    /** Where the boat can fly from where it is (r214b). */
+    fun boatMoves(): List<BoatMove> = game?.let { engine.boatMoves(it) } ?: emptyList()
+
+    /** The stops an orbital shuttle takes Duke to (r215a). */
+    fun shuttleStops(): List<Location> = game?.let { engine.shuttleStops(it) } ?: emptyList()
 
     /** The travel lines out of Duke's area (r204g). */
     fun landRoutes(): List<LandRoute> = game?.let { engine.landRoutes(it) } ?: emptyList()

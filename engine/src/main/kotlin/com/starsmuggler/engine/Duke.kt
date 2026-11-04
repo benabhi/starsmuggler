@@ -65,6 +65,8 @@ data class Boat(
     /** Fuel units, FUEL (r211). */
     val fuel: Int = 15,
     val broken: Boolean = false,
+    /** Where it flies on its own, or null while stowed in the starship (r214a). */
+    val position: ShipPosition? = null,
 )
 
 /** Where the player is: an area of a tile of a planet, or of the asteroid belt, of a system (r204, r206). */

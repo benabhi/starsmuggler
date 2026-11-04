@@ -28,6 +28,8 @@ data class GameState(
     val cash: Int,
     val loan: Loan = Loan(),
     val location: Location = Location.START,
+    /** The craft Duke rides when he is in space; on the ground he is in [location] (r212, r214). */
+    val riding: Craft? = Craft.STARSHIP,
     /** A walk along a single line that takes several days, while it lasts (r203a). */
     val trek: Trek? = null,
     /** The commercial vehicle rented today, if any (r215b). */
@@ -234,6 +236,21 @@ sealed interface LogEntry {
     @Serializable
     @SerialName("bad_air_breakdown")
     data class BadAirBreakdown(override val step: Int, val gear: GearRef) : LogEntry
+
+    /** The ship's boat left the starship, or went back into it (r214a). */
+    @Serializable
+    @SerialName("boat_launched")
+    data class BoatLaunched(override val step: Int, val stowed: Boolean = false) : LogEntry
+
+    /** The boat flew [from] one place [to] another, burning [fuel] units of fuel (r214b). */
+    @Serializable
+    @SerialName("boat_moved")
+    data class BoatMoved(override val step: Int, val from: ShipPosition, val to: ShipPosition, val fuel: Int) : LogEntry
+
+    /** Duke took the orbital shuttle [from] one stop [to] another for [sees] (r215a). */
+    @Serializable
+    @SerialName("shuttle")
+    data class ShuttleTaken(override val step: Int, val from: Location, val to: Location, val sees: Int) : LogEntry
 
     /** The result of a modified roll [total] on [table], in its row [key]; null when no entry covers the roll. */
     @Serializable

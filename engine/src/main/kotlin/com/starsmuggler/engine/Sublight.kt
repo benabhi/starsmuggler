@@ -113,13 +113,3 @@ internal class Sublight(private val content: GameContent) {
         const val MOVE = Clock.HOUR
     }
 }
-
-/**
- * Duke is aboard the starship: he flies it alone, so he is with it wherever it goes, and when it
- * sits in an area he must be in that same area to take off.
- */
-val GameState.dukeAboard: Boolean
-    get() = !ship.destroyed && trek == null && when (val position = ship.position) {
-        is ShipPosition.InArea -> position.location == location
-        else -> true
-    }
