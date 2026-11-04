@@ -6,6 +6,14 @@ Each line names its Lific issue.
 
 This file is generated from git by `scripts\changelog.ps1`: do not edit it by hand.
 
+## [0.4.0] - 2026-11-03
+
+### Added
+
+- Add synthesized sound effects with an on/off option (SMUG-31)
+- Replace irondroid's dice clip with a synthesized roll (SMUG-31)
+- Chime when the cash goes up (SMUG-31)
+
 ## [0.3.3] - 2026-11-03
 
 ### Added
